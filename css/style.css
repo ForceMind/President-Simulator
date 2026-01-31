@@ -134,6 +134,78 @@ body {
     margin-bottom: 5px;
 }
 
+/* 事件选项 */
+.event-choices {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+}
+.choice-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid #bdc3c7;
+    color: white;
+    padding: 8px;
+    border-radius: 6px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.choice-btn:hover {
+    background: rgba(255,255,255,0.2);
+    border-color: var(--accent-gold);
+}
+
+/* 持仓卡片 */
+.positions-panel {
+    margin-bottom: 15px;
+    background: rgba(0,0,0,0.2);
+    padding: 10px;
+    border-radius: 8px;
+}
+.position-card {
+    background: var(--panel-bg);
+    border: 1px solid #34495e;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+.close-pos-btn {
+    width: 100%;
+    background: #e74c3c;
+    border: none;
+    color: white;
+    padding: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* 教程遮罩 */
+.tutorial-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7);
+    z-index: 3000;
+    pointer-events: none; /* 让点击穿透到高亮区域 */
+}
+.tutorial-box {
+    position: fixed;
+    background: white;
+    color: #333;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 300px;
+    z-index: 3001;
+    pointer-events: auto;
+    box-shadow: 0 0 20px rgba(241, 196, 15, 0.5);
+}
+.tutorial-highlight {
+    position: relative;
+    z-index: 3002;
+    box-shadow: 0 0 0 9999px rgba(0,0,0,0.7); /* 反向遮罩 */
+    border-radius: 8px;
+}
+
 /* 移动端底部下一步按钮 */
 .mobile-next-turn-container {
     position: fixed;

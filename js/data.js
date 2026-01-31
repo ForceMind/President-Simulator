@@ -103,14 +103,45 @@ const EVENTS_DB = [
     { id: 105, title: "能源危机", desc: "油价飙升，通胀压力巨大。", effect: { commodity: "bull", market: "bear", approval: -5 } },
     
     // --- 灾难与疫情 ---
-    { id: 201, title: "全球大流行病", desc: "一种新型病毒席卷全球，医疗系统崩溃。", effect: { approval: -10, market: "bear", commodity: "bear" } },
-    { id: 202, title: "特大飓风袭击", desc: "南部沿海城市受灾严重，需要联邦救援。", effect: { money: -2, approval: -3 } },
+    { 
+        id: 201, 
+        title: "全球大流行病", 
+        desc: "一种新型病毒席卷全球，医疗系统面临崩溃。", 
+        choices: [
+            { text: "全面封锁", desc: "经济停摆，但控制疫情", effect: { approval: 5, money: -2, market: "crash", global_economy: "recession" } },
+            { text: "群体免疫", desc: "保持经济开放，死伤惨重", effect: { approval: -15, money: 1, market: "bull" } }
+        ]
+    },
+    { 
+        id: 202, 
+        title: "特大飓风袭击", 
+        desc: "南部沿海城市受灾严重，需要联邦救援。", 
+        choices: [
+            { text: "全力救援", desc: "拨款重建", effect: { money: -2, approval: 5 } },
+            { text: "视察灾区", desc: "只去拍照，不给钱", effect: { money: 0, approval: -5 } }
+        ]
+    },
     
     // --- 战争与地缘政治 ---
-    { id: 301, title: "恐怖袭击", desc: "本土发生重大安全事故，全国进入紧急状态。", effect: { approval: 10, market: "bear" } }, // 聚旗效应
-    { id: 302, title: "地区战争爆发", desc: "重要产油国爆发内战。", effect: { commodity: "bull", market: "bear" } },
-    { id: 303, title: "大国贸易战", desc: "关税壁垒高筑，全球供应链紧张。", effect: { market: "bear", commodity: "bull" } },
-    { id: 304, title: "盟友背叛", desc: "长期盟友倒向了竞争对手。", effect: { approval: -5 } },
+    { 
+        id: 301, 
+        title: "恐怖袭击", 
+        desc: "本土发生重大安全事故，全国进入紧急状态。", 
+        choices: [
+            { text: "反恐战争", desc: "出兵报复", effect: { approval: 10, money: -5, market: "bear" } },
+            { text: "加强安保", desc: "国内严控", effect: { approval: -2, money: -1 } }
+        ]
+    }, 
+    { id: 302, title: "地区战争爆发", desc: "重要产油国爆发内战。", effect: { commodity: "bull", market: "bear" } }, // 保持一些无选项事件作为简单突发
+    { 
+        id: 303, 
+        title: "大国贸易战", 
+        desc: "关税壁垒高筑，全球供应链紧张。", 
+        choices: [
+            { text: "加征关税", desc: "以牙还牙", effect: { market: "bear", commodity: "bull", approval: 5 } },
+            { text: "寻求谈判", desc: "妥协退让", effect: { market: "bull", approval: -5 } }
+        ]
+    },
     
     // --- 社会与丑闻 (针对性反向事件) ---
     { id: 401, title: "维基解密爆料", desc: "你的私人邮件被黑客公开，内容不堪入目。", type: "scandal", effect: { approval: -15 } },

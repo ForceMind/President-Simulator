@@ -48,6 +48,16 @@
         </div>
     </div>
 
+    <!-- 教程遮罩 -->
+    <div v-if="showTutorial" class="tutorial-overlay"></div>
+    <div v-if="showTutorial" class="tutorial-box animate__animated animate__bounceIn" :style="tutorialStyle">
+        <h3>{{ tutorialTitle }}</h3>
+        <p>{{ tutorialText }}</p>
+        <button class="next-turn-btn" style="padding: 8px; font-size: 1em;" @click="nextTutorialStep">
+            {{ tutorialStep === 4 ? '开始执政' : '下一步' }}
+        </button>
+    </div>
+
     <!-- 阶段2: 游戏主界面 -->
     <div v-if="state === 'PLAYING'" class="dashboard-grid">
         
@@ -122,11 +132,21 @@
 
         <!-- 中间：桌面与卡牌 -->
         <main class="desk-area" v-show="activeTab === 'desk' || !isMobile">
-            <!-- 突发事件栏 -->
+            <!-- 突发事件栏 (带选项) -->
             <div v-if="currentEvent" class="event-banner animate__animated animate__pulse">
-                <span>⚡ 突发:</span>
-                <strong style="margin-left: 5px;">{{ currentEvent.title }}</strong>
-                <!-- <span v-if="!isMobile" style="font-size: 0.8em; opacity: 0.8;">{{ currentEvent.desc }}</span> -->
+                <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                    <span>⚡ 突发:</span>
+                    <strong style="margin-left: 5px;">{{ currentEvent.title }}</strong>
+                </div>
+                <div style="font-size: 0.9em; margin-bottom: 10px;">{{ currentEvent.desc }}</div>
+                
+                <div v-if="currentEvent.choices" class="event-choices">
+                    <button v-for="(choice, idx) in currentEvent.choices" :key="idx" 
+                            class="choice-btn" @click="makeChoice(idx)">
+                        <div style="font-weight: bold;">{{ choice.text }}</div>
+                        <div style="font-size: 0.8em; opacity: 0.8;">{{ choice.desc }}</div>
+                    </button>
+                </div>
             </div>
 
             <div v-if="!isMobile" style="display: flex; justify-content: space-between; align-items: center;">
@@ -176,6 +196,23 @@
                 加密: <span :style="{color: cryptoTrend === 'bull' ? '#2ecc71' : (cryptoTrend === 'crash' ? '#e74c3c' : (cryptoTrend === 'bear' ? '#e67e22' : 'white'))}">{{ cryptoTrend === 'bull' ? '🚀' : (cryptoTrend === 'crash' ? '🩸 崩盘' : (cryptoTrend === 'bear' ? '🩸' : '➡️')) }}</span>
                 <br>
                 商品: <span :style="{color: commodityTrend === 'bull' ? '#2ecc71' : (commodityTrend === 'crash' ? '#e74c3c' : (commodityTrend === 'bear' ? '#e67e22' : 'white'))}">{{ commodityTrend === 'bull' ? '🔥 紧俏' : (commodityTrend === 'crash' ? '🧊 滞销' : (commodityTrend === 'bear' ? '🧊' : '➡️')) }}</span>
+            </div>
+
+            <!-- 持仓列表 -->
+            <div v-if="positions.length > 0" class="positions-panel">
+                <h4 style="margin: 10px 0;">当前持仓</h4>
+                <div v-for="(pos, idx) in positions" :key="pos.id" class="position-card">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="font-weight: bold;">{{ pos.position === 'long' ? '📈 做多' : '📉 做空' }} {{ pos.type === 'stock' ? '股市' : (pos.type === 'crypto' ? '加密' : '商品') }}</span>
+                        <span :class="pos.currentVal >= pos.amount ? 'text-green' : 'text-red'">
+                            {{ ((pos.currentVal - pos.amount)/pos.amount*100).toFixed(1) }}%
+                        </span>
+                    </div>
+                    <div style="font-size: 0.8em; color: #bdc3c7; margin: 5px 0;">
+                        市值: ${{ pos.currentVal.toFixed(2) }}亿 (本金: ${{ pos.amount }}亿)
+                    </div>
+                    <button class="close-pos-btn" @click="closePosition(idx)">平仓</button>
+                </div>
             </div>
 
             <div class="action-grid">

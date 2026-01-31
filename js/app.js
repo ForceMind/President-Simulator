@@ -51,7 +51,11 @@
                 
                 // 行为控制
                 actionsTaken: { stock: false, crypto: false, commodity: false, embezzle: false },
-                pendingInvestments: [], // 待结算投资
+                positions: [], // 持仓列表
+                
+                // 引导与教程
+                showTutorial: true,
+                tutorialStep: 1,
 
                 // 技能状态
                 skillCooldown: 0,
@@ -79,9 +83,43 @@
                 if (this.approval > 60) return 'text-green';
                 if (this.approval < 30) return 'text-red';
                 return '';
+            },
+            tutorialTitle() {
+                const titles = ['', '欢迎来到白宫', '关键数据', '政治手牌', '金融市场'];
+                return titles[this.tutorialStep];
+            },
+            tutorialText() {
+                const texts = [
+                    '',
+                    '总统先生/女士，您的目标是在48个月内积累$200亿财富，并保证支持率不崩盘。',
+                    '左侧/顶部显示您的支持率和资金。支持率决定每回合行动点(AP)，资金决定生死。',
+                    '这里是待处理的文件。打出它们会消耗AP，并影响国家和您的财富。',
+                    '这是家族基金会。您可以利用信息差在股市、加密货币或商品市场进行多空操作。记得及时平仓！'
+                ];
+                return texts[this.tutorialStep];
+            },
+            tutorialStyle() {
+                if (this.isMobile) return { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' };
+                switch(this.tutorialStep) {
+                    case 2: return { top: '20px', left: '270px' };
+                    case 3: return { top: '30%', left: '30%' };
+                    case 4: return { top: '30%', right: '300px' };
+                    default: return { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' };
+                }
             }
         },
         methods: {
+            checkMobile() {
+                this.isMobile = window.innerWidth < 900;
+            },
+            nextTutorialStep() {
+                if (this.tutorialStep < 4) {
+                    this.tutorialStep++;
+                } else {
+                    this.showTutorial = false;
+                    localStorage.setItem('president_sim_tutorial_done', 'true');
+                }
+            },
             startGame() {
                 const char = this.characters.find(c => c.id === this.selectedCharId);
                 this.player = { ...char }; // 深拷贝
@@ -90,6 +128,14 @@
                 this.logs.push(`总统先生/女士，欢迎入主白宫。当前是第1个月。`);
                 this.drawCards(3);
                 this.updateMarketTrends(true); // 初始随机
+                
+                // 检查是否显示教程
+                if (localStorage.getItem('president_sim_tutorial_done')) {
+                    this.showTutorial = false;
+                } else {
+                    this.showTutorial = true;
+                    this.tutorialStep = 1;
+                }
             },
 
             // --- 核心循环 ---
@@ -112,15 +158,19 @@
                 if (this.skillCooldown > 0) this.skillCooldown--;
 
                 // 5. 随机事件触发 (基于难度自适应)
-                this.currentEvent = null;
-                this.handleEvents();
+            if (this.currentEvent && this.currentEvent.choices) {
+                // 如果当前还有未处理的紧急事件，强制处理
+                this.showModal("紧急国务", "你必须先处理当前的突发危机！", "info");
+                return;
+            }
+            this.currentEvent = null;
+            this.handleEvents();
 
-                // 6. 市场刷新 (关联性更新)
-                this.updateMarketTrends();
+            // 6. 市场刷新 (关联性更新)
+            this.updateMarketTrends();
 
-                // 7. 结算上回合投资 (使用新市场状态)
-                this.settleInvestments();
-
+            // 7. 更新持仓价值 (复利)
+            this.updatePositions();
                 // 8. 重置行为限制
                 this.actionsTaken = { stock: false, crypto: false, commodity: false, embezzle: false };
 
@@ -151,7 +201,29 @@
                 return false;
             },
 
-            // --- 行为逻辑 ---
+            makeChoice(choiceIdx) {
+            const choice = this.currentEvent.choices[choiceIdx];
+            const effect = choice.effect;
+            
+            if (effect.approval) this.approval += effect.approval;
+            if (effect.money) this.money += effect.money;
+            if (effect.market) this.modifyMarketScore('market', effect.market);
+            if (effect.crypto) this.modifyMarketScore('crypto', effect.crypto);
+            if (effect.commodity) this.modifyMarketScore('commodity', effect.commodity);
+            if (effect.global_economy) {
+                this.globalEconomy = effect.global_economy;
+                this.addLog(`🌍 政策影响: 全球经济转向 ${this.getEconomyName(this.globalEconomy)}`);
+            }
+
+            // 限制数值范围
+            this.approval = Math.min(100, Math.max(0, this.approval));
+            this.money = parseFloat(this.money.toFixed(2));
+
+            this.addLog(`⚡ 应对危机: 选择了【${choice.text}】`);
+            this.currentEvent = null; // 事件处理完毕
+        },
+
+        // --- 行为逻辑 ---
             drawCards(count) {
                 // 手牌上限6张
                 let drawCount = count;
