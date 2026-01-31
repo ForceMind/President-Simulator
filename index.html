@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>总统模拟器: 权力的游戏</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet"/>
+    <style>
+        :root {
+            --bg-color: #1a1a2e;
+            --panel-bg: #16213e;
+            --accent-gold: #f1c40f;
+            --accent-red: #e74c3c;
+            --accent-green: #2ecc71;
+            --text-main: #ecf0f1;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            user-select: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* --- 角色选择界面 --- */
+        .char-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .char-card {
+            background: var(--panel-bg);
+            border: 2px solid #34495e;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .char-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-gold);
+            box-shadow: 0 5px 15px rgba(241, 196, 15, 0.2);
+        }
+
+        .char-card.selected {
+            border-color: var(--accent-gold);
+            background: #2c3e50;
+        }
+
+        .char-icon { font-size: 3rem; margin-bottom: 10px; }
+        .skill-tag { background: #e67e22; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.8em; }
+
+        /* --- 游戏主界面布局 --- */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 250px 1fr 280px; /* 左中右布局 */
+            gap: 20px;
+            height: calc(100vh - 60px);
+        }
+
+        /* 左侧：状态栏 */
+        .stats-panel {
+            background: var(--panel-bg);
+            padding: 20px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .stat-item label { display: block; color: #95a5a6; font-size: 0.9em; margin-bottom: 5px; }
+        .stat-value { font-size: 1.8em; font-weight: bold; }
+        .progress-bar-bg { background: #333; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 5px; }
+        .progress-bar-fill { height: 100%; transition: width 0.5s; }
+
+        /* 中间：办公桌 */
+        .desk-area {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .event-banner {
+            background: #c0392b;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            animation: fadeInDown 0.5s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .cards-area {
+            flex-grow: 1;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-content: flex-start;
+        }
+
+        .game-card {
+            width: 200px;
+            height: 280px;
+            background: #ecf0f1;
+            color: #2c3e50;
+            border-radius: 10px;
+            padding: 15px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+        .game-card:hover { transform: scale(1.05) rotate(1deg); z-index: 10; }
+        .card-type { font-size: 0.8em; text-transform: uppercase; letter-spacing: 1px; color: #7f8c8d; }
+        .card-title { font-size: 1.2em; font-weight: bold; margin: 10px 0; }
+        .card-desc { font-size: 0.9em; flex-grow: 1; }
+        .card-cost { 
+            position: absolute; top: -10px; right: -10px; 
+            background: var(--accent-red); color: white; 
+            width: 30px; height: 30px; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* 右侧：经济与操作 */
+        .action-panel {
+            background: var(--panel-bg);
+            padding: 20px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .market-trend { 
+            font-size: 0.9em; padding: 5px 10px; border-radius: 4px; background: rgba(255,255,255,0.1); text-align: center;
+        }
+
+        .invest-btn {
+            background: transparent;
+            border: 1px solid #555;
+            color: #fff;
+            padding: 10px;
+            width: 100%;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: 0.2s;
+            text-align: left;
+        }
+        .invest-btn:hover:not(:disabled) { background: rgba(255,255,255,0.1); border-color: var(--accent-gold); }
+        .invest-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .skill-btn {
+            background: linear-gradient(45deg, #f1c40f, #f39c12);
+            color: #2c3e50;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #d35400;
+        }
+        .skill-btn:active { transform: translateY(4px); box-shadow: none; }
+        .skill-btn:disabled { filter: grayscale(1); cursor: not-allowed; }
+
+        .next-turn-btn {
+            margin-top: auto;
+            background: var(--accent-green);
+            border: none;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.2em;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* 模态框 */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: #fff; color: #333;
+            padding: 30px; border-radius: 10px;
+            max-width: 500px; text-align: center;
+            box-shadow: 0 0 30px rgba(241, 196, 15, 0.5);
+        }
+
+        /* 工具类 */
+        .text-green { color: var(--accent-green); }
+        .text-red { color: var(--accent-red); }
+        .log-area { 
+            height: 150px; overflow-y: auto; background: rgba(0,0,0,0.2); 
+            padding: 10px; border-radius: 6px; font-size: 0.85em; font-family: monospace;
+            display: flex; flex-direction: column-reverse; /* 新消息在上面 */
+        }
+        
+        @media (max-width: 900px) {
+            .dashboard-grid { grid-template-columns: 1fr; height: auto; }
+            .desk-area { order: 2; }
+            .action-panel { order: 3; }
+            .stats-panel { order: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="app" class="container">
+    
+    <!-- 阶段1: 角色选择 -->
+    <div v-if="state === 'SELECT_CHAR'">
+        <h1 style="text-align: center; color: var(--accent-gold);">🇺🇸 2024 总统模拟器</h1>
+        <p style="text-align: center; color: #bdc3c7;">目标：任期结束时存活，并积累 $200 亿财富</p>
+        
+        <div class="char-grid">
+            <div v-for="char in characters" :key="char.id" 
+                 class="char-card" 
+                 :class="{ selected: selectedCharId === char.id }"
+                 @click="selectedCharId = char.id">
+                <div class="char-icon">{{ char.icon }}</div>
+                <h3>{{ char.name }}</h3>
+                <p style="color: #7f8c8d; font-size: 0.9em;">{{ char.desc }}</p>
+                <div style="margin: 10px 0;">
+                    <span class="skill-tag">技能: {{ char.skillName }}</span>
+                </div>
+                <p style="font-size: 0.85em;">{{ char.skillDesc }}</p>
+                <div style="margin-top: 10px; font-weight: bold;">初始资金: ${{ char.money }}亿</div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="next-turn-btn" style="width: 200px;" @click="startGame" :disabled="!selectedCharId">宣誓就职</button>
+        </div>
+    </div>
+
+    <!-- 阶段2: 游戏主界面 -->
+    <div v-if="state === 'PLAYING'" class="dashboard-grid">
+        
+        <!-- 左侧：数据面板 -->
+        <aside class="stats-panel">
+            <h2 style="margin: 0; color: var(--accent-gold);">{{ player.name }}</h2>
+            
+            <div class="stat-item">
+                <label>任期进度 (第 {{ month }}/48 月)</label>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" :style="{ width: (month/48)*100 + '%', background: '#3498db' }"></div></div>
+            </div>
+
+            <div class="stat-item">
+                <label>民意支持率 (需 >25%)</label>
+                <div class="stat-value" :class="approvalColor">{{ approval }}%</div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" :style="{ width: approval + '%', background: approval < 30 ? '#e74c3c' : '#2ecc71' }"></div></div>
+            </div>
+
+            <div class="stat-item">
+                <label>家族财富 (需 >$1亿 / 目标 $200亿)</label>
+                <div class="stat-value" :class="money < 5 ? 'text-red' : 'text-green'">${{ money.toFixed(2) }}亿</div>
+            </div>
+
+            <div class="stat-item">
+                <label>行动力 (AP)</label>
+                <div style="display: flex; gap: 5px;">
+                    <div v-for="n in maxAp" :key="n" 
+                         style="width: 20px; height: 20px; border-radius: 50%;"
+                         :style="{ background: n <= ap ? '#e67e22' : '#333' }"></div>
+                </div>
+            </div>
+
+            <div class="log-area">
+                <div v-for="(log, i) in logs" :key="i">> {{ log }}</div>
+            </div>
+        </aside>
+
+        <!-- 中间：桌面与卡牌 -->
+        <main class="desk-area">
+            <!-- 突发事件栏 -->
+            <div v-if="currentEvent" class="event-banner animate__animated animate__pulse">
+                <span>⚡ 突发新闻：</span>
+                <strong>{{ currentEvent.title }}</strong>
+                <span style="font-size: 0.8em; opacity: 0.8;">{{ currentEvent.desc }}</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3>待处理文件 (手牌)</h3>
+                <span style="font-size: 0.8em; color: #95a5a6;">支持率决定下月AP回复量</span>
+            </div>
+
+            <div class="cards-area">
+                <div v-for="(card, index) in hand" :key="index" class="game-card animate__animated animate__fadeInUp" @click="playCard(index)">
+                    <div class="card-cost">{{ card.cost }}</div>
+                    <div>
+                        <div class="card-type">{{ card.type }}</div>
+                        <div class="card-title">{{ card.title }}</div>
+                        <div class="card-desc">{{ card.desc }}</div>
+                    </div>
+                    <div style="font-size: 0.8em; color: #7f8c8d; border-top: 1px solid #bdc3c7; padding-top: 5px;">
+                        <div v-if="card.effect.approval">支持率: {{ card.effect.approval > 0 ? '+' : ''}}{{ card.effect.approval }}%</div>
+                        <div v-if="card.effect.money">财富: {{ card.effect.money > 0 ? '+' : ''}}{{ card.effect.money }}亿</div>
+                    </div>
+                </div>
+                <div v-if="hand.length === 0" style="width: 100%; text-align: center; color: #7f8c8d; margin-top: 50px;">
+                    当前没有待处理的政治文件。
+                </div>
+            </div>
+        </main>
+
+        <!-- 右侧：经济操作 -->
+        <aside class="action-panel">
+            <h3 style="margin: 0;">家族基金会</h3>
+            
+            <button class="skill-btn" @click="useSkill" :disabled="skillCooldown > 0 || ap < skillCost">
+                ★ 使用技能: {{ player.skillName }}
+                <div style="font-size: 0.8em; font-weight: normal; margin-top: 5px;">
+                    (消耗: ${{ player.skillCostMoney || 0 }}亿 / {{ skillCost }} AP)
+                    <span v-if="skillCooldown > 0">冷却: {{ skillCooldown }}月</span>
+                </div>
+            </button>
+
+            <div style="border-top: 1px solid #555; margin: 10px 0;"></div>
+
+            <div class="market-trend">
+                股市趋势: <span :style="{color: marketTrend === 'bull' ? '#2ecc71' : '#e74c3c'}">{{ marketTrend === 'bull' ? '📈 牛市' : '📉 熊市' }}</span>
+                <br>
+                加密货币: <span :style="{color: cryptoTrend === 'bull' ? '#2ecc71' : '#e74c3c'}">{{ cryptoTrend === 'bull' ? '🚀 暴涨' : '🩸 暴跌' }}</span>
+            </div>
+
+            <button class="invest-btn" @click="invest('stock')" :disabled="ap < 1">
+                <div>🏢 <strong>购买蓝筹股</strong> <span style="float: right; color: #e74c3c;">-1 AP</span></div>
+                <div style="font-size: 0.8em; color: #bdc3c7; margin-top: 4px;">成本: $1亿 | 风险: 低</div>
+            </button>
+
+            <button class="invest-btn" @click="invest('crypto')" :disabled="ap < 1">
+                <div>🪙 <strong>炒作加密货币</strong> <span style="float: right; color: #e74c3c;">-1 AP</span></div>
+                <div style="font-size: 0.8em; color: #bdc3c7; margin-top: 4px;">成本: $1亿 | 风险: 极高</div>
+            </button>
+
+            <button class="invest-btn" @click="embezzle" :disabled="ap < 2">
+                <div>🤝 <strong>权力寻租</strong> <span style="float: right; color: #e74c3c;">-2 AP</span></div>
+                <div style="font-size: 0.8em; color: #bdc3c7; margin-top: 4px;">消耗支持率换取现金</div>
+            </button>
+
+            <button class="next-turn-btn" @click="nextTurn">
+                {{ month === 48 ? '卸任结算' : '结束本月' }}
+            </button>
+        </aside>
+
+    </div>
+
+    <!-- 结局/警告模态框 -->
+    <div v-if="modal.show" class="modal-overlay">
+        <div class="modal-content animate__animated animate__zoomIn">
+            <h2 :style="{color: modal.type === 'win' ? '#2ecc71' : '#e74c3c'}">{{ modal.title }}</h2>
+            <p style="font-size: 1.1em; line-height: 1.6;">{{ modal.msg }}</p>
+            <button class="next-turn-btn" style="width: 100%; margin-top: 20px;" @click="handleModalAction">{{ modal.btnText }}</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const { createApp } = Vue;
+
+    // 完整的卡牌数据库
+    const CARD_DB = [
+        { type: "经济", title: "加征关税", desc: "保护本土制造业，但商品价格上涨。", cost: 1, effect: { approval: -5, money: 0.5, economy: 1 } },
+        { type: "军事", title: "海外维和", desc: "派遣军队维护地区稳定。", cost: 2, effect: { approval: 8, money: -0.5 } },
+        { type: "内政", title: "全民医保", desc: "巨大的财政开支，但穷人喜欢。", cost: 2, effect: { approval: 15, money: -2 } },
+        { type: "内政", title: "减税法案", desc: "富豪们会感谢你的，民众会愤怒。", cost: 2, effect: { approval: -10, money: 3 } },
+        { type: "外交", title: "领土主张", desc: "在争议海域宣示主权。", cost: 1, effect: { approval: 5, money: 0 } },
+        { type: "阴谋", title: "打压媒体", desc: "让那些批评家闭嘴。", cost: 1, effect: { approval: -2, money: 0 } },
+        { type: "经济", title: "科技补贴", desc: "投资AI产业，利好股市。", cost: 1, effect: { approval: 3, money: 0.2 } },
+        { type: "内政", title: "严打犯罪", desc: "铁腕治理街道安全。", cost: 1, effect: { approval: 6, money: -0.2 } },
+        { type: "阴谋", title: "政治献金", desc: "接受财团的'馈赠'。", cost: 0, effect: { approval: -8, money: 5 } },
+        { type: "军事", title: "军售订单", desc: "向盟友出售旧武器。", cost: 1, effect: { approval: -3, money: 4 } },
+        { type: "外交", title: "气候峰会", desc: "承诺碳中和目标。", cost: 1, effect: { approval: 4, money: -1 } },
+        { type: "经济", title: "央行放水", desc: "印钞刺激经济。", cost: 2, effect: { approval: 5, money: 1 } }
+    ];
+
+    // 随机事件库
+    const EVENTS_DB = [
+        { id: 1, title: "全球大流行病", desc: "医疗系统崩溃，支持率暴跌。", effect: { approval: -10, market: "bear" } },
+        { id: 2, title: "科技突破", desc: "本国AI技术取得重大进展，股市大涨。", effect: { approval: 5, market: "bull" } },
+        { id: 3, title: "桃色丑闻", desc: "你的一段录音被曝光了。", effect: { approval: -15 } },
+        { id: 4, title: "发现大油田", desc: "国家能源储备增加。", effect: { money: 5, market: "bull" } },
+        { id: 5, title: "邻国战争", desc: "军火商股票大涨，反战情绪高涨。", effect: { approval: -5, crypto: "bull" } },
+    ];
+
+    createApp({
+        data() {
+            return {
+                state: 'SELECT_CHAR', // SELECT_CHAR, PLAYING, GAME_OVER
+                selectedCharId: null,
+                player: null,
+                
+                // 游戏核心数据
+                month: 1,
+                approval: 50,
+                money: 0,
+                ap: 2,
+                maxAp: 2,
+                
+                // 系统状态
+                hand: [],
+                logs: [],
+                currentEvent: null,
+                marketTrend: 'neutral', // bear, neutral, bull
+                cryptoTrend: 'bull',
+                
+                // 技能状态
+                skillCooldown: 0,
+                skillCost: 1, // 默认技能AP消耗
+
+                // 弹窗
+                modal: { show: false, title: '', msg: '', type: 'info', btnText: '确定' },
+
+                // 角色定义
+                characters: [
+                    { 
+                        id: 1, name: '金发大亨', icon: '👱‍♂️', 
+                        desc: '商业帝国的继承人，擅长操纵媒体。', 
+                        money: 20, 
+                        skillName: '推特治国', 
+                        skillDesc: '消耗$2亿，随机重置当前支持率(30%-80%)，并刷新所有手牌。',
+                        skillCostMoney: 2
+                    },
+                    { 
+                        id: 2, name: '资深政客', icon: '👴🏻', 
+                        desc: '在华盛顿摸爬滚打40年的老狐狸。', 
+                        money: 5, 
+                        skillName: '深层政府', 
+                        skillDesc: '本回合行动点+2，但只会抽到阴谋/经济类卡牌。',
+                        skillCostMoney: 0
+                    },
+                    { 
+                        id: 3, name: '科技新贵', icon: '🧑🏻‍💻', 
+                        desc: '亚裔科技巨头，相信算法能解决一切。', 
+                        money: 50, 
+                        skillName: '内幕交易', 
+                        skillDesc: '下一次投资必定盈利，且收益翻倍。',
+                        skillCostMoney: 0
+                    },
+                    { 
+                        id: 4, name: '退役将军', icon: '👮🏿‍♂️', 
+                        desc: '以强硬著称的前国防部长。', 
+                        money: 3, 
+                        skillName: '军事戒严', 
+                        skillDesc: '消耗20%支持率，强制镇压反对派，使本月不会被弹劾，且获得$5亿军费挪用。',
+                        skillCostMoney: 0
+                    },
+                    { 
+                        id: 5, name: '平权斗士', icon: '👩🏽', 
+                        desc: '极具煽动力的社会活动家。', 
+                        money: 1, 
+                        skillName: '草根筹款', 
+                        skillDesc: '将当前支持率的10%转化为等额的资金(亿)。',
+                        skillCostMoney: 0
+                    },
+                    { 
+                        id: 6, name: '好莱坞明星', icon: '👩🏼', 
+                        desc: '因为演过总统而真的当选了总统。', 
+                        money: 15, 
+                        skillName: '粉丝经济', 
+                        skillDesc: '本回合所有经济投资无风险，且支持率+10%。',
+                        skillCostMoney: 1
+                    }
+                ]
+            }
+        },
+        computed: {
+            approvalColor() {
+                if (this.approval > 60) return 'text-green';
+                if (this.approval < 30) return 'text-red';
+                return '';
+            }
+        },
+        methods: {
+            startGame() {
+                const char = this.characters.find(c => c.id === this.selectedCharId);
+                this.player = { ...char }; // 深拷贝
+                this.money = this.player.money;
+                this.state = 'PLAYING';
+                this.logs.push(`总统先生/女士，欢迎入主白宫。当前是第1个月。`);
+                this.drawCards(3);
+                this.updateMarketTrends();
+            },
+
+            // --- 核心循环 ---
+            nextTurn() {
+                // 1. 胜利/失败检测
+                if (this.checkGameOver()) return;
+
+                // 2. 时间推进
+                this.month++;
+                this.addLog(`📅 进入第 ${this.month} 个月`);
+
+                // 3. AP 回复机制
+                if (this.approval >= 70) this.maxAp = 3;
+                else if (this.approval <= 30) this.maxAp = 1;
+                else this.maxAp = 2;
+                this.ap = this.maxAp;
+
+                // 4. 技能冷却减少
+                if (this.skillCooldown > 0) this.skillCooldown--;
+
+                // 5. 随机事件触发 (20% 概率)
+                this.currentEvent = null;
+                if (Math.random() < 0.25) {
+                    this.triggerEvent();
+                }
+
+                // 6. 市场刷新
+                this.updateMarketTrends();
+
+                // 7. 补充卡牌 (保持手牌3张)
+                const cardsNeeded = 3 - this.hand.length;
+                if (cardsNeeded > 0) this.drawCards(cardsNeeded);
+            },
+
+            checkGameOver() {
+                // 财富 < 1亿 -> 暗杀
+                if (this.money < 1) {
+                    this.showModal("GAME OVER: 遇刺身亡", "你的私人安保团队因为欠薪罢工了。你在高尔夫球场被不明身份的狙击手击毙。", "fail");
+                    return true;
+                }
+                // 支持率 < 25 -> 弹劾
+                if (this.approval < 25) {
+                    this.showModal("GAME OVER: 遭到弹劾", "国会全票通过了对你的弹劾案。你不仅丢了工作，还将面临牢狱之灾。", "fail");
+                    return true;
+                }
+                // 48月结束 -> 结算
+                if (this.month > 48) {
+                    if (this.money >= 200) {
+                        this.showModal("完美结局: 资本大鳄", `任期结束。你带着 $${this.money.toFixed(1)}亿 的巨额财富光荣退休，成为幕后真正的统治者。`, "win");
+                    } else {
+                        this.showModal("结局: 凄惨晚年", `任期结束。虽然你活了下来，但仅有的 $${this.money.toFixed(1)}亿 财富不足以让你在政敌的清算中自保。`, "fail");
+                    }
+                    return true;
+                }
+                return false;
+            },
+
+            // --- 行为逻辑 ---
+            drawCards(count) {
+                for (let i = 0; i < count; i++) {
+                    const template = CARD_DB[Math.floor(Math.random() * CARD_DB.length)];
+                    this.hand.push({ ...template });
+                }
+            },
+
+            playCard(index) {
+                const card = this.hand[index];
+                if (this.ap < card.cost) {
+                    this.addLog("⚠️ 行动力不足！");
+                    return;
+                }
+
+                this.ap -= card.cost;
+                this.hand.splice(index, 1);
+
+                // 应用效果
+                this.approval += (card.effect.approval || 0);
+                this.money += (card.effect.money || 0);
+                
+                // 限制数值范围
+                this.approval = Math.min(100, Math.max(0, this.approval));
+                this.money = parseFloat(this.money.toFixed(2));
+
+                this.addLog(`签署文件【${card.title}】`);
+            },
+
+            invest(type) {
+                this.ap -= 1;
+                this.money -= 1; // 投入1亿
+                let roi = 0;
+
+                // 科技新贵技能：必赢
+                let guaranteedWin = (this.player.id === 3 && this.skillActive);
+
+                if (type === 'stock') {
+                    // 基础波动 -10% ~ +20%
+                    let baseReturn = (Math.random() * 0.3) - 0.1;
+                    if (this.marketTrend === 'bull') baseReturn += 0.15; // 牛市加成
+                    if (this.marketTrend === 'bear') baseReturn -= 0.15; // 熊市惩罚
+                    
+                    // 好莱坞明星技能：无风险
+                    if (this.player.id === 6 && this.skillActive) baseReturn = Math.abs(baseReturn) + 0.1;
+
+                    roi = 1 + baseReturn;
+                } else if (type === 'crypto') {
+                    // 基础波动 -60% ~ +150%
+                    let baseReturn = (Math.random() * 2.1) - 0.6;
+                    if (this.cryptoTrend === 'bull') baseReturn += 0.5;
+                    if (this.cryptoTrend === 'bear') baseReturn -= 0.3;
+
+                    if (guaranteedWin) baseReturn = Math.abs(baseReturn) + 1.0; // 技能加倍
+
+                    roi = 1 + baseReturn;
+                }
+
+                if (guaranteedWin) {
+                   this.skillActive = false; // 消耗技能状态
+                   this.addLog("⚡ [被动触发] 内幕交易生效！");
+                }
+                
+                // 好莱坞明星技能状态消耗
+                if (this.player.id === 6 && this.skillActive) this.skillActive = false;
+
+                const profit = roi - 1;
+                this.money += roi;
+                this.money = parseFloat(this.money.toFixed(2));
+                
+                const color = profit > 0 ? 'green' : 'red';
+                const icon = profit > 0 ? '📈' : '📉';
+                this.addLog(`${icon} 投资结算: ${profit > 0 ? '盈利' : '亏损'} $${Math.abs(profit).toFixed(2)}亿`);
+            },
+
+            embezzle() {
+                this.ap -= 2;
+                this.approval -= 10;
+                const gain = 2 + Math.random() * 2; // 获得2-4亿
+                this.money += gain;
+                this.addLog(`🤫 进行了权力寻租，获得 $${gain.toFixed(1)}亿，支持率下降。`);
+            },
+
+            // --- 技能系统 ---
+            useSkill() {
+                if (this.player.skillCostMoney && this.money < this.player.skillCostMoney) {
+                    this.addLog("❌ 资金不足以发动技能！");
+                    return;
+                }
+                
+                this.ap -= this.skillCost;
+                this.money -= (this.player.skillCostMoney || 0);
+                this.skillCooldown = 6; // 6个月冷却
+                this.addLog(`★ 发动技能: ${this.player.skillName}`);
+
+                switch(this.player.id) {
+                    case 1: // 金发大亨：重置支持率，换牌
+                        this.approval = Math.floor(Math.random() * (80 - 30 + 1)) + 30;
+                        this.hand = [];
+                        this.drawCards(3);
+                        this.addLog("推特治国生效：支持率重置，手牌已刷新。");
+                        break;
+                    case 2: // 资深政客：AP+2
+                        this.ap += 2;
+                        // 逻辑上应该是下次抽卡变类型，这里简化处理
+                        this.addLog("深层政府运作：获得了额外的行动力。");
+                        break;
+                    case 3: // 科技新贵：状态标记
+                        this.skillActive = true; 
+                        this.addLog("内幕消息已获取：下次投资必定大赚。");
+                        break;
+                    case 4: // 退役将军：军费挪用
+                        this.approval -= 20;
+                        this.money += 5;
+                        this.addLog("戒严令生效：支持率暴跌，但军费已入账。");
+                        break;
+                    case 5: // 平权斗士：支持率换钱
+                        const convert = this.approval * 0.1;
+                        this.money += convert;
+                        this.approval -= 10;
+                        this.addLog(`草根筹款：获得了 $${convert.toFixed(1)}亿 捐款。`);
+                        break;
+                    case 6: // 好莱坞明星
+                        this.approval += 10;
+                        this.skillActive = true;
+                        this.addLog("粉丝狂热：支持率上升，本回合投资无风险。");
+                        break;
+                }
+            },
+
+            // --- 辅助系统 ---
+            triggerEvent() {
+                const event = EVENTS_DB[Math.floor(Math.random() * EVENTS_DB.length)];
+                this.currentEvent = event;
+                this.addLog(`⚡ 突发: ${event.title}`);
+                
+                if (event.effect.approval) this.approval += event.effect.approval;
+                if (event.effect.money) this.money += event.effect.money;
+                if (event.effect.market) this.marketTrend = event.effect.market;
+                if (event.effect.crypto) this.cryptoTrend = event.effect.crypto;
+            },
+
+            updateMarketTrends() {
+                // 简单马尔可夫链
+                const states = ['bear', 'neutral', 'bull'];
+                // 30% 概率变动趋势
+                if (Math.random() < 0.3) {
+                    this.marketTrend = states[Math.floor(Math.random() * 3)];
+                }
+                if (Math.random() < 0.4) {
+                    this.cryptoTrend = states[Math.floor(Math.random() * 3)];
+                }
+            },
+
+            addLog(msg) {
+                this.logs.push(msg);
+                // 保持日志不过长
+                if(this.logs.length > 20) this.logs.shift();
+            },
+
+            showModal(title, msg, type) {
+                this.modal = {
+                    show: true,
+                    title: title,
+                    msg: msg,
+                    type: type, // 'win', 'fail', 'info'
+                    btnText: (type === 'win' || type === 'fail') ? '重新开始' : '确定'
+                };
+            },
+
+            handleModalAction() {
+                if (this.modal.type === 'win' || this.modal.type === 'fail') {
+                    location.reload();
+                } else {
+                    this.modal.show = false;
+                }
+            }
+        }
+    }).mount('#app');
+</script>
+</body>
+</html>
