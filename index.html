@@ -4,17 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>总统模拟器: 权力的游戏</title>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- Vue 3 CDN (Primary: cdnjs, Fallback: unpkg) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.min.js"></script>
+    <script>
+        if (typeof Vue === 'undefined') {
+            console.warn('Vue from cdnjs failed, loading from unpkg...');
+            document.write('<script src="https://unpkg.com/vue@3/dist/vue.global.js"><\/script>');
+        }
+    </script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet"/>
     <link href="./css/style.css" rel="stylesheet"/>
+    <style>
+        [v-cloak] { display: none; }
+    </style>
 </head>
 <body>
 
-<div id="app" class="container">
+<div id="app" class="container" v-cloak>
     
     <!-- 阶段1: 角色选择 -->
     <div v-if="state === 'SELECT_CHAR'">
-        <h1 style="text-align: center; color: var(--accent-gold);">🇺🇸 2024 总统模拟器</h1>
+        <h1 style="text-align: center; color: var(--accent-gold);">总统模拟器: 权力的游戏</h1>
         <p style="text-align: center; color: #bdc3c7;">目标：任期结束时存活，并积累 $200 亿财富</p>
         
         <div class="char-grid">
@@ -202,4 +212,9 @@
             <button :class="{active: activeTab === 'market'}" @click="activeTab = 'market'">💰 市场</button>
         </nav>
     </div>
-```
+</div>
+
+<script src="./js/data.js"></script>
+<script src="./js/app.js"></script>
+</body>
+</html>

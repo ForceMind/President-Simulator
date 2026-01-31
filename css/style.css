@@ -208,22 +208,55 @@ body {
 }
 
 @media (max-width: 900px) {
-    body { padding: 10px; }
+    html, body {
+        height: 100%;
+        overflow: hidden; /* 禁止全局滚动 */
+        padding: 0;
+        margin: 0;
+    }
+
+    #app {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* 阶段1容器需要滚动 */
+    #app > div:first-child {
+        height: 100%;
+        overflow-y: auto;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
     .dashboard-grid { 
         display: flex; 
         flex-direction: column; 
-        height: calc(100vh - 80px); /* 留出底部导航空间 */
+        height: 100%;
         gap: 0;
+        overflow: hidden;
     }
     
     .stats-panel, .desk-area, .action-panel {
         flex: 1;
         overflow-y: auto;
-        padding-bottom: 60px; /* 防止内容被底部导航遮挡 */
+        padding: 10px;
+        padding-bottom: 70px; /* 留出底部导航空间 */
+        box-sizing: border-box;
     }
 
-    .desk-area {
-        height: 100%;
+    /* 修复卡片阴影被遮挡 */
+    .char-grid {
+        display: flex;
+        overflow-x: auto;
+        padding: 10px 5px 25px 5px; /* 增加上下 padding */
+        scroll-snap-type: x mandatory;
+        gap: 15px;
+    }
+    .char-card {
+        min-width: 280px;
+        scroll-snap-align: center;
+        margin: 5px; /* 增加 margin */
     }
 
     /* 移动端底部导航 */

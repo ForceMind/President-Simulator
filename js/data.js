@@ -1,5 +1,6 @@
-// 角色定义
-export const CHARACTERS = [
+(function() {
+    // 角色定义
+    const CHARACTERS = [
     { 
         id: 1, name: '金发大亨', icon: '👱‍♂️', 
         desc: '商业帝国的继承人，擅长操纵媒体。', 
@@ -51,7 +52,7 @@ export const CHARACTERS = [
 ];
 
 // 卡牌数据库
-export const CARD_DB = [
+const CARD_DB = [
     // --- 经济类 ---
     { type: "经济", title: "科技补贴", desc: "投资AI产业，利好股市。", cost: 1, effect: { approval: 3, money: 0.2, market: "bull", global_economy: "boom" } },
     { type: "经济", title: "央行放水", desc: "印钞刺激经济。", cost: 2, effect: { approval: 5, money: 1, inflation: true, global_economy: "growth" } },
@@ -93,7 +94,7 @@ export const CARD_DB = [
 ];
 
 // 随机事件库 (基于2000-2025真实历史改编)
-export const EVENTS_DB = [
+const EVENTS_DB = [
     // --- 市场与经济 ---
     { id: 101, title: "科技泡沫破裂", desc: "纳斯达克崩盘，科技股血流成河。", effect: { market: "crash", approval: -5 } },
     { id: 102, title: "房地产崩盘", desc: "房地产市场崩溃，引发全球金融海啸。", effect: { market: "crash", money: -5, approval: -10 } },
@@ -117,3 +118,12 @@ export const EVENTS_DB = [
     { id: 403, title: "大规模抗议", desc: "民众占领了华尔街和国会山。", type: "unrest", effect: { approval: -10, market: "bear" } },
     { id: 404, title: "股市熔断", desc: "市场恐慌情绪蔓延，千股跌停。", type: "crash", effect: { market: "crash", money: -2 } }
 ];
+
+    // 确保全局挂载安全
+    if (typeof window !== 'undefined') {
+        window.GAME_DATA = { CHARACTERS, CARD_DB, EVENTS_DB };
+        console.log('Game Data Loaded:', window.GAME_DATA);
+    } else {
+        console.warn('Window object not found, skipping global mount.');
+    }
+})();
