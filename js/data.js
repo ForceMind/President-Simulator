@@ -53,15 +53,28 @@ export const CHARACTERS = [
 // 卡牌数据库
 export const CARD_DB = [
     // --- 经济类 ---
-    { type: "经济", title: "科技补贴", desc: "投资AI产业，利好股市。", cost: 1, effect: { approval: 3, money: 0.2, market: "bull" } },
-    { type: "经济", title: "央行放水", desc: "印钞刺激经济。", cost: 2, effect: { approval: 5, money: 1, inflation: true } },
-    { type: "经济", title: "基建法案", desc: "修桥补路，创造就业。", cost: 2, effect: { approval: 10, money: -3 } },
-    // --- 关税类 (新特性) ---
-    { type: "关税", title: "关税: 东方大国", desc: "对最大工业国加征关税。保护本土制造，但股市恐慌。", cost: 1, effect: { approval: 5, money: 2, market: "bear", commodity: "bull" } },
-    { type: "关税", title: "关税: 南方邻邦", desc: "对农产品加税。农民高兴，超市涨价。", cost: 1, effect: { approval: -2, money: 0.5, commodity: "bull" } },
-    { type: "关税", title: "关税: 欧洲盟友", desc: "对奢侈品和汽车加税。外交关系紧张。", cost: 1, effect: { approval: -5, money: 1.5, market: "neutral" } },
-    { type: "关税", title: "全面贸易战", desc: "对所有进口商品加税。世界燃烧！", cost: 3, effect: { approval: 15, money: 5, market: "crash", commodity: "crash" } },
-    // --- 军事类 ---
+    { type: "经济", title: "科技补贴", desc: "投资AI产业，利好股市。", cost: 1, effect: { approval: 3, money: 0.2, market: "bull", global_economy: "boom" } },
+    { type: "经济", title: "央行放水", desc: "印钞刺激经济。", cost: 2, effect: { approval: 5, money: 1, inflation: true, global_economy: "growth" } },
+    { type: "经济", title: "基建法案", desc: "修桥补路，创造就业。", cost: 2, effect: { approval: 10, money: -3, global_economy: "growth" } },
+    // --- 关税类 ---
+    { type: "关税", title: "关税: 工业大国", desc: "保护本土制造，但股市恐慌。", cost: 1, effect: { approval: 5, money: 2, market: "bear", commodity: "bull", global_economy: "recession" } },
+    { type: "关税", title: "关税: 农业邻国", desc: "对农产品加税。农民高兴，超市涨价。", cost: 1, effect: { approval: -2, money: 0.5, commodity: "bull" } },
+    { type: "关税", title: "关税: 盟友联盟", desc: "对奢侈品和汽车加税。外交关系紧张。", cost: 1, effect: { approval: -5, money: 1.5, market: "neutral", global_economy: "recession" } },
+    { type: "关税", title: "全面贸易战", desc: "对所有进口商品加税。世界燃烧！", cost: 3, effect: { approval: 15, money: 5, market: "crash", commodity: "crash", global_economy: "crisis" } },
+    
+    // --- 宏观经济调控 ---
+    { type: "经济", title: "呼吁加息", desc: "抑制通胀，但打压股市。", cost: 1, effect: { approval: -5, money: 0, market: "bear", commodity: "bear", global_economy: "recession" } },
+    { type: "经济", title: "呼吁降息", desc: "刺激投资，股市狂欢。", cost: 1, effect: { approval: 5, money: 0, market: "bull", crypto: "bull", global_economy: "boom" } },
+    
+    // --- 战争与和平 ---
+    { type: "外交", title: "战争威胁", desc: "对敌对国发出最后通牒。", cost: 2, effect: { approval: 10, money: -1, market: "crash", commodity: "bull", global_economy: "crisis" } },
+    { type: "外交", title: "和平谈判", desc: "缓和地区局势。", cost: 1, effect: { approval: 5, money: 0, market: "bull", commodity: "bear", global_economy: "growth" } },
+
+    // --- 内政与民生 ---
+    { type: "内政", title: "教育改革", desc: "增加学校拨款。", cost: 1, effect: { approval: 5, money: -1 } },
+    { type: "内政", title: "住房补贴", desc: "帮助年轻人买房。", cost: 1, effect: { approval: 8, money: -1.5 } },
+    { type: "内政", title: "禁止堕胎", desc: "取悦保守派，激怒自由派。", cost: 1, effect: { approval: -5, money: 0 } }, // 争议性话题，模拟支持率波动
+    { type: "内政", title: "枪支管控", desc: "取悦自由派，激怒保守派。", cost: 1, effect: { approval: -5, money: 0 } },
     { type: "军事", title: "海外维和", desc: "派遣军队维护地区稳定。", cost: 2, effect: { approval: 8, money: -0.5 } },
     { type: "军事", title: "军售订单", desc: "向盟友出售旧武器。", cost: 1, effect: { approval: -3, money: 4 } },
     { type: "军事", title: "无人机打击", desc: "定点清除恐怖分子头目。", cost: 1, effect: { approval: 5, money: -0.2 } },
@@ -82,9 +95,9 @@ export const CARD_DB = [
 // 随机事件库 (基于2000-2025真实历史改编)
 export const EVENTS_DB = [
     // --- 市场与经济 ---
-    { id: 101, title: "互联网泡沫破裂", desc: "纳斯达克崩盘，科技股血流成河。", effect: { market: "crash", approval: -5 } },
-    { id: 102, title: "次贷危机爆发", desc: "房地产市场崩溃，引发全球金融海啸。", effect: { market: "crash", money: -5, approval: -10 } },
-    { id: 103, title: "加密货币寒冬", desc: "比特币暴跌，大量交易所破产。", effect: { crypto: "crash" } },
+    { id: 101, title: "科技泡沫破裂", desc: "纳斯达克崩盘，科技股血流成河。", effect: { market: "crash", approval: -5 } },
+    { id: 102, title: "房地产崩盘", desc: "房地产市场崩溃，引发全球金融海啸。", effect: { market: "crash", money: -5, approval: -10 } },
+    { id: 103, title: "加密寒冬", desc: "加密货币暴跌，大量交易所破产。", effect: { crypto: "crash" } },
     { id: 104, title: "AI 技术革命", desc: "通用人工智能取得突破，科技股狂欢。", effect: { market: "bull", approval: 2 } },
     { id: 105, title: "能源危机", desc: "油价飙升，通胀压力巨大。", effect: { commodity: "bull", market: "bear", approval: -5 } },
     

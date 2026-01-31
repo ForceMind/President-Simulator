@@ -14,7 +14,7 @@
     
     <!-- 阶段1: 角色选择 -->
     <div v-if="state === 'SELECT_CHAR'">
-        <h1 style="text-align: center; color: var(--accent-gold);">🇺🇸 2024 总统模拟器</h1>
+        <h1 style="text-align: center; color: var(--accent-gold);">总统模拟器: 权力的游戏</h1>
         <p style="text-align: center; color: #bdc3c7;">目标：任期结束时存活，并积累 $200 亿财富</p>
         
         <div class="char-grid">
@@ -42,7 +42,7 @@
     <div v-if="state === 'PLAYING'" class="dashboard-grid">
         
         <!-- 左侧：数据面板 -->
-        <aside class="stats-panel">
+        <aside class="stats-panel" v-show="activeTab === 'stats' || !isMobile">
             <h2 style="margin: 0; color: var(--accent-gold);">{{ player.name }}</h2>
             
             <div class="stat-item">
@@ -63,7 +63,7 @@
 
             <div class="stat-item">
                 <label>行动力 (AP)</label>
-                <div style="display: flex; gap: 5px;">
+                <div style="display: flex; gap: 5px; flex-wrap: wrap;">
                     <div v-for="n in maxAp" :key="n" 
                          style="width: 20px; height: 20px; border-radius: 50%;"
                          :style="{ background: n <= ap ? '#e67e22' : '#333' }"></div>
@@ -76,7 +76,7 @@
         </aside>
 
         <!-- 中间：桌面与卡牌 -->
-        <main class="desk-area">
+        <main class="desk-area" v-show="activeTab === 'desk' || !isMobile">
             <!-- 突发事件栏 -->
             <div v-if="currentEvent" class="event-banner animate__animated animate__pulse">
                 <span>⚡ 突发新闻：</span>
@@ -85,19 +85,23 @@
             </div>
 
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h3>待处理文件 (手牌)</h3>
+                <h3>待处理文件 (手牌 {{ hand.length }}/6)</h3>
                 <span style="font-size: 0.8em; color: #95a5a6;">支持率决定下月AP回复量</span>
             </div>
 
             <div class="cards-area">
-                <div v-for="(card, index) in hand" :key="index" class="game-card animate__animated animate__fadeInUp" @click="playCard(index)">
-                    <div class="card-cost">{{ card.cost }}</div>
-                    <div>
+                <div v-for="(card, index) in hand" :key="index" class="game-card animate__animated animate__fadeInUp">
+                     <div class="card-cost">{{ card.cost }}</div>
+                    <!-- 弃牌按钮 -->
+                    <div class="discard-btn" @click.stop="discardCard(index)" title="花费1 AP废弃此文件">✖</div>
+                    
+                    <div @click="playCard(index)" style="height: 100%; display: flex; flex-direction: column;">
                         <div class="card-type">{{ card.type }}</div>
                         <div class="card-title">{{ card.title }}</div>
                         <div class="card-desc">{{ card.desc }}</div>
                     </div>
-                    <div style="font-size: 0.8em; color: #7f8c8d; border-top: 1px solid #bdc3c7; padding-top: 5px;">
+                    
+                    <div style="font-size: 0.8em; color: #7f8c8d; border-top: 1px solid #bdc3c7; padding-top: 5px;" @click="playCard(index)">
                         <div v-if="card.effect.approval">支持率: {{ card.effect.approval > 0 ? '+' : ''}}{{ card.effect.approval }}%</div>
                         <div v-if="card.effect.money">财富: {{ card.effect.money > 0 ? '+' : ''}}{{ card.effect.money }}亿</div>
                     </div>
@@ -109,7 +113,7 @@
         </main>
 
         <!-- 右侧：经济操作 -->
-        <aside class="action-panel">
+        <aside class="action-panel" v-show="activeTab === 'market' || !isMobile">
             <h3 style="margin: 0;">家族基金会</h3>
             
             <button class="skill-btn" @click="useSkill" :disabled="skillCooldown > 0">
@@ -132,26 +136,40 @@
                 商品: <span :style="{color: commodityTrend === 'bull' ? '#2ecc71' : (commodityTrend === 'crash' ? '#e74c3c' : (commodityTrend === 'bear' ? '#e67e22' : 'white'))}">{{ commodityTrend === 'bull' ? '🔥 紧俏' : (commodityTrend === 'crash' ? '🧊 滞销' : (commodityTrend === 'bear' ? '🧊' : '➡️')) }}</span>
             </div>
 
-            <button class="invest-btn" @click="invest('stock')">
-                <div>🏢 <strong>购买蓝筹股</strong></div>
-                <div style="font-size: 0.8em; color: #bdc3c7; margin-top: 4px;">成本: $1亿 | 风险: 低</div>
-            </button>
-
-            <button class="invest-btn" @click="invest('crypto')">
-                <div>🪙 <strong>炒作加密货币</strong></div>
-                <div style="font-size: 0.8em; color: #bdc3c7; margin-top: 4px;">成本: $1亿 | 风险: 极高</div>
-            </button>
-
-            <div style="display: flex; gap: 10px;">
-                 <button class="invest-btn" @click="investFuture('long')">
-                    <div>🛢️ <strong>做多商品</strong></div>
+            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <button class="invest-btn" @click="makeInvestment('stock', 'long')" :disabled="actionsTaken.stock">
+                    <div>🏢 <strong>做多股市</strong></div>
+                    <div style="font-size: 0.8em; color: #bdc3c7;">成本: $1亿</div>
                 </button>
-                <button class="invest-btn" @click="investFuture('short')">
-                    <div>📉 <strong>做空商品</strong></div>
+                <button class="invest-btn" @click="makeInvestment('stock', 'short')" :disabled="actionsTaken.stock">
+                    <div>📉 <strong>做空股市</strong></div>
+                    <div style="font-size: 0.8em; color: #bdc3c7;">成本: $1亿</div>
                 </button>
             </div>
 
-            <button class="invest-btn" @click="embezzle">
+            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <button class="invest-btn" @click="makeInvestment('crypto', 'long')" :disabled="actionsTaken.crypto">
+                    <div>🪙 <strong>做多加密</strong></div>
+                    <div style="font-size: 0.8em; color: #bdc3c7;">成本: $1亿</div>
+                </button>
+                <button class="invest-btn" @click="makeInvestment('crypto', 'short')" :disabled="actionsTaken.crypto">
+                    <div>🩸 <strong>做空加密</strong></div>
+                    <div style="font-size: 0.8em; color: #bdc3c7;">成本: $1亿</div>
+                </button>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                 <button class="invest-btn" @click="makeInvestment('commodity', 'long')" :disabled="actionsTaken.commodity">
+                    <div>🛢️ <strong>做多商品</strong></div>
+                    <div style="font-size: 0.8em; color: #bdc3c7;">成本: $1亿</div>
+                </button>
+                <button class="invest-btn" @click="makeInvestment('commodity', 'short')" :disabled="actionsTaken.commodity">
+                    <div>📉 <strong>做空商品</strong></div>
+                    <div style="font-size: 0.8em; color: #bdc3c7;">成本: $1亿</div>
+                </button>
+            </div>
+
+            <button class="invest-btn" @click="embezzle" :disabled="actionsTaken.embezzle" style="margin-top: 15px;">
                 <div>🤝 <strong>权力寻租</strong></div>
                 <div style="font-size: 0.8em; color: #bdc3c7; margin-top: 4px;">消耗支持率换取现金</div>
             </button>
@@ -160,6 +178,13 @@
                 {{ month === 48 ? '卸任结算' : '结束本月' }}
             </button>
         </aside>
+
+        <!-- 移动端底部导航 -->
+        <nav class="mobile-nav" v-if="isMobile">
+            <button :class="{active: activeTab === 'stats'}" @click="activeTab = 'stats'">📊 数据</button>
+            <button :class="{active: activeTab === 'desk'}" @click="activeTab = 'desk'">🗂️ 办公</button>
+            <button :class="{active: activeTab === 'market'}" @click="activeTab = 'market'">💰 市场</button>
+        </nav>
 
     </div>
 

@@ -22,6 +22,11 @@ createApp({
             logs: [],
             currentEvent: null,
             
+            // 市场状态分数 (-100 ~ 100)
+            marketScore: 0,
+            cryptoScore: 10,
+            commodityScore: 0,
+
             // 市场状态 (bear, neutral, bull, crash)
             marketTrend: 'neutral', 
             cryptoTrend: 'bull',
@@ -30,14 +35,28 @@ createApp({
             // 全局经济周期 (growth, recession, crisis, boom)
             globalEconomy: 'growth', 
             
+            // 行为控制
+            actionsTaken: { stock: false, crypto: false, commodity: false, embezzle: false },
+            pendingInvestments: [], // 待结算投资
+
             // 技能状态
             skillCooldown: 0,
             skillCost: 0, // 技能不再消耗AP
             skillActive: false, // 持续性技能激活状态
 
+            // 移动端适配
+            isMobile: window.innerWidth < 900,
+            activeTab: 'desk', // stats, desk, market
+
             // 弹窗
             modal: { show: false, title: '', msg: '', type: 'info', btnText: '确定' }
         }
+    },
+    mounted() {
+        window.addEventListener('resize', this.checkMobile);
+    },
+    beforeUnmount() {
+        window.removeEventListener('resize', this.checkMobile);
     },
     computed: {
         approvalColor() {
@@ -83,9 +102,14 @@ createApp({
             // 6. 市场刷新 (关联性更新)
             this.updateMarketTrends();
 
-            // 7. 补充卡牌 (保持手牌3张)
-            const cardsNeeded = 3 - this.hand.length;
-            if (cardsNeeded > 0) this.drawCards(cardsNeeded);
+            // 7. 结算上回合投资 (使用新市场状态)
+            this.settleInvestments();
+
+            // 8. 重置行为限制
+            this.actionsTaken = { stock: false, crypto: false, commodity: false, embezzle: false };
+
+            // 9. 补充卡牌 (手牌上限6，每回合抽2张)
+            this.drawCards(2);
         },
 
         checkGameOver() {
@@ -113,7 +137,17 @@ createApp({
 
         // --- 行为逻辑 ---
         drawCards(count) {
-            for (let i = 0; i < count; i++) {
+            // 手牌上限6张
+            let drawCount = count;
+            if (this.hand.length + drawCount > 6) {
+                drawCount = 6 - this.hand.length;
+                if (drawCount <= 0) {
+                    this.addLog("手牌已满，无法抽取新文件。");
+                    return;
+                }
+            }
+
+            for (let i = 0; i < drawCount; i++) {
                 // 资深政客技能：只抽阴谋/经济
                 let pool = CARD_DB;
                 if (this.player.id === 2 && this.skillActive) {
@@ -125,6 +159,17 @@ createApp({
             }
             // 消耗一次性技能状态
             if (this.player.id === 2 && this.skillActive) this.skillActive = false; 
+        },
+
+        discardCard(index) {
+            if (this.ap < 1) {
+                this.addLog("⚠️ 行动力不足，无法清理文件！");
+                return;
+            }
+            this.ap -= 1;
+            const card = this.hand[index];
+            this.hand.splice(index, 1);
+            this.addLog(`🗑️ 废弃文件【${card.title}】`);
         },
 
         playCard(index) {
@@ -142,9 +187,16 @@ createApp({
             this.money += (card.effect.money || 0);
             
             // 特殊效果
-            if (card.effect.market) this.marketTrend = card.effect.market;
-            if (card.effect.commodity) this.commodityTrend = card.effect.commodity;
+            if (card.effect.market) this.modifyMarketScore('market', card.effect.market);
+            if (card.effect.commodity) this.modifyMarketScore('commodity', card.effect.commodity);
+            if (card.effect.crypto) this.modifyMarketScore('crypto', card.effect.crypto);
             if (card.effect.inflation) this.globalEconomy = 'recession'; // 通胀导致衰退风险
+            
+            // 政治行为改变全球经济
+            if (card.effect.global_economy) {
+                this.globalEconomy = card.effect.global_economy;
+                this.addLog(`🌍 政策影响: 全球经济转向 ${this.getEconomyName(this.globalEconomy)}`);
+            }
 
             // 限制数值范围
             this.approval = Math.min(100, Math.max(0, this.approval));
@@ -152,94 +204,110 @@ createApp({
 
             this.addLog(`签署文件【${card.title}】`);
         },
+        
+        modifyMarketScore(market, trend) {
+            let scoreChange = 0;
+            if (trend === 'bull') scoreChange = 15;
+            else if (trend === 'bear') scoreChange = -15;
+            else if (trend === 'crash') scoreChange = -40;
+            else if (trend === 'neutral') scoreChange = 0; // 回归中值
 
-        // --- 投资系统 (增强版) ---
-        invest(type) {
-            // 不再消耗AP
-            this.money -= 1; // 投入1亿
-            let roi = 0;
-
-            // 科技新贵技能：必赢
-            let guaranteedWin = (this.player.id === 3 && this.skillActive);
-
-            // 获取市场系数
-            const getMarketFactor = (trend) => {
-                switch(trend) {
-                    case 'crash': return -0.4;
-                    case 'bear': return -0.15;
-                    case 'neutral': return 0.05;
-                    case 'bull': return 0.25;
-                    default: return 0;
-                }
-            };
-
-            if (type === 'stock') {
-                let baseReturn = (Math.random() * 0.3) - 0.1; // -10% ~ +20%
-                baseReturn += getMarketFactor(this.marketTrend);
-                
-                // 全局经济影响
-                if (this.globalEconomy === 'boom') baseReturn += 0.1;
-                if (this.globalEconomy === 'crisis') baseReturn -= 0.2;
-
-                // 好莱坞明星技能：无风险
-                if (this.player.id === 6 && this.skillActive) baseReturn = Math.abs(baseReturn) + 0.1;
-
-                roi = 1 + baseReturn;
-            } else if (type === 'crypto') {
-                let baseReturn = (Math.random() * 2.0) - 0.8; // -80% ~ +120%
-                if (this.cryptoTrend === 'bull') baseReturn += 0.6;
-                if (this.cryptoTrend === 'bear') baseReturn -= 0.4;
-                if (this.cryptoTrend === 'crash') baseReturn = -0.9;
-
-                if (guaranteedWin) baseReturn = Math.abs(baseReturn) + 1.0; 
-
-                roi = 1 + baseReturn;
-            }
-
-            if (guaranteedWin) {
-               this.skillActive = false; 
-               this.addLog("⚡ [被动触发] 内幕交易生效！");
-            }
-            if (this.player.id === 6 && this.skillActive) this.skillActive = false;
-
-            const profit = roi - 1;
-            this.money += roi;
-            this.money = parseFloat(this.money.toFixed(2));
+            if (market === 'market') this.marketScore += scoreChange;
+            if (market === 'crypto') this.cryptoScore += scoreChange;
+            if (market === 'commodity') this.commodityScore += scoreChange;
             
-            const icon = profit > 0 ? '📈' : '📉';
-            this.addLog(`${icon} 投资结算: ${profit > 0 ? '盈利' : '亏损'} $${Math.abs(profit).toFixed(2)}亿`);
+            // 限制分数范围
+            const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
+            this.marketScore = clamp(this.marketScore, -100, 100);
+            this.cryptoScore = clamp(this.cryptoScore, -100, 100);
+            this.commodityScore = clamp(this.commodityScore, -100, 100);
         },
 
-        investFuture(position) {
-            // 商品期货
-            this.money -= 1; 
-            let roi = 0;
+        // --- 投资系统 (增强版) ---
+        makeInvestment(type, position) {
+            if (this.actionsTaken[type]) return; // 每回合限一次
             
-            let marketFactor = 0;
-            switch(this.commodityTrend) {
-                case 'bull': marketFactor = 0.4; break;
-                case 'bear': marketFactor = -0.4; break;
-                case 'crash': marketFactor = -0.8; break;
-                default: marketFactor = (Math.random() * 0.4) - 0.2;
-            }
+            this.money -= 1; // 成本1亿
+            this.actionsTaken[type] = true;
 
-            let volatility = (Math.random() * 0.6) - 0.3; 
-            let actualChange = marketFactor + volatility;
+            // 存入待结算队列
+            this.pendingInvestments.push({
+                type: type,
+                position: position,
+                amount: 1,
+                turn: this.month,
+                skillActive: (this.player.id === 3 && this.skillActive) || (this.player.id === 6 && this.skillActive),
+                playerId: this.player.id
+            });
 
-            if (position === 'long') roi = 1 + actualChange;
-            else roi = 1 - actualChange;
-
-            const profit = roi - 1;
-            this.money += roi;
-            this.money = parseFloat(this.money.toFixed(2));
-            
-            const icon = profit > 0 ? '💰' : '💸';
             const actionName = position === 'long' ? '做多' : '做空';
-            this.addLog(`${icon} 期货${actionName}: ${profit > 0 ? '盈利' : '亏损'} $${Math.abs(profit).toFixed(2)}亿`);
+            const typeName = type === 'stock' ? '美股' : (type === 'crypto' ? '加密' : '商品');
+            this.addLog(`💼 投资挂单: ${actionName}${typeName} (将在下月结算)`);
+            
+            // 消耗技能状态 (仅用于标记，实际效果在结算时计算)
+            if (this.player.id === 3 && this.skillActive) {
+                this.skillActive = false; 
+                this.addLog("⚡ 内幕消息已使用，收益将在结算时翻倍。");
+            }
+        },
+
+        settleInvestments() {
+            if (this.pendingInvestments.length === 0) return;
+
+            this.addLog("======== 投资结算 ========");
+            
+            this.pendingInvestments.forEach(inv => {
+                let roi = 0;
+                let trend = 'neutral';
+                let score = 0;
+                
+                if (inv.type === 'stock') { trend = this.marketTrend; score = this.marketScore; }
+                else if (inv.type === 'crypto') { trend = this.cryptoTrend; score = this.cryptoScore; }
+                else if (inv.type === 'commodity') { trend = this.commodityTrend; score = this.commodityScore; }
+
+                // 计算市场因子 (基于分数更精确)
+                let marketFactor = score * 0.015; // 分数/100 * 1.5倍放大
+                
+                // 随机波动
+                let volatility = 0;
+                if (inv.type === 'crypto') volatility = (Math.random() * 1.5) - 0.7; // 剧烈波动
+                else if (inv.type === 'commodity') volatility = (Math.random() * 0.6) - 0.3;
+                else volatility = (Math.random() * 0.4) - 0.15;
+
+                let change = marketFactor + volatility;
+                
+                // 做空逻辑
+                if (inv.position === 'short') change = -change;
+
+                // 技能加成
+                if (inv.skillActive) {
+                    if (inv.playerId === 3) { // 科技新贵: 必赢翻倍
+                         change = Math.abs(change) + 0.5; // 确保正收益且增加
+                    } else if (inv.playerId === 6) { // 好莱坞: 无风险
+                         if (change < 0) change = 0.1; // 保底
+                    }
+                }
+
+                roi = inv.amount * (1 + change);
+                const profit = roi - inv.amount;
+                
+                this.money += roi;
+                
+                const icon = profit > 0 ? '💰' : '💸';
+                const typeName = inv.type === 'stock' ? '美股' : (inv.type === 'crypto' ? '加密' : '商品');
+                const posName = inv.position === 'long' ? '做多' : '做空';
+                
+                this.addLog(`${icon} ${posName}${typeName}: ${profit > 0 ? '盈利' : '亏损'} $${Math.abs(profit).toFixed(2)}亿`);
+            });
+
+            this.money = parseFloat(this.money.toFixed(2));
+            this.pendingInvestments = []; // 清空队列
         },
 
         embezzle() {
+            if (this.actionsTaken.embezzle) return;
             // 不消耗AP
+            this.actionsTaken.embezzle = true;
             this.approval -= 10;
             const gain = 2 + Math.random() * 2; 
             this.money += gain;
@@ -313,12 +381,13 @@ createApp({
                 this.currentEvent = event;
                 this.addLog(`⚡ 突发: ${event.title}`);
                 
-                // 应用事件效果
+                // 应用事件效果 (现在叠加分数)
                 if (event.effect.approval) this.approval += event.effect.approval;
                 if (event.effect.money) this.money += event.effect.money;
-                if (event.effect.market) this.marketTrend = event.effect.market;
-                if (event.effect.crypto) this.cryptoTrend = event.effect.crypto;
-                if (event.effect.commodity) this.commodityTrend = event.effect.commodity;
+                
+                if (event.effect.market) this.modifyMarketScore('market', event.effect.market);
+                if (event.effect.crypto) this.modifyMarketScore('crypto', event.effect.crypto);
+                if (event.effect.commodity) this.modifyMarketScore('commodity', event.effect.commodity);
                 
                 // 限制
                 this.approval = Math.min(100, Math.max(0, this.approval));
@@ -326,11 +395,22 @@ createApp({
         },
 
         updateMarketTrends(forceRandom = false) {
+            // 将分数转化为趋势标签
+            const scoreToTrend = (score) => {
+                if (score <= -40) return 'crash';
+                if (score <= -15) return 'bear';
+                if (score >= 40) return 'bull'; // 超级牛市
+                if (score >= 15) return 'bull';
+                return 'neutral';
+            };
+
             if (forceRandom) {
-                const states = ['bear', 'neutral', 'bull'];
-                this.marketTrend = states[Math.floor(Math.random() * 3)];
-                this.cryptoTrend = states[Math.floor(Math.random() * 3)];
-                this.commodityTrend = states[Math.floor(Math.random() * 3)];
+                this.marketScore = (Math.random() * 60) - 30;
+                this.cryptoScore = (Math.random() * 100) - 40;
+                this.commodityScore = (Math.random() * 60) - 30;
+                this.marketTrend = scoreToTrend(this.marketScore);
+                this.cryptoTrend = scoreToTrend(this.cryptoScore);
+                this.commodityTrend = scoreToTrend(this.commodityScore);
                 return;
             }
 
@@ -342,30 +422,29 @@ createApp({
                 this.addLog(`🌍 全球经济进入: ${this.getEconomyName(this.globalEconomy)} 阶段`);
             }
 
-            // 市场根据全局状态演变
-            this.marketTrend = this.evolveMarket(this.marketTrend, this.globalEconomy);
-            this.commodityTrend = this.evolveMarket(this.commodityTrend, this.globalEconomy, true); // 商品有时反周期
-            
-            // 加密货币比较独立且波动大
-            if (Math.random() < 0.4) {
-                 const states = ['bear', 'neutral', 'bull', 'crash', 'bull']; // bull 概率略高
-                 this.cryptoTrend = states[Math.floor(Math.random() * states.length)];
-            }
+            // 分数自然衰减 (回归中值)
+            this.marketScore *= 0.9;
+            this.cryptoScore *= 0.85; // 加密货币波动大
+            this.commodityScore *= 0.95;
+
+            // 经济周期影响分数
+            let ecoFactor = 0;
+            if (this.globalEconomy === 'boom') ecoFactor = 5;
+            if (this.globalEconomy === 'recession') ecoFactor = -5;
+            if (this.globalEconomy === 'crisis') ecoFactor = -15;
+
+            this.marketScore += ecoFactor + (Math.random() * 10 - 5);
+            this.commodityScore += (ecoFactor * -0.5) + (Math.random() * 10 - 5); // 商品有时反周期
+            this.cryptoScore += (Math.random() * 30 - 15);
+
+            this.marketTrend = scoreToTrend(this.marketScore);
+            this.cryptoTrend = scoreToTrend(this.cryptoScore);
+            this.commodityTrend = scoreToTrend(this.commodityScore);
         },
 
         evolveMarket(current, globalEco, isCommodity = false) {
-            const r = Math.random();
-            // 危机时刻容易崩盘
-            if (globalEco === 'crisis' && r < 0.4) return 'crash';
-            if (globalEco === 'recession' && r < 0.5) return 'bear';
-            if (globalEco === 'boom' && r < 0.6) return 'bull';
-
-            // 维持现状概率高
-            if (r < 0.6) return current;
-
-            // 随机变动
-            const states = ['bear', 'neutral', 'bull'];
-            return states[Math.floor(Math.random() * 3)];
+             // 废弃，改用分数系统
+             return current;
         },
 
         getEconomyName(state) {
@@ -376,6 +455,11 @@ createApp({
         addLog(msg) {
             this.logs.push(msg);
             if(this.logs.length > 20) this.logs.shift();
+            // 自动滚动到底部
+            this.$nextTick(() => {
+                const logArea = document.querySelector('.log-area');
+                if (logArea) logArea.scrollTop = logArea.scrollHeight;
+            });
         },
 
         showModal(title, msg, type) {
