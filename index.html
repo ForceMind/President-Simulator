@@ -328,10 +328,10 @@
         <aside class="action-panel">
             <h3 style="margin: 0;">家族基金会</h3>
             
-            <button class="skill-btn" @click="useSkill" :disabled="skillCooldown > 0 || ap < skillCost">
+            <button class="skill-btn" @click="useSkill" :disabled="skillCooldown > 0">
                 ★ 使用技能: {{ player.skillName }}
                 <div style="font-size: 0.8em; font-weight: normal; margin-top: 5px;">
-                    (消耗: ${{ player.skillCostMoney || 0 }}亿 / {{ skillCost }} AP)
+                    (消耗: ${{ player.skillCostMoney || 0 }}亿)
                     <span v-if="skillCooldown > 0">冷却: {{ skillCooldown }}月</span>
                 </div>
             </button>
@@ -339,23 +339,33 @@
             <div style="border-top: 1px solid #555; margin: 10px 0;"></div>
 
             <div class="market-trend">
-                股市趋势: <span :style="{color: marketTrend === 'bull' ? '#2ecc71' : '#e74c3c'}">{{ marketTrend === 'bull' ? '📈 牛市' : '📉 熊市' }}</span>
+                股市: <span :style="{color: marketTrend === 'bull' ? '#2ecc71' : '#e74c3c'}">{{ marketTrend === 'bull' ? '📈' : '📉' }}</span> | 
+                加密: <span :style="{color: cryptoTrend === 'bull' ? '#2ecc71' : '#e74c3c'}">{{ cryptoTrend === 'bull' ? '🚀' : '🩸' }}</span>
                 <br>
-                加密货币: <span :style="{color: cryptoTrend === 'bull' ? '#2ecc71' : '#e74c3c'}">{{ cryptoTrend === 'bull' ? '🚀 暴涨' : '🩸 暴跌' }}</span>
+                商品: <span :style="{color: commodityTrend === 'bull' ? '#2ecc71' : '#e74c3c'}">{{ commodityTrend === 'bull' ? '🔥 紧俏' : '🧊 滞销' }}</span>
             </div>
 
-            <button class="invest-btn" @click="invest('stock')" :disabled="ap < 1">
-                <div>🏢 <strong>购买蓝筹股</strong> <span style="float: right; color: #e74c3c;">-1 AP</span></div>
+            <button class="invest-btn" @click="invest('stock')">
+                <div>🏢 <strong>购买蓝筹股</strong></div>
                 <div style="font-size: 0.8em; color: #bdc3c7; margin-top: 4px;">成本: $1亿 | 风险: 低</div>
             </button>
 
-            <button class="invest-btn" @click="invest('crypto')" :disabled="ap < 1">
-                <div>🪙 <strong>炒作加密货币</strong> <span style="float: right; color: #e74c3c;">-1 AP</span></div>
+            <button class="invest-btn" @click="invest('crypto')">
+                <div>🪙 <strong>炒作加密货币</strong></div>
                 <div style="font-size: 0.8em; color: #bdc3c7; margin-top: 4px;">成本: $1亿 | 风险: 极高</div>
             </button>
 
-            <button class="invest-btn" @click="embezzle" :disabled="ap < 2">
-                <div>🤝 <strong>权力寻租</strong> <span style="float: right; color: #e74c3c;">-2 AP</span></div>
+            <div style="display: flex; gap: 10px;">
+                 <button class="invest-btn" @click="investFuture('long')">
+                    <div>🛢️ <strong>做多商品</strong></div>
+                </button>
+                <button class="invest-btn" @click="investFuture('short')">
+                    <div>📉 <strong>做空商品</strong></div>
+                </button>
+            </div>
+
+            <button class="invest-btn" @click="embezzle">
+                <div>🤝 <strong>权力寻租</strong></div>
                 <div style="font-size: 0.8em; color: #bdc3c7; margin-top: 4px;">消耗支持率换取现金</div>
             </button>
 
@@ -425,6 +435,7 @@
                 currentEvent: null,
                 marketTrend: 'neutral', // bear, neutral, bull
                 cryptoTrend: 'bull',
+                commodityTrend: 'neutral',
                 
                 // 技能状态
                 skillCooldown: 0,
@@ -440,7 +451,7 @@
                         desc: '商业帝国的继承人，擅长操纵媒体。', 
                         money: 20, 
                         skillName: '推特治国', 
-                        skillDesc: '消耗$2亿，随机重置当前支持率(30%-80%)，并刷新所有手牌。',
+                        skillDesc: '消耗$2亿，支持率大幅上升(+15%)。',
                         skillCostMoney: 2
                     },
                     { 
@@ -514,8 +525,9 @@
                 this.addLog(`📅 进入第 ${this.month} 个月`);
 
                 // 3. AP 回复机制
-                if (this.approval >= 70) this.maxAp = 3;
-                else if (this.approval <= 30) this.maxAp = 1;
+                if (this.approval >= 80) this.maxAp = 8;
+                else if (this.approval >= 60) this.maxAp = 6;
+                else if (this.approval >= 40) this.maxAp = 4;
                 else this.maxAp = 2;
                 this.ap = this.maxAp;
 
@@ -589,7 +601,7 @@
             },
 
             invest(type) {
-                this.ap -= 1;
+                // this.ap -= 1; // 经济行为不消耗点数
                 this.money -= 1; // 投入1亿
                 let roi = 0;
 
@@ -634,8 +646,40 @@
                 this.addLog(`${icon} 投资结算: ${profit > 0 ? '盈利' : '亏损'} $${Math.abs(profit).toFixed(2)}亿`);
             },
 
+            investFuture(position) {
+                // 商品期货：做多或做空
+                this.money -= 1; // 成本1亿
+                let roi = 0;
+                
+                let marketFactor = 0;
+                // 简单的涨跌模拟
+                if (this.commodityTrend === 'bull') marketFactor = 0.4;
+                else if (this.commodityTrend === 'bear') marketFactor = -0.4;
+                else marketFactor = (Math.random() * 0.4) - 0.2; // 震荡
+
+                // 随机波动
+                let volatility = (Math.random() * 0.6) - 0.3; 
+                let actualChange = marketFactor + volatility;
+
+                if (position === 'long') {
+                    // 做多：涨了赚，跌了赔
+                    roi = 1 + actualChange;
+                } else {
+                    // 做空：跌了赚，涨了赔
+                    roi = 1 - actualChange;
+                }
+
+                const profit = roi - 1;
+                this.money += roi;
+                this.money = parseFloat(this.money.toFixed(2));
+                
+                const icon = profit > 0 ? '💰' : '💸';
+                const actionName = position === 'long' ? '做多' : '做空';
+                this.addLog(`${icon} 期货${actionName}: ${profit > 0 ? '盈利' : '亏损'} $${Math.abs(profit).toFixed(2)}亿`);
+            },
+
             embezzle() {
-                this.ap -= 2;
+                // this.ap -= 2; // 经济行为不消耗点数
                 this.approval -= 10;
                 const gain = 2 + Math.random() * 2; // 获得2-4亿
                 this.money += gain;
@@ -649,17 +693,16 @@
                     return;
                 }
                 
-                this.ap -= this.skillCost;
+                // this.ap -= this.skillCost; // 技能不消耗点数
                 this.money -= (this.player.skillCostMoney || 0);
                 this.skillCooldown = 6; // 6个月冷却
                 this.addLog(`★ 发动技能: ${this.player.skillName}`);
 
                 switch(this.player.id) {
-                    case 1: // 金发大亨：重置支持率，换牌
-                        this.approval = Math.floor(Math.random() * (80 - 30 + 1)) + 30;
-                        this.hand = [];
-                        this.drawCards(3);
-                        this.addLog("推特治国生效：支持率重置，手牌已刷新。");
+                    case 1: // 金发大亨：定向增加支持率
+                        this.approval += 15;
+                        if(this.approval > 100) this.approval = 100;
+                        this.addLog("推特治国生效：支持率大幅上升。");
                         break;
                     case 2: // 资深政客：AP+2
                         this.ap += 2;
@@ -710,6 +753,9 @@
                 }
                 if (Math.random() < 0.4) {
                     this.cryptoTrend = states[Math.floor(Math.random() * 3)];
+                }
+                if (Math.random() < 0.35) {
+                    this.commodityTrend = states[Math.floor(Math.random() * 3)];
                 }
             },
 
