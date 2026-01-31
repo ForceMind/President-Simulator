@@ -295,3 +295,142 @@ body {
     background: #e74c3c;
     transform: scale(1.1);
 }
+
+/* 移动端顶部数据栏 */
+.mobile-stats-header {
+    background: var(--panel-bg);
+    padding: 10px;
+    border-bottom: 1px solid #34495e;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.mobile-stats-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+.ap-dots {
+    display: flex;
+    gap: 3px;
+}
+.ap-dots div {
+    width: 10px; height: 10px; border-radius: 50%;
+}
+
+.mobile-log-bar {
+    margin-top: 8px;
+    background: rgba(0,0,0,0.3);
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    color: #bdc3c7;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+.log-preview {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 90%;
+}
+
+.mobile-log-content {
+    background: rgba(0,0,0,0.9);
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    border-bottom: 1px solid #e67e22;
+    font-size: 0.85em;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 101;
+}
+
+/* 市场操作网格 */
+.action-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+}
+.action-grid .full-width {
+    grid-column: span 2;
+}
+
+@media (max-width: 900px) {
+    /* 角色选择横向滚动 */
+    .char-grid {
+        display: flex;
+        overflow-x: auto;
+        padding-bottom: 20px;
+        scroll-snap-type: x mandatory;
+        gap: 15px;
+    }
+    .char-card {
+        min-width: 280px;
+        scroll-snap-align: center;
+    }
+
+    /* 移动端卡牌布局 */
+    .cards-area {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        align-content: start;
+    }
+
+    .game-card {
+        width: auto;
+        max-width: none;
+        height: auto;
+        min-height: 140px;
+        margin-bottom: 0;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .card-content-wrapper {
+        flex-grow: 1;
+    }
+
+    .card-desc {
+        display: none; /* 移动端隐藏描述以节省空间 */
+    }
+    
+    .card-title {
+        font-size: 1em;
+        margin: 5px 0;
+    }
+    
+    .card-type {
+        font-size: 0.7em;
+    }
+    
+    .card-effect {
+        font-size: 0.75em;
+        margin-top: auto;
+        border-top: 1px solid #bdc3c7;
+        padding-top: 3px;
+    }
+    
+    /* 调整顶部留白 */
+    .dashboard-grid {
+        height: calc(100vh - 60px); /* 减去底部导航高度 */
+    }
+    
+    .desk-area, .action-panel {
+        padding-bottom: 70px; /* 防止被底部导航遮挡 */
+        overflow-y: auto;
+    }
+}

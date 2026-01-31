@@ -14,7 +14,7 @@
     
     <!-- 阶段1: 角色选择 -->
     <div v-if="state === 'SELECT_CHAR'">
-        <h1 style="text-align: center; color: var(--accent-gold);">总统模拟器: 权力的游戏</h1>
+        <h1 style="text-align: center; color: var(--accent-gold);">🇺🇸 2024 总统模拟器</h1>
         <p style="text-align: center; color: #bdc3c7;">目标：任期结束时存活，并积累 $200 亿财富</p>
         
         <div class="char-grid">
@@ -41,8 +41,31 @@
     <!-- 阶段2: 游戏主界面 -->
     <div v-if="state === 'PLAYING'" class="dashboard-grid">
         
-        <!-- 左侧：数据面板 -->
-        <aside class="stats-panel" v-show="activeTab === 'stats' || !isMobile">
+        <!-- 移动端顶部数据栏 -->
+        <header v-if="isMobile" class="mobile-stats-header">
+            <div class="mobile-stats-row">
+                <span>📅 {{ month }}/48</span>
+                <span :class="approvalColor">👍 {{ approval }}%</span>
+                <span :class="money < 5 ? 'text-red' : 'text-green'">💰 ${{ money.toFixed(0) }}亿</span>
+                <div class="ap-dots">
+                    <div v-for="n in maxAp" :key="n" :style="{ background: n <= ap ? '#e67e22' : '#555' }"></div>
+                </div>
+            </div>
+            
+            <!-- 可折叠日志 -->
+            <div class="mobile-log-bar" @click="showFullLogs = !showFullLogs">
+                <div class="log-preview">> {{ logs[logs.length-1] || '无消息' }}</div>
+                <div class="log-toggle">{{ showFullLogs ? '▲' : '▼' }}</div>
+            </div>
+            <div v-if="showFullLogs" class="mobile-log-content">
+                <div v-for="(log, i) in logs.slice().reverse().slice(0, 10)" :key="i" style="padding: 4px 0; border-bottom: 1px dashed #333;">
+                    > {{ log }}
+                </div>
+            </div>
+        </header>
+
+        <!-- 左侧：数据面板 (桌面端) -->
+        <aside class="stats-panel" v-show="!isMobile">
             <h2 style="margin: 0; color: var(--accent-gold);">{{ player.name }}</h2>
             
             <div class="stat-item">
@@ -79,14 +102,20 @@
         <main class="desk-area" v-show="activeTab === 'desk' || !isMobile">
             <!-- 突发事件栏 -->
             <div v-if="currentEvent" class="event-banner animate__animated animate__pulse">
-                <span>⚡ 突发新闻：</span>
-                <strong>{{ currentEvent.title }}</strong>
-                <span style="font-size: 0.8em; opacity: 0.8;">{{ currentEvent.desc }}</span>
+                <span>⚡ 突发:</span>
+                <strong style="margin-left: 5px;">{{ currentEvent.title }}</strong>
+                <!-- <span v-if="!isMobile" style="font-size: 0.8em; opacity: 0.8;">{{ currentEvent.desc }}</span> -->
             </div>
 
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div v-if="!isMobile" style="display: flex; justify-content: space-between; align-items: center;">
                 <h3>待处理文件 (手牌 {{ hand.length }}/6)</h3>
                 <span style="font-size: 0.8em; color: #95a5a6;">支持率决定下月AP回复量</span>
+            </div>
+            
+            <!-- 移动端简单标题 -->
+            <div v-else style="padding: 10px 0 5px 0; font-size: 0.9em; color: #95a5a6; display: flex; justify-content: space-between;">
+                <span>📂 待处理: {{ hand.length }}/6</span>
+                <span>⚡ 消耗AP: 1-3</span>
             </div>
 
             <div class="cards-area">
@@ -95,13 +124,13 @@
                     <!-- 弃牌按钮 -->
                     <div class="discard-btn" @click.stop="discardCard(index)" title="花费1 AP废弃此文件">✖</div>
                     
-                    <div @click="playCard(index)" style="height: 100%; display: flex; flex-direction: column;">
+                    <div @click="playCard(index)" class="card-content-wrapper">
                         <div class="card-type">{{ card.type }}</div>
                         <div class="card-title">{{ card.title }}</div>
                         <div class="card-desc">{{ card.desc }}</div>
                     </div>
                     
-                    <div style="font-size: 0.8em; color: #7f8c8d; border-top: 1px solid #bdc3c7; padding-top: 5px;" @click="playCard(index)">
+                    <div class="card-effect" @click="playCard(index)">
                         <div v-if="card.effect.approval">支持率: {{ card.effect.approval > 0 ? '+' : ''}}{{ card.effect.approval }}%</div>
                         <div v-if="card.effect.money">财富: {{ card.effect.money > 0 ? '+' : ''}}{{ card.effect.money }}亿</div>
                     </div>
@@ -114,18 +143,7 @@
 
         <!-- 右侧：经济操作 -->
         <aside class="action-panel" v-show="activeTab === 'market' || !isMobile">
-            <h3 style="margin: 0;">家族基金会</h3>
             
-            <button class="skill-btn" @click="useSkill" :disabled="skillCooldown > 0">
-                ★ 使用技能: {{ player.skillName }}
-                <div style="font-size: 0.8em; font-weight: normal; margin-top: 5px;">
-                    (消耗: ${{ player.skillCostMoney || 0 }}亿)
-                    <span v-if="skillCooldown > 0">冷却: {{ skillCooldown }}月</span>
-                </div>
-            </button>
-
-            <div style="border-top: 1px solid #555; margin: 10px 0;"></div>
-
             <div class="market-trend">
                 <div style="font-size: 0.9em; margin-bottom: 5px; color: #bdc3c7;">
                     全球经济: <strong style="color: white;">{{ getEconomyName(globalEconomy) }}</strong>
@@ -136,43 +154,42 @@
                 商品: <span :style="{color: commodityTrend === 'bull' ? '#2ecc71' : (commodityTrend === 'crash' ? '#e74c3c' : (commodityTrend === 'bear' ? '#e67e22' : 'white'))}">{{ commodityTrend === 'bull' ? '🔥 紧俏' : (commodityTrend === 'crash' ? '🧊 滞销' : (commodityTrend === 'bear' ? '🧊' : '➡️')) }}</span>
             </div>
 
-            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+            <div class="action-grid">
+                <!-- 股票 -->
                 <button class="invest-btn" @click="makeInvestment('stock', 'long')" :disabled="actionsTaken.stock">
-                    <div>🏢 <strong>做多股市</strong></div>
-                    <div style="font-size: 0.8em; color: #bdc3c7;">成本: $1亿</div>
+                    <div>🏢 做多股市</div>
                 </button>
                 <button class="invest-btn" @click="makeInvestment('stock', 'short')" :disabled="actionsTaken.stock">
-                    <div>📉 <strong>做空股市</strong></div>
-                    <div style="font-size: 0.8em; color: #bdc3c7;">成本: $1亿</div>
+                    <div>📉 做空股市</div>
                 </button>
-            </div>
 
-            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <!-- 加密 -->
                 <button class="invest-btn" @click="makeInvestment('crypto', 'long')" :disabled="actionsTaken.crypto">
-                    <div>🪙 <strong>做多加密</strong></div>
-                    <div style="font-size: 0.8em; color: #bdc3c7;">成本: $1亿</div>
+                    <div>🪙 做多加密</div>
                 </button>
                 <button class="invest-btn" @click="makeInvestment('crypto', 'short')" :disabled="actionsTaken.crypto">
-                    <div>🩸 <strong>做空加密</strong></div>
-                    <div style="font-size: 0.8em; color: #bdc3c7;">成本: $1亿</div>
+                    <div>🩸 做空加密</div>
                 </button>
-            </div>
 
-            <div style="display: flex; gap: 10px;">
-                 <button class="invest-btn" @click="makeInvestment('commodity', 'long')" :disabled="actionsTaken.commodity">
-                    <div>🛢️ <strong>做多商品</strong></div>
-                    <div style="font-size: 0.8em; color: #bdc3c7;">成本: $1亿</div>
+                <!-- 商品 -->
+                <button class="invest-btn" @click="makeInvestment('commodity', 'long')" :disabled="actionsTaken.commodity">
+                    <div>🛢️ 做多商品</div>
                 </button>
                 <button class="invest-btn" @click="makeInvestment('commodity', 'short')" :disabled="actionsTaken.commodity">
-                    <div>📉 <strong>做空商品</strong></div>
-                    <div style="font-size: 0.8em; color: #bdc3c7;">成本: $1亿</div>
+                    <div>📉 做空商品</div>
+                </button>
+                
+                <!-- 寻租 -->
+                <button class="invest-btn full-width" @click="embezzle" :disabled="actionsTaken.embezzle" style="border-color: #e74c3c; color: #e74c3c;">
+                    <div>🤝 权力寻租</div>
                 </button>
             </div>
-
-            <button class="invest-btn" @click="embezzle" :disabled="actionsTaken.embezzle" style="margin-top: 15px;">
-                <div>🤝 <strong>权力寻租</strong></div>
-                <div style="font-size: 0.8em; color: #bdc3c7; margin-top: 4px;">消耗支持率换取现金</div>
-            </button>
+            
+            <div style="margin-top: 15px;">
+                 <button class="skill-btn" @click="useSkill" :disabled="skillCooldown > 0" style="width: 100%;">
+                    ★ 技能: {{ player.skillName }} ({{ skillCooldown > 0 ? skillCooldown + '月冷却' : '$' + (player.skillCostMoney||0) + '亿' }})
+                </button>
+            </div>
 
             <button class="next-turn-btn" @click="nextTurn">
                 {{ month === 48 ? '卸任结算' : '结束本月' }}
@@ -181,25 +198,8 @@
 
         <!-- 移动端底部导航 -->
         <nav class="mobile-nav" v-if="isMobile">
-            <button :class="{active: activeTab === 'stats'}" @click="activeTab = 'stats'">📊 数据</button>
             <button :class="{active: activeTab === 'desk'}" @click="activeTab = 'desk'">🗂️ 办公</button>
             <button :class="{active: activeTab === 'market'}" @click="activeTab = 'market'">💰 市场</button>
         </nav>
-
     </div>
-
-    <!-- 结局/警告模态框 -->
-    <div v-if="modal.show" class="modal-overlay">
-        <div class="modal-content animate__animated animate__zoomIn">
-            <h2 :style="{color: modal.type === 'win' ? '#2ecc71' : '#e74c3c'}">{{ modal.title }}</h2>
-            <p style="font-size: 1.1em; line-height: 1.6;">{{ modal.msg }}</p>
-            <button class="next-turn-btn" style="width: 100%; margin-top: 20px;" @click="handleModalAction">{{ modal.btnText }}</button>
-        </div>
-    </div>
-
-</div>
-
-
-<script type="module" src="./js/app.js"></script>
-</body>
-</html>
+```

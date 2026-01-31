@@ -47,6 +47,7 @@ createApp({
             // 移动端适配
             isMobile: window.innerWidth < 900,
             activeTab: 'desk', // stats, desk, market
+            showFullLogs: false, // 移动端日志展开状态
 
             // 弹窗
             modal: { show: false, title: '', msg: '', type: 'info', btnText: '确定' }
