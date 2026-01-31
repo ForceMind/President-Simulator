@@ -64,7 +64,8 @@
                 showFullLogs: false, // 移动端日志展开状态
 
                 // 弹窗
-                modal: { show: false, title: '', msg: '', type: 'info', btnText: '确定' }
+                modal: { show: false, title: '', msg: '', type: 'info', btnText: '确定' },
+                skillModal: { show: false }
             }
         },
         mounted() {
@@ -331,17 +332,25 @@
 
             // --- 技能系统 ---
             useSkill() {
+                // 打开确认弹窗而非直接执行
+                this.skillModal.show = true;
+            },
+
+            confirmSkill() {
+                this.skillModal.show = false;
+                
                 if (this.player.skillCostMoney && this.money < this.player.skillCostMoney) {
                     this.addLog("❌ 资金不足以发动技能！");
                     return;
                 }
                 
+                // this.ap -= this.skillCost; // 技能不消耗点数
                 this.money -= (this.player.skillCostMoney || 0);
-                this.skillCooldown = 6; 
+                this.skillCooldown = 6; // 6个月冷却
                 this.addLog(`★ 发动技能: ${this.player.skillName}`);
 
                 switch(this.player.id) {
-                    case 1: // 金发大亨
+                    case 1: // 金发大亨：定向增加支持率
                         this.approval += 15;
                         if(this.approval > 100) this.approval = 100;
                         this.addLog("推特治国生效：支持率大幅上升。");

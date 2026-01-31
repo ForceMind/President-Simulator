@@ -124,14 +124,82 @@ body {
 .card-title { font-size: 1.2em; font-weight: bold; margin: 10px 0; }
 .card-desc { font-size: 0.9em; flex-grow: 1; }
 .card-cost { 
-    position: absolute; top: -10px; right: -10px; 
-    background: var(--accent-red); color: white; 
-    width: 30px; height: 30px; border-radius: 50%; 
-    display: flex; align-items: center; justify-content: center; font-weight: bold;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    display: inline-block;
+    background: #34495e;
+    color: #ecf0f1;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75em;
+    font-weight: bold;
+    margin-bottom: 5px;
 }
 
-/* 右侧：经济与操作 */
+/* 移动端底部下一步按钮 */
+.mobile-next-turn-container {
+    position: fixed;
+    bottom: 60px; /* 导航栏高度 */
+    left: 0;
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    background: linear-gradient(to top, var(--bg-color), transparent);
+    z-index: 90;
+    pointer-events: none; /* 让背景点击穿透 */
+}
+.mobile-next-turn-container button {
+    width: 100%;
+    pointer-events: auto;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+/* 移动端顶部数据优化 */
+.mobile-stats-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8em;
+}
+.stat-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1.2;
+}
+.stat-label {
+    font-size: 0.8em;
+    color: #7f8c8d;
+    transform: scale(0.9);
+}
+.stat-val {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+/* 技能弹窗 */
+.skill-modal-content {
+    background: #fff;
+    color: #333;
+    padding: 25px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+}
+.skill-modal-btn-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+.skill-modal-btn-group button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.btn-confirm { background: var(--accent-green); color: white; }
+.btn-cancel { background: #95a5a6; color: white; }
 .action-panel {
     background: var(--panel-bg);
     padding: 20px;
@@ -249,14 +317,15 @@ body {
     .char-grid {
         display: flex;
         overflow-x: auto;
-        padding: 10px 5px 25px 5px; /* 增加上下 padding */
+        padding: 10px 20px 25px 20px; /* 增加左右 padding，让首尾不贴边 */
         scroll-snap-type: x mandatory;
         gap: 15px;
     }
     .char-card {
-        min-width: 280px;
+        min-width: 80vw; /* 使用视口比例，确保右侧露出下一张的一角 */
+        max-width: 350px;
         scroll-snap-align: center;
-        margin: 5px; /* 增加 margin */
+        margin: 5px 0; /* 左右由 gap 控制 */
     }
 
     /* 移动端底部导航 */

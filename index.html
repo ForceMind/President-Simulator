@@ -54,11 +54,23 @@
         <!-- 移动端顶部数据栏 -->
         <header v-if="isMobile" class="mobile-stats-header">
             <div class="mobile-stats-row">
-                <span>📅 {{ month }}/48</span>
-                <span :class="approvalColor">👍 {{ approval }}%</span>
-                <span :class="money < 5 ? 'text-red' : 'text-green'">💰 ${{ money.toFixed(0) }}亿</span>
-                <div class="ap-dots">
-                    <div v-for="n in maxAp" :key="n" :style="{ background: n <= ap ? '#e67e22' : '#555' }"></div>
+                <div class="stat-box">
+                    <span class="stat-label">📅进度</span>
+                    <span class="stat-val">{{ month }}/48</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">👍支持率</span>
+                    <span class="stat-val" :class="approvalColor">{{ approval }}%</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">💰资金</span>
+                    <span class="stat-val" :class="money < 5 ? 'text-red' : 'text-green'">${{ money.toFixed(0) }}亿</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">AP</span>
+                    <div class="ap-dots" style="margin-top: 5px;">
+                        <div v-for="n in maxAp" :key="n" :style="{ background: n <= ap ? '#e67e22' : '#555' }"></div>
+                    </div>
                 </div>
             </div>
             
@@ -130,9 +142,11 @@
 
             <div class="cards-area">
                 <div v-for="(card, index) in hand" :key="index" class="game-card animate__animated animate__fadeInUp">
-                     <div class="card-cost">{{ card.cost }}</div>
-                    <!-- 弃牌按钮 -->
-                    <div class="discard-btn" @click.stop="discardCard(index)" title="花费1 AP废弃此文件">✖</div>
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div class="card-cost">消耗 {{ card.cost }} AP</div>
+                        <!-- 弃牌按钮 -->
+                        <div class="discard-btn" @click.stop="discardCard(index)" title="花费1 AP废弃此文件" style="position: static; margin-left: auto;">✖</div>
+                    </div>
                     
                     <div @click="playCard(index)" class="card-content-wrapper">
                         <div class="card-type">{{ card.type }}</div>
@@ -201,7 +215,30 @@
                 </button>
             </div>
 
-            <button class="next-turn-btn" @click="nextTurn">
+            <!-- 技能确认弹窗 -->
+            <div v-if="skillModal.show" class="modal-overlay" style="z-index: 2000;">
+                <div class="skill-modal-content animate__animated animate__zoomIn">
+                    <h3>{{ player.skillName }}</h3>
+                    <p style="color: #666; font-size: 0.9em; margin: 15px 0;">{{ player.skillDesc }}</p>
+                    <div style="background: #f8f9fa; padding: 10px; border-radius: 6px; margin-bottom: 15px;">
+                        <div>💰 消耗资金: ${{ player.skillCostMoney || 0 }}亿</div>
+                        <div>⏳ 冷却时间: 6个月</div>
+                    </div>
+                    <div class="skill-modal-btn-group">
+                        <button class="btn-cancel" @click="skillModal.show = false">取消</button>
+                        <button class="btn-confirm" @click="confirmSkill">确认发动</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 移动端常驻下一步按钮 -->
+            <div class="mobile-next-turn-container" v-if="isMobile">
+                <button class="next-turn-btn" @click="nextTurn">
+                    {{ month === 48 ? '卸任结算' : '结束本月' }}
+                </button>
+            </div>
+
+            <button class="next-turn-btn" @click="nextTurn" v-if="!isMobile">
                 {{ month === 48 ? '卸任结算' : '结束本月' }}
             </button>
         </aside>
