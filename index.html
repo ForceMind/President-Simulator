@@ -31,15 +31,23 @@
         <div class="char-grid">
             <div v-for="char in characters" :key="char.id" 
                  class="char-card" 
-                 :class="{ selected: selectedCharId === char.id }"
-                 @click="selectedCharId = char.id">
+                 :class="{ selected: selectedCharId === char.id, locked: isCharLocked(char) }"
+                 @click="!isCharLocked(char) ? selectedCharId = char.id : null">
+
+                <!-- Lock Overlay -->
+                <div v-if="isCharLocked(char)" class="char-lock-overlay">
+                    <div style="font-size: 2em; margin-bottom: 10px;">🔒</div>
+                    <div style="font-size: 0.9em; padding: 0 10px;">{{ getLockReason(char) }}</div>
+                </div>
+
                 <div class="char-icon">{{ char.icon }}</div>
                 <h3>{{ char.name }}</h3>
                 <p style="color: #7f8c8d; font-size: 0.9em;">{{ char.desc }}</p>
                 
                 <!-- 成就显示 -->
                 <div v-if="achievements[char.id]" style="font-size: 0.8em; color: var(--accent-gold); margin: 5px 0; border: 1px dashed #555; padding: 4px;">
-                    🏆 记录: {{ achievements[char.id].maxMonth }}月 / ${{ achievements[char.id].maxMoney.toFixed(1) }}亿
+                    <span v-if="achievements[char.id].completed">✅ 已通关</span>
+                    <span v-else>🏆 记录: {{ achievements[char.id].maxMonth }}月 / ${{ achievements[char.id].maxMoney.toFixed(1) }}亿</span>
                 </div>
 
                 <div style="margin: 10px 0;">

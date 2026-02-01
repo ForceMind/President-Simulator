@@ -159,6 +159,55 @@
             }
         },
         methods: {
+            // --- Unlock System ---
+            isCharLocked(char) {
+                const clearedIds = this.getClearedCharIds();
+                const clearedCount = clearedIds.length;
+                
+                // 基础角色 (ID 1-6)
+                if (char.id <= 6) {
+                    // 默认解锁: 2 (政客), 5 (平权)
+                    if (char.id === 2 || char.id === 5) return false;
+                    
+                    // 第二级: 需通关任意 1 个角色 -> 解锁 1 (金发), 4 (将军)
+                    if (char.id === 1 || char.id === 4) {
+                        return clearedCount < 1;
+                    }
+                    
+                    // 第三级: 需通关任意 3 个角色 -> 解锁 3 (科技), 6 (明星)
+                    if (char.id === 3 || char.id === 6) {
+                        return clearedCount < 3;
+                    }
+                }
+                
+                // 扩展角色 (ID 7+)
+                // 需通关所有基础角色 (1-6)
+                if (char.id > 6) {
+                    const baseIds = [1, 2, 3, 4, 5, 6];
+                    const allBaseCleared = baseIds.every(id => clearedIds.includes(id.toString()) || clearedIds.includes(id));
+                    // 调试作弊模式：如果在localStorage设置了ps_unlock_all即可全开
+                    if (localStorage.getItem('ps_unlock_all')) return false;
+
+                    return !allBaseCleared;
+                }
+                
+                return true;
+            },
+            
+            getLockReason(char) {
+                 if (char.id <= 6) {
+                     if (char.id === 1 || char.id === 4) return "🔒 需通关任意 1 位角色";
+                     if (char.id === 3 || char.id === 6) return "🔒 需通关任意 3 位角色";
+                 }
+                 if (char.id > 6) return "🔒 需通关所有基础角色(6位)";
+                 return "未解锁";
+            },
+
+            getClearedCharIds() {
+                // Return array of IDs that have 'completed: true'
+                return Object.keys(this.achievements).filter(id => this.achievements[id].completed);
+            },
+
             // --- Helper Methods for UI ---
             getPosition(type) {
                 return this.positions.find(p => p.type === type);
@@ -374,11 +423,11 @@
                 }
             },
 
-            saveAchievement() {
+            saveAchievement(isWin = false) {
                 if (!this.player) return;
                 const cid = this.player.id;
                 if (!this.achievements[cid]) {
-                    this.achievements[cid] = { maxMonth: 0, maxMoney: 0 };
+                    this.achievements[cid] = { maxMonth: 0, maxMoney: 0, completed: false };
                 }
                 
                 // 更新记录
@@ -387,6 +436,9 @@
                 }
                 if (this.money > this.achievements[cid].maxMoney) {
                     this.achievements[cid].maxMoney = this.money;
+                }
+                if (isWin) {
+                    this.achievements[cid].completed = true;
                 }
 
                 localStorage.setItem('president_sim_achievements', JSON.stringify(this.achievements));
@@ -430,7 +482,7 @@
                         type = "fail";
                     }
                     isOver = true;
-                }
+                }type === 'win'); // Pass save param
 
                 if (isOver) {
                     this.saveAchievement();
