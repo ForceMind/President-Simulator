@@ -52,31 +52,31 @@
                 
                 <!-- 成就显示 -->
                 <div v-if="achievements[char.id]" style="font-size: 0.8em; color: var(--accent-gold); margin: 5px 0; border: 1px dashed #555; padding: 4px;">
-                    <span v-if="achievements[char.id].completed">✅ 已通关</span>
-                    <span v-else>🏆 记录: {{ achievements[char.id].maxMonth }}月 / ${{ achievements[char.id].maxMoney.toFixed(1) }}亿</span>
+                    <span v-if="achievements[char.id].completed">✅ {{ t('char_cleared') }}</span>
+                    <span v-else>🏆 {{ t('char_record') }}: {{ t('month', [achievements[char.id].maxMonth]) }} / ${{ achievements[char.id].maxMoney.toFixed(1) }}{{ t('unit_billion') }}</span>
                 </div>
 
                 <div style="margin: 10px 0;">
-                    <span class="skill-tag">技能: {{ char.skillName }}</span>
+                    <span class="skill-tag">{{ t('char_skill') }}: {{ char.skillName }}</span>
                 </div>
                 <p style="font-size: 0.85em;">{{ char.skillDesc }}</p>
-                <div style="margin-top: 10px; font-weight: bold;">初始资金: ${{ char.money }}亿</div>
+                <div style="margin-top: 10px; font-weight: bold;">{{ t('char_initial_money') }}: ${{ char.money }}{{ t('unit_billion') }}</div>
             </div>
         </div>
 
         <div style="text-align: center; margin-top: 30px;">
-            <button class="next-turn-btn" style="width: 200px;" @click="startGame" :disabled="!selectedCharId">宣誓就职</button>
+            <button class="next-turn-btn" style="width: 200px;" @click="startGame" :disabled="!selectedCharId">{{ t('btn_swear_in') }}</button>
         </div>
 
         <!-- 角色选择引导 -->
         <div v-if="showCharTutorial" class="tutorial-overlay"></div>
         <div v-if="showCharTutorial" class="tutorial-box" 
              style="top: 50%; left: 50%; transform: translate(-50%, -50%); position: fixed; text-align: left;">
-            <h3>{{ charTutorialStep === 1 ? '选择您的背景' : '准备就绪' }}</h3>
-            <p style="margin: 10px 0; line-height: 1.5;">{{ charTutorialStep === 1 ? '每位候选人都有独特的【技能】和【初始资金】。有的适合操纵市场(资金多)，有的适合政治斗争(技能强)。点击卡片查看详情。' : '选定心仪的角色后，点击下方的“宣誓就职”按钮开启您的任期。' }}</p>
+            <h3>{{ charTutorialStep === 1 ? t('char_tutorial_title_1') : t('char_tutorial_title_2') }}</h3>
+            <p style="margin: 10px 0; line-height: 1.5;">{{ charTutorialStep === 1 ? t('char_tutorial_text_1') : t('char_tutorial_text_2') }}</p>
             <div style="text-align: right;">
                 <button class="next-turn-btn" style="padding: 5px 15px; font-size: 0.9em;" @click="nextCharTutorialStep">
-                    {{ charTutorialStep === 1 ? '下一步' : '明白了' }}
+                    {{ charTutorialStep === 1 ? t('btn_next') : t('btn_understood') }}
                 </button>
             </div>
         </div>
@@ -88,7 +88,7 @@
         <h3>{{ tutorialTitle }}</h3>
         <p>{{ tutorialText }}</p>
         <button class="next-turn-btn" style="padding: 8px; font-size: 1em;" @click="nextTutorialStep">
-            {{ tutorialStep === 4 ? '开始执政' : '下一步' }}
+            {{ tutorialStep === 4 ? t('btn_start') : t('btn_next') }}
         </button>
     </div>
 

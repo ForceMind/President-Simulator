@@ -490,27 +490,30 @@
 
                 // 财富 < 1亿 -> 暗杀
                 if (this.money < 1) {
-                    title = "GAME OVER: 遇刺身亡";
-                    msg = "你的私人安保团队因为欠薪罢工了。你在高尔夫球场被不明身份的狙击手击毙。";
+                    title = this.t('game_over_bankrupt_title');
+                    msg = this.t('game_over_bankrupt_msg');
                     type = "fail";
                     isOver = true;
                 }
                 // 支持率 < 25 -> 弹劾
                 else if (this.approval < 25) {
-                    title = "GAME OVER: 遭到弹劾";
-                    msg = "国会全票通过了对你的弹劾案。你不仅丢了工作，还将面临牢狱之灾。";
+                    title = this.t('game_over_impeach_title');
+                    msg = this.t('game_over_impeach_msg');
                     type = "fail";
                     isOver = true;
                 }
                 // 48月结束 -> 结算
                 else if (this.month > 48) {
+                    const moneyStr = '$' + this.money.toFixed(1);
+                    const unit = this.t('unit_billion');
+                    
                     if (this.money >= 200) {
-                        title = "完美结局: 资本大鳄";
-                        msg = `任期结束。你带着 $${this.money.toFixed(1)}亿 的巨额财富光荣退休，成为幕后真正的统治者。`;
+                        title = this.t('game_end_win_title');
+                        msg = this.t('game_end_win_msg', [moneyStr, unit]);
                         type = "win";
                     } else {
-                        title = "结局: 凄惨晚年";
-                        msg = `任期结束。虽然你活了下来，但仅有的 $${this.money.toFixed(1)}亿 财富不足以让你在政敌的清算中自保。`;
+                        title = this.t('game_end_fail_title');
+                        msg = this.t('game_end_fail_msg', [moneyStr, unit]);
                         type = "fail";
                     }
                     isOver = true;
