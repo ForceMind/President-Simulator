@@ -190,6 +190,9 @@ body {
 }
 .tutorial-box {
     position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     background: white;
     color: #333;
     padding: 20px;
@@ -198,6 +201,7 @@ body {
     z-index: 3001;
     pointer-events: auto;
     box-shadow: 0 0 20px rgba(241, 196, 15, 0.5);
+    text-align: left;
 }
 .tutorial-highlight {
     position: relative;
