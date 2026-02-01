@@ -428,6 +428,12 @@
                     const penalty = 3;
                     this.approval -= penalty;
                     this.addLog(this.t('log_idle_penalty', penalty));
+                    
+                    if (!this.tutorialFlags.idleWarned) {
+                        this.showModal(this.t('tutorial_idle_title'), this.t('tutorial_idle_msg'), 'warning');
+                        this.tutorialFlags.idleWarned = true;
+                        localStorage.setItem('ps_t_flags', JSON.stringify(this.tutorialFlags));
+                    }
                 }
                 this.cardPlayedThisTurn = false; // Reset for new month
 
@@ -436,6 +442,12 @@
                     const penalty = 5;
                     this.approval -= penalty;
                     this.addLog(this.t('log_hand_limit_penalty', penalty));
+                    
+                     if (!this.tutorialFlags.handLimitWarned) {
+                        this.showModal(this.t('tutorial_hand_limit_title'), this.t('tutorial_hand_limit_msg'), 'warning');
+                        this.tutorialFlags.handLimitWarned = true;
+                        localStorage.setItem('ps_t_flags', JSON.stringify(this.tutorialFlags));
+                    }
                 }
 
                 // 4. AP 回复机制 (基于支持率)
@@ -581,6 +593,13 @@
             },
 
             startSecondTerm() {
+                // Tutorial / Intro for Term 2
+                if (!this.tutorialFlags.legacyWarned) {
+                     this.showModal(this.t('tutorial_legacy_title'), this.t('tutorial_legacy_msg'), 'info');
+                     this.tutorialFlags.legacyWarned = true;
+                     localStorage.setItem('ps_t_flags', JSON.stringify(this.tutorialFlags));
+                }
+
                 // Determine buff based on Term 1 stats
                 let legacyMsg = [];
                 const h = this.hiddenStats || {};
@@ -1313,20 +1332,42 @@
                 // Randomly flip scores or crash economy
                 if (!forceRandom && Math.random() < 0.05) {
                     this.addLog(this.t('log_black_swan'));
-                    this.showModal("🦢 " + this.t('black_swan_title'), this.t('log_black_swan'), 'warning');
                     
-                    // Flip Global Economy
-                    if (this.globalEconomy === 'boom' || this.globalEconomy === 'growth') {
-                        this.economyPhase += Math.PI; // Flip to opposite
-                        this.marketScore = -Math.abs(this.marketScore) - 20; // Crash
+                    // Determine Crash or Boom (80% crash in crisis, 50% otherwise? Or just simple logic)
+                    // Let's say if we are currently Good, we Crash. If Bad, we might Miracle.
+                    // But Black Swan usually implies bad in finance context, though can be good.
+                    
+                    let isCrash = true;
+                    if (this.globalEconomy === 'people_despair' || this.globalEconomy === 'crisis') {
+                        // If already bad, 30% chance of miracle
+                        if (Math.random() < 0.3) isCrash = false;
                     } else {
-                        // Miracle Booms are rarer or lighter
-                        this.economyPhase += Math.PI;
-                        this.marketScore = Math.abs(this.marketScore) + 20; // Boom
+                        // If good, 70% chance of crash
+                        if (Math.random() < 0.7) isCrash = true;
+                        else isCrash = false;
                     }
-                    // Also disturb crypto/commodities
-                    this.cryptoScore = -this.cryptoScore;
-                    this.commodityScore = -this.commodityScore;
+
+                    if (isCrash) {
+                        this.showModal("🦢 " + this.t('black_swan_crash_title'), this.t('black_swan_crash_msg'), 'warning');
+                        // Flip to crash
+                        // If we were in growth (cos>0), shift to recession (cos<0)
+                         if (Math.cos(this.economyPhase) > 0) this.economyPhase += Math.PI;
+                         
+                         this.marketScore = -Math.abs(this.marketScore) - 30; // Deep crash
+                         this.cryptoScore = -Math.abs(this.cryptoScore) - 40;
+                         this.commodityScore = -Math.abs(this.commodityScore) - 20;
+                         this.globalEconomy = 'crisis'; // Force update next cycle or now? 
+                         // updateMarketTrends will recalculate globalEconomy at end, but we are inside it.
+                         // It's fine, the score change will drive it.
+                    } else {
+                        // Miracle Boom
+                        this.showModal("🦢 " + this.t('black_swan_boom_title'), this.t('black_swan_boom_msg'), 'win');
+                        if (Math.cos(this.economyPhase) < 0) this.economyPhase += Math.PI;
+                        
+                        this.marketScore = Math.abs(this.marketScore) + 30; 
+                        this.cryptoScore = Math.abs(this.cryptoScore) + 40;
+                        this.commodityScore = Math.abs(this.commodityScore) + 20;
+                    }
                 }
 
                 if (forceRandom) {
