@@ -87,6 +87,9 @@
                 skillCost: 0, // 技能不再消耗AP
                 skillActive: false, // 持续性技能激活状态
 
+                // 核心状态追踪
+                cardPlayedThisTurn: false,
+
                 // 移动端适配
                 isMobile: window.innerWidth < 900,
                 activeTab: 'desk', // stats, desk, market
@@ -97,7 +100,7 @@
                 eventModal: { show: false },  // Fixed: Added eventModal state
                 skillModal: { show: false },
                 reportModal: { show: false, title: '', changes: [] },
-                discardModal: { show: false, index: -1, noAsk: false }, // Discard Modal State
+                discardModal: { show: false, index: -1, noAsk: false, cost: 1 }, // Discard Modal State
 
                 // 成就系统
                 achievements: {},
@@ -420,6 +423,21 @@
                 if (this.checkGameOver()) return; // Check immediate game over (Month 49)
                 this.addLog(`📅 进入第 ${this.month} 个月`);
 
+                // Idle Penalty Logic
+                if (!this.cardPlayedThisTurn && this.month > 1) {
+                    const penalty = 3;
+                    this.approval -= penalty;
+                    this.addLog(this.t('log_idle_penalty', penalty));
+                }
+                this.cardPlayedThisTurn = false; // Reset for new month
+
+                // Hand Limit Penalty Logic
+                if (this.hand.length >= 10) {
+                    const penalty = 5;
+                    this.approval -= penalty;
+                    this.addLog(this.t('log_hand_limit_penalty', penalty));
+                }
+
                 // 4. AP 回复机制 (基于支持率)
                 if (this.approval >= 80) this.maxAp = 8;
                 else if (this.approval >= 60) this.maxAp = 6;
@@ -441,8 +459,14 @@
                 // 7. 重置行为限制
                 this.actionsTaken = { stock: false, crypto: false, commodity: false, embezzle: false };
 
-                // 8. 补充卡牌 (手牌上限6，每回合抽2张)
-                this.drawCards(2);
+                // 8. 补充卡牌 (动态刷新数量)
+                // Calculate total months passed including previous terms (approx) or just this term scaling
+                // User asked: "随着任期的长度...越来越多"
+                const totalMonths = (this.term - 1) * 48 + this.month;
+                let drawAmount = 2 + Math.floor(totalMonths / 12); 
+                drawAmount = Math.min(5, drawAmount); // Max 5
+
+                this.drawCards(drawAmount);
 
                 this.saveGame();
             },
@@ -469,6 +493,7 @@
                     economyPhase: this.economyPhase,
                     actionsTaken: this.actionsTaken,
                     positions: this.positions,
+                    cardPlayedThisTurn: this.cardPlayedThisTurn,
                     player: this.player,
                     tutorialFlags: this.tutorialFlags,
                     timstamp: Date.now()
@@ -504,6 +529,7 @@
                     this.economyPhase = data.economyPhase;
                     this.actionsTaken = data.actionsTaken;
                     this.positions = data.positions || [];
+                    this.cardPlayedThisTurn = data.cardPlayedThisTurn || false;
                     this.player = data.player;
                     this.tutorialFlags = data.tutorialFlags || this.tutorialFlags;
                     
@@ -816,12 +842,14 @@
             },
 
             drawCards(count) {
-                // 手牌上限6张
+                // 手牌上限10张 (Previously 6)
                 let drawCount = count;
-                if (this.hand.length + drawCount > 6) {
-                    drawCount = 6 - this.hand.length;
+                const maxHand = 10;
+                
+                if (this.hand.length + drawCount > maxHand) {
+                    drawCount = maxHand - this.hand.length;
                     if (drawCount <= 0) {
-                        this.addLog("手牌已满，无法抽取新文件。");
+                        this.addLog(this.t('log_hand_full'));
                         return;
                     }
                 }
@@ -856,16 +884,25 @@
             },
 
             confirmDiscard(index) {
-                if (this.ap < 1) {
+                const card = this.hand[index];
+                const cost = Math.max(1, Math.floor(card.cost / 2));
+
+                if (this.ap < cost) {
                      this.addLog(this.t('log_ap_insufficient'));
                      return;
                 }
+                
+                // Pass dynamic cost to modal translation
+                this.discardModal.cost = cost; 
+                // We need to inject this cost into the confirm text dynamically or update the modal prop
                 
                 if (this.discardModal.noAsk) {
                     this.executeDiscard(index);
                 } else {
                     this.discardModal.index = index;
                     this.discardModal.show = true;
+                    // Update the message dynamically if possible, or bind it in HTML
+                    // Assuming HTML uses t('discard_confirm_text', discardModal.cost)
                 }
             },
 
@@ -881,12 +918,14 @@
 
                  if (index === -1 || index === null || index === undefined) return;
 
-                if (this.ap < 1) {
+                const card = this.hand[index];
+                const cost = Math.max(1, Math.floor(card.cost / 2));
+
+                if (this.ap < cost) {
                     this.addLog(this.t('log_ap_insufficient'));
                     return;
                 }
-                this.ap -= 1;
-                const card = this.hand[index];
+                this.ap -= cost;
                 this.hand.splice(index, 1);
                 this.addLog(this.t('log_discard', this.getLoc(card.title)));
                 this.saveGame();
@@ -909,6 +948,7 @@
 
                 this.ap -= card.cost;
                 this.hand.splice(index, 1);
+                this.cardPlayedThisTurn = true; // Mark activity
 
                 // 应用效果
                 this.approval += (card.effect.approval || 0);
@@ -1030,13 +1070,15 @@
                     startScore: type === 'stock' ? this.marketScore : (type === 'crypto' ? this.cryptoScore : this.commodityScore)
                 });
 
-                this.addLog(`💼 开仓: ${position==='long'?'做多':'做空'} ${type==='stock'?'股市':(type==='crypto'?'加密':'商品')} ($${cost}亿)`);
+                const actionStr = position==='long' ? this.t('action_buy') : this.t('action_short');
+                const marketStr = this.t('market_' + type);
+                this.addLog(this.t('log_open_pos', actionStr, marketStr, cost));
                 
                 // 技能：内幕交易
                 if (this.player.id === 3 && this.skillActive) {
                     this.skillActive = false;
                     this.positions[this.positions.length-1].isInsider = true; 
-                    this.addLog("💡 内幕消息已生效，该仓位将受到特殊优待。");
+                    this.addLog(this.t('log_insider_active'));
                 }
                 this.saveGame();
             },
@@ -1266,6 +1308,26 @@
                     if (score >= 15) return 'bull';
                     return 'neutral';
                 };
+
+                // Black Swan Event (5% chance)
+                // Randomly flip scores or crash economy
+                if (!forceRandom && Math.random() < 0.05) {
+                    this.addLog(this.t('log_black_swan'));
+                    this.showModal("🦢 " + this.t('black_swan_title'), this.t('log_black_swan'), 'warning');
+                    
+                    // Flip Global Economy
+                    if (this.globalEconomy === 'boom' || this.globalEconomy === 'growth') {
+                        this.economyPhase += Math.PI; // Flip to opposite
+                        this.marketScore = -Math.abs(this.marketScore) - 20; // Crash
+                    } else {
+                        // Miracle Booms are rarer or lighter
+                        this.economyPhase += Math.PI;
+                        this.marketScore = Math.abs(this.marketScore) + 20; // Boom
+                    }
+                    // Also disturb crypto/commodities
+                    this.cryptoScore = -this.cryptoScore;
+                    this.commodityScore = -this.commodityScore;
+                }
 
                 if (forceRandom) {
                     this.economyPhase = Math.random() * Math.PI * 2;

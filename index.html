@@ -390,7 +390,7 @@
     <div v-if="discardModal.show" class="modal-overlay" style="z-index: 2600;">
         <div class="modal-content animate__animated animate__zoomIn" style="width: 80%; max-width: 320px;">
             <h3 style="color: var(--accent-red);">{{ t('discard_title') || 'Discard Card?' }}</h3>
-            <p style="margin: 20px 0;">{{ t('discard_confirm_text') || 'This will cost 1 AP to remove this card from your hand.' }}</p>
+            <p style="margin: 20px 0;">{{ t('discard_confirm_text', discardModal.cost) }}</p>
             
             <div style="margin-bottom: 20px; font-size: 0.9em; display: flex; align-items: center; justify-content: center; gap: 8px;">
                 <input type="checkbox" id="noAskDiscard" v-model="discardModal.noAsk">
