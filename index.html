@@ -441,16 +441,18 @@
                      </div>
                 </div>
 
-                <div v-if="modal.rating" style="text-align: center; margin: 20px 0;">
-                    <div style="font-size: 0.9em; color: #95a5a6;">{{ t('stats_rating') }}</div>
-                    <div style="font-size: 1.8em; color: var(--accent-gold); font-weight: bold;">{{ modal.rating }}</div>
+                <div v-if="modal.rating" style="text-align: center; margin: 25px 0;">
+                    <div style="font-size: 1em; color: #95a5a6; margin-bottom: 5px;">{{ t('stats_rating') }}</div>
+                    <div style="font-size: 2.8em; color: var(--accent-gold); font-weight: 800; text-shadow: 0 0 15px rgba(241, 196, 15, 0.4); letter-spacing: 2px;">{{ modal.rating }}</div>
                 </div>
 
                 <div v-if="modal.hiddenData && modal.hiddenData.length > 0">
-                    <h4 style="border-bottom: 1px solid #7f8c8d; padding-bottom: 5px; margin-bottom: 10px; font-size: 0.9em; color: #7f8c8d;">{{ t('stats_hidden_overview') }}</h4>
-                     <div v-for="item in modal.hiddenData" :key="item.label" style="display:flex; justify-content:space-between; margin-bottom: 3px; font-size: 0.9em;">
-                         <span>{{ item.label }}</span>
-                         <span :class="item.value > 0 ? 'text-green' : 'text-red'">{{ item.value > 0 ? '+' : '' }}{{ item.value }}</span>
+                    <h4 style="border-bottom: 1px solid #7f8c8d; padding-bottom: 8px; margin-bottom: 10px; font-size: 0.95em; color: #bdc3c7;">{{ t('stats_hidden_overview') }}</h4>
+                     <div style="max-height: 180px; overflow-y: auto; padding-right: 5px;" class="custom-scroll">
+                         <div v-for="item in modal.hiddenData" :key="item.label" style="display:flex; justify-content:space-between; margin-bottom: 5px; font-size: 0.95em; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 2px;">
+                             <span>{{ item.label }}</span>
+                             <span :class="item.value > 0 ? 'text-green' : 'text-red'" style="font-family: monospace; font-weight: bold;">{{ item.value > 0 ? '+' : '' }}{{ item.value }}</span>
+                         </div>
                      </div>
                 </div>
             </div>

@@ -766,15 +766,16 @@
             showSummaryModal(title, outcomeMsg, type) {
                 // Compile Summary Data
                 const summary = [
-                    { label: this.t('stats_term_length'), value: this.month + " " + this.t('month', '') },
+                    { label: this.t('stats_term_length'), value: this.t('stats_term_months', this.month) },
                     { label: this.t('stats_final_approval'), value: this.approval + "%" },
                     { label: this.t('stats_final_money'), value: "$" + this.money.toFixed(1) + this.t('unit_billion') }
                 ];
                 
-                // Add top 3 hidden stats
+                // Add hidden stats (Removed limit, filtered 0s)
                 const hiddenSorted = Object.entries(this.hiddenStats)
-                    .sort((a,b) => b[1] - a[1])
-                    .slice(0, 3)
+                    .filter(pair => pair[1] !== 0) // Filter out zero values
+                    .sort((a,b) => b[1] - a[1])    // Sort by value desc
+                    // .slice(0, 3) <--- Removed limit
                     .map(pair => ({ 
                         label: (this.t(pair[0]) !== pair[0] ? this.t(pair[0]) : pair[0]), 
                         value: pair[1] 
@@ -1016,17 +1017,10 @@
                     this.playedUniqueTitles.push(card.title.en || card.title);
                 }
                 
+                
                 this.hand.splice(index, 1);
 
-                const card = this.hand[index];
-                if (this.ap < card.cost) {
-                    this.addLog(this.t('log_ap_insufficient'));
-                    return;
-                }
 
-                this.ap -= card.cost;
-                this.hand.splice(index, 1);
-                this.cardPlayedThisTurn = true; // Mark activity
 
                 // 应用效果
                 this.approval += (card.effect.approval || 0);
