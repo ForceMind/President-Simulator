@@ -726,11 +726,20 @@
             if (effect.crypto) this.modifyMarketScore('crypto', effect.crypto);
             if (effect.commodity) this.modifyMarketScore('commodity', effect.commodity);
             
-            // Accumulate hidden stats
+            // Accumulate hidden stats and log
+            let hiddenLog = [];
             for (let key in effect) {
                 if (['approval', 'money', 'market', 'crypto', 'commodity', 'global_economy'].includes(key)) continue;
-                if (!this.hiddenStats[key]) this.hiddenStats[key] = 0;
-                this.hiddenStats[key] += effect[key];
+                
+                const val = effect[key];
+                if (typeof val === 'number') {
+                     if (!this.hiddenStats[key]) this.hiddenStats[key] = 0;
+                     this.hiddenStats[key] += val;
+
+                     const sign = val >= 0 ? '+' : '';
+                     const localizedKey = this.t(key) === key ? key : this.t(key);
+                     hiddenLog.push(`${localizedKey} ${sign}${val}`);
+                }
             }
 
             if (effect.global_economy) {
@@ -755,6 +764,9 @@
             this.money = parseFloat(this.money.toFixed(2));
 
             this.addLog(`⚡ 应对危机: 选择了【${choice.text}】`);
+            if (hiddenLog.length > 0) {
+                 this.addLog(`   └ ${hiddenLog.join(', ')}`);
+            }
             this.currentEvent = null; // 事件处理完毕
             this.saveGame();
         },
@@ -880,6 +892,26 @@
                 this.approval += (card.effect.approval || 0);
                 this.money += (card.effect.money || 0);
                 
+                // Collect hidden stats and dynamic effects
+                const ignoreKeys = ['approval', 'money', 'market', 'commodity', 'crypto', 'inflation', 'global_economy'];
+                let hiddenLog = [];
+
+                for (let key in card.effect) {
+                    if (ignoreKeys.includes(key)) continue;
+                    
+                    const val = card.effect[key];
+                    if (typeof val === 'number') {
+                        if (!this.hiddenStats) this.hiddenStats = {}; // Ensure init
+                        if (!this.hiddenStats[key]) this.hiddenStats[key] = 0;
+                        this.hiddenStats[key] += val;
+                        
+                        // Log 
+                        const sign = val >= 0 ? '+' : '';
+                        const localizedKey = this.t(key) === key ? key : this.t(key); // Use Translation if available
+                        hiddenLog.push(`${localizedKey} ${sign}${val}`);
+                    }
+                }
+
                 // 特殊效果
                 if (card.effect.market) this.modifyMarketScore('market', card.effect.market);
                 if (card.effect.commodity) this.modifyMarketScore('commodity', card.effect.commodity);
@@ -910,6 +942,9 @@
                 this.money = parseFloat(this.money.toFixed(2));
 
                 this.addLog(this.t('log_play_card', this.getLoc(card.title)));
+                if (hiddenLog.length > 0) {
+                     this.addLog(`   └ ${hiddenLog.join(', ')}`);
+                }
                 this.saveGame();
             },
             
