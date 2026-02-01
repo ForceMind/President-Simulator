@@ -608,3 +608,79 @@ body {
         overflow-y: auto;
     }
 }
+
+/* --- ������ʽ (Feature Update) --- */
+
+/* 1. ���Ʒ�����ɫ */
+.cost-low { background: #27ae60 !important; }
+.cost-med { background: #f39c12 !important; }
+.cost-high { background: #c0392b !important; }
+
+/* 2. �ƶ��˸�����ť */
+.mobile-floating-next {
+    position: fixed;
+    bottom: 70px; /* �������߶�60px + 10px */
+    left: 0;
+    width: 100%;
+    padding: 0 10px;
+    box-sizing: border-box;
+    z-index: 900;
+    pointer-events: none;
+    display: flex;
+    justify-content: center;
+}
+.mobile-floating-next button {
+    pointer-events: auto;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    border: 2px solid rgba(255,255,255,0.2);
+    animation: pulse 2s infinite;
+}
+
+/* 3. �¶ȱ��浯�� */
+.report-modal {
+    background: #2c3e50;
+    color: white;
+    padding: 25px;
+    border-radius: 12px;
+    width: 85%;
+    max-width: 400px;
+    border: 2px solid var(--accent-gold);
+    box-shadow: 0 0 30px rgba(0,0,0,0.8);
+}
+.report-list {
+    background: rgba(0,0,0,0.2);
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+.report-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px dashed #555;
+    font-size: 1.1em;
+}
+.report-item:last-child { border-bottom: none; }
+
+.report-hint {
+    background: rgba(241, 196, 15, 0.1);
+    color: #f1c40f;
+    padding: 15px;
+    border-radius: 6px;
+    font-size: 0.95em;
+    line-height: 1.6;
+}
+
+/* 4. �ƶ��˽̳����� */
+@media screen and (max-width: 900px) {
+    .tutorial-box {
+        width: 85% !important;
+        max-width: none !important;
+        font-size: 1.1em;
+        text-align: center;
+        padding: 30px 20px !important;
+    }
+}
+

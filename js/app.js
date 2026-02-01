@@ -69,11 +69,16 @@
 
                 // 弹窗
                 modal: { show: false, title: '', msg: '', type: 'info', btnText: '确定' },
-                skillModal: { show: false }
+                skillModal: { show: false },
+                reportModal: { show: false, title: '', changes: [] },
+
+                // 成就系统
+                achievements: {}
             }
         },
         mounted() {
             window.addEventListener('resize', this.checkMobile);
+            this.loadAchievements();
         },
         beforeUnmount() {
             window.removeEventListener('resize', this.checkMobile);
@@ -89,6 +94,16 @@
                 return titles[this.tutorialStep];
             },
             tutorialText() {
+                if (this.isMobile) {
+                    const texts = [
+                        '',
+                        '目标：存活48个月并赚取$200亿。',
+                        '顶部是您的状态。支持率影响行动力(AP)。',
+                        '这是您的手牌。打出卡牌会消耗AP。',
+                        '在此通过买卖赚取资金。记得低买高卖！'
+                    ];
+                    return texts[this.tutorialStep];
+                }
                 const texts = [
                     '',
                     '总统先生/女士，您的目标是在48个月内积累$200亿财富，并保证支持率不崩盘。',
@@ -99,7 +114,16 @@
                 return texts[this.tutorialStep];
             },
             tutorialStyle() {
-                if (this.isMobile) return { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' };
+                // 移动端：强制居中
+                if (this.isMobile) {
+                    return { 
+                        top: '50%', 
+                        left: '50%', 
+                        transform: 'translate(-50%, -50%)',
+                        position: 'fixed'
+                    };
+                }
+                // 桌面端：引导位置
                 switch(this.tutorialStep) {
                     case 2: return { top: '20px', left: '270px' };
                     case 3: return { top: '30%', left: '30%' };
@@ -140,62 +164,154 @@
 
             // --- 核心循环 ---
             nextTurn() {
-                // 1. 胜利/失败检测
                 if (this.checkGameOver()) return;
 
-                // 2. 时间推进
+                // 1. 市场演变与结算 (在月度报告前计算)
+                const oldPositionsVal = this.positions.reduce((acc, p) => acc + p.currentVal, 0);
+                
+                this.updateMarketTrends();
+                this.updatePositions();
+
+                const newPositionsVal = this.positions.reduce((acc, p) => acc + p.currentVal, 0);
+                const posChange = newPositionsVal - oldPositionsVal;
+
+                // 2. 生成报告
+                this.reportModal.title = `第 ${this.month} 月结报告`;
+                this.reportModal.changes = [];
+
+                if (Math.abs(posChange) > 0.01) {
+                    this.reportModal.changes.push({
+                        label: '基金会盈亏',
+                        val: (posChange > 0 ? '+' : '') + '$' + posChange.toFixed(2) + '亿',
+                        class: posChange >= 0 ? 'text-green' : 'text-red'
+                    });
+                }
+                
+                this.reportModal.changes.push({
+                    label: '当前支持率',
+                    val: this.approval + '%',
+                    class: this.approvalColor
+                });
+
+                // 提示
+                let hint = "保持现状，稳步发展。";
+                if (this.approval < 30) hint = "🔥 警告：支持率极低，小心弹劾风险！";
+                else if (this.money < 2) hint = "💸 警告：资金枯竭，注意人身安全！";
+                else if (this.globalEconomy === 'crisis') hint = "🌍 提示：全球经济危机，持有现金或做空市场。";
+                else if (this.marketTrend === 'bull') hint = "📈 提示：牛市来了，加大投资！";
+
+                this.reportModal.hint = hint;
+                this.reportModal.show = true;
+            },
+
+            confirmReport() {
+                this.reportModal.show = false;
+                this.startNewMonth();
+            },
+
+            startNewMonth() {
+                // 3. 时间推进
                 this.month++;
                 this.addLog(`📅 进入第 ${this.month} 个月`);
 
-                // 3. AP 回复机制 (基于支持率)
+                // 4. AP 回复机制 (基于支持率)
                 if (this.approval >= 80) this.maxAp = 8;
                 else if (this.approval >= 60) this.maxAp = 6;
                 else if (this.approval >= 40) this.maxAp = 4;
                 else this.maxAp = 2;
                 this.ap = this.maxAp;
 
-                // 4. 技能冷却减少
+                // 5. 技能冷却减少
                 if (this.skillCooldown > 0) this.skillCooldown--;
 
-                // 5. 随机事件触发 (基于难度自适应)
-            if (this.currentEvent && this.currentEvent.choices) {
-                // 如果当前还有未处理的紧急事件，强制处理
-                this.showModal("紧急国务", "你必须先处理当前的突发危机！", "info");
-                return;
-            }
-            this.currentEvent = null;
-            this.handleEvents();
+                // 6. 随机事件触发
+                if (this.currentEvent && this.currentEvent.choices) {
+                    this.showModal("紧急国务", "你必须先处理当前的突发危机！", "info");
+                    return;
+                }
+                this.currentEvent = null;
+                this.handleEvents();
 
-            // 6. 市场刷新 (关联性更新)
-            this.updateMarketTrends();
-
-            // 7. 更新持仓价值 (复利)
-            this.updatePositions();
-                // 8. 重置行为限制
+                // 7. 重置行为限制
                 this.actionsTaken = { stock: false, crypto: false, commodity: false, embezzle: false };
 
-                // 9. 补充卡牌 (手牌上限6，每回合抽2张)
+                // 8. 补充卡牌 (手牌上限6，每回合抽2张)
                 this.drawCards(2);
             },
 
+            loadAchievements() {
+                try {
+                    const data = localStorage.getItem('president_sim_achievements');
+                    if (data) {
+                        this.achievements = JSON.parse(data);
+                    }
+                } catch (e) {
+                    console.error("Failed to load achievements", e);
+                }
+            },
+
+            saveAchievement() {
+                if (!this.player) return;
+                const cid = this.player.id;
+                if (!this.achievements[cid]) {
+                    this.achievements[cid] = { maxMonth: 0, maxMoney: 0 };
+                }
+                
+                // 更新记录
+                if (this.month > this.achievements[cid].maxMonth) {
+                    this.achievements[cid].maxMonth = this.month;
+                }
+                if (this.money > this.achievements[cid].maxMoney) {
+                    this.achievements[cid].maxMoney = this.money;
+                }
+
+                localStorage.setItem('president_sim_achievements', JSON.stringify(this.achievements));
+            },
+
+            getCardCostClass(cost) {
+                if (cost >= 3) return 'cost-high';
+                if (cost === 2) return 'cost-med';
+                return 'cost-low';
+            },
+
             checkGameOver() {
+                let isOver = false;
+                let title = "";
+                let msg = "";
+                let type = "info";
+
                 // 财富 < 1亿 -> 暗杀
                 if (this.money < 1) {
-                    this.showModal("GAME OVER: 遇刺身亡", "你的私人安保团队因为欠薪罢工了。你在高尔夫球场被不明身份的狙击手击毙。", "fail");
-                    return true;
+                    title = "GAME OVER: 遇刺身亡";
+                    msg = "你的私人安保团队因为欠薪罢工了。你在高尔夫球场被不明身份的狙击手击毙。";
+                    type = "fail";
+                    isOver = true;
                 }
                 // 支持率 < 25 -> 弹劾
-                if (this.approval < 25) {
-                    this.showModal("GAME OVER: 遭到弹劾", "国会全票通过了对你的弹劾案。你不仅丢了工作，还将面临牢狱之灾。", "fail");
-                    return true;
+                else if (this.approval < 25) {
+                    title = "GAME OVER: 遭到弹劾";
+                    msg = "国会全票通过了对你的弹劾案。你不仅丢了工作，还将面临牢狱之灾。";
+                    type = "fail";
+                    isOver = true;
                 }
                 // 48月结束 -> 结算
-                if (this.month > 48) {
+                else if (this.month > 48) {
                     if (this.money >= 200) {
-                        this.showModal("完美结局: 资本大鳄", `任期结束。你带着 $${this.money.toFixed(1)}亿 的巨额财富光荣退休，成为幕后真正的统治者。`, "win");
+                        title = "完美结局: 资本大鳄";
+                        msg = `任期结束。你带着 $${this.money.toFixed(1)}亿 的巨额财富光荣退休，成为幕后真正的统治者。`;
+                        type = "win";
                     } else {
-                        this.showModal("结局: 凄惨晚年", `任期结束。虽然你活了下来，但仅有的 $${this.money.toFixed(1)}亿 财富不足以让你在政敌的清算中自保。`, "fail");
+                        title = "结局: 凄惨晚年";
+                        msg = `任期结束。虽然你活了下来，但仅有的 $${this.money.toFixed(1)}亿 财富不足以让你在政敌的清算中自保。`;
+                        type = "fail";
                     }
+                    isOver = true;
+                }
+
+                if (isOver) {
+                    this.saveAchievement();
+                    this.showModal(title, msg, type);
+                    this.state = 'GAME_OVER';
                     return true;
                 }
                 return false;
@@ -236,12 +352,16 @@
                 }
 
                 for (let i = 0; i < drawCount; i++) {
-                    // 资深政客技能：只抽阴谋/经济
-                    let pool = CARD_DB;
+                    // 1. 过滤：移除其他角色的专属卡
+                    let pool = CARD_DB.filter(c => !c.reqCharId || c.reqCharId === this.player.id);
+
+                    // 2. 资深政客技能：只抽阴谋/经济
                     if (this.player.id === 2 && this.skillActive) {
-                        pool = CARD_DB.filter(c => c.type === '阴谋' || c.type === '经济');
+                        pool = pool.filter(c => c.type === '阴谋' || c.type === '经济');
                     }
                     
+                    if (pool.length === 0) pool = CARD_DB; // Fallback
+
                     const template = pool[Math.floor(Math.random() * pool.length)];
                     this.hand.push({ ...template });
                 }
@@ -311,85 +431,86 @@
                 this.commodityScore = clamp(this.commodityScore, -100, 100);
             },
 
-            // --- 投资系统 (增强版) ---
+            // --- 新增：长期持仓系统 ---
             makeInvestment(type, position) {
-                if (this.actionsTaken[type]) return; // 每回合限一次
+                if (this.actionsTaken[type]) return;
                 
-                this.money -= 1; // 成本1亿
+                // 资金检查
+                const cost = 5; // 每次固定投入5亿
+                if (this.money < cost) {
+                    this.showModal('资金不足', '你需要至少$5亿才能开设新仓位。', 'info');
+                    return;
+                }
+
+                this.money -= cost;
                 this.actionsTaken[type] = true;
 
-                // 存入待结算队列
-                this.pendingInvestments.push({
+                // 创建持仓
+                this.positions.push({
+                    id: Date.now() + Math.random(),
                     type: type,
-                    position: position,
-                    amount: 1,
-                    turn: this.month,
-                    skillActive: (this.player.id === 3 && this.skillActive) || (this.player.id === 6 && this.skillActive),
-                    playerId: this.player.id
+                    position: position, // 'long' or 'short'
+                    amount: cost,
+                    currentVal: cost,
+                    startMonth: this.month,
+                    startScore: type === 'stock' ? this.marketScore : (type === 'crypto' ? this.cryptoScore : this.commodityScore)
                 });
 
-                const actionName = position === 'long' ? '做多' : '做空';
-                const typeName = type === 'stock' ? '美股' : (type === 'crypto' ? '加密' : '商品');
-                this.addLog(`💼 投资挂单: ${actionName}${typeName} (将在下月结算)`);
+                this.addLog(`💼 开仓: ${position==='long'?'做多':'做空'} ${type==='stock'?'股市':(type==='crypto'?'加密':'商品')} ($${cost}亿)`);
                 
-                // 消耗技能状态 (仅用于标记，实际效果在结算时计算)
+                // 技能：内幕交易
                 if (this.player.id === 3 && this.skillActive) {
-                    this.skillActive = false; 
-                    this.addLog("⚡ 内幕消息已使用，收益将在结算时翻倍。");
+                    this.skillActive = false;
+                    this.positions[this.positions.length-1].isInsider = true; 
+                    this.addLog("💡 内幕消息已生效，该仓位将受到特殊优待。");
                 }
             },
 
-            settleInvestments() {
-                if (this.pendingInvestments.length === 0) return;
-
-                this.addLog("======== 投资结算 ========");
+            closePosition(index) {
+                const pos = this.positions[index];
+                this.money += pos.currentVal;
+                this.positions.splice(index, 1);
                 
-                this.pendingInvestments.forEach(inv => {
-                    let roi = 0;
-                    let trend = 'neutral';
+                const profit = pos.currentVal - pos.amount;
+                this.addLog(`💰 平仓: 收回 $${pos.currentVal.toFixed(2)}亿 (${profit>=0?'+':''}${profit.toFixed(2)}亿)`);
+            },
+
+            updatePositions() {
+                this.positions.forEach(pos => {
                     let score = 0;
-                    
-                    if (inv.type === 'stock') { trend = this.marketTrend; score = this.marketScore; }
-                    else if (inv.type === 'crypto') { trend = this.cryptoTrend; score = this.cryptoScore; }
-                    else if (inv.type === 'commodity') { trend = this.commodityTrend; score = this.commodityScore; }
-
-                    // 计算市场因子 (基于分数更精确)
-                    let marketFactor = score * 0.015; // 分数/100 * 1.5倍放大
-                    
-                    // 随机波动
                     let volatility = 0;
-                    if (inv.type === 'crypto') volatility = (Math.random() * 1.5) - 0.7; // 剧烈波动
-                    else if (inv.type === 'commodity') volatility = (Math.random() * 0.6) - 0.3;
-                    else volatility = (Math.random() * 0.4) - 0.15;
-
-                    let change = marketFactor + volatility;
                     
-                    // 做空逻辑
-                    if (inv.position === 'short') change = -change;
+                    if (pos.type === 'stock') { score = this.marketScore; volatility = 0.05; }
+                    else if (pos.type === 'crypto') { score = this.cryptoScore; volatility = 0.15; }
+                    else if (pos.type === 'commodity') { score = this.commodityScore; volatility = 0.08; }
 
-                    // 技能加成
-                    if (inv.skillActive) {
-                        if (inv.playerId === 3) { // 科技新贵: 必赢翻倍
-                             change = Math.abs(change) + 0.5; // 确保正收益且增加
-                        } else if (inv.playerId === 6) { // 好莱坞: 无风险
-                             if (change < 0) change = 0.1; // 保底
-                        }
+                    // 计算涨跌幅 (基于分数的变化)
+                    // score 范围 -100 ~ 100. 100 => +10%, -100 => -10% per month
+                    let percentChange = (score / 100) * 0.10; 
+                    
+                    // 加上随机波动
+                    percentChange += (Math.random() * volatility * 2 - volatility);
+
+                    // 做空反向
+                    if (pos.position === 'short') percentChange = -percentChange;
+
+                    // 技能修正
+                    if (pos.isInsider) {
+                        percentChange = Math.abs(percentChange) + 0.1; // 至少赚10%
+                    }
+                    if (this.player.id === 6 && this.skillActive) {
+                         // 明星技能：本回合无风险 (此处简化为不跌)
+                         if (percentChange < 0) percentChange = 0; 
                     }
 
-                    roi = inv.amount * (1 + change);
-                    const profit = roi - inv.amount;
+                    // 更新价值 (复利)
+                    pos.currentVal = pos.currentVal * (1 + percentChange);
                     
-                    this.money += roi;
-                    
-                    const icon = profit > 0 ? '💰' : '💸';
-                    const typeName = inv.type === 'stock' ? '美股' : (inv.type === 'crypto' ? '加密' : '商品');
-                    const posName = inv.position === 'long' ? '做多' : '做空';
-                    
-                    this.addLog(`${icon} ${posName}${typeName}: ${profit > 0 ? '盈利' : '亏损'} $${Math.abs(profit).toFixed(2)}亿`);
+                    // 归零保护
+                    if (pos.currentVal < 0.01) pos.currentVal = 0;
                 });
-
+                // 更新显示余额
                 this.money = parseFloat(this.money.toFixed(2));
-                this.pendingInvestments = []; // 清空队列
             },
 
             embezzle() {

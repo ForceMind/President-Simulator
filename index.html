@@ -35,6 +35,12 @@
                 <div class="char-icon">{{ char.icon }}</div>
                 <h3>{{ char.name }}</h3>
                 <p style="color: #7f8c8d; font-size: 0.9em;">{{ char.desc }}</p>
+                
+                <!-- 成就显示 -->
+                <div v-if="achievements[char.id]" style="font-size: 0.8em; color: var(--accent-gold); margin: 5px 0; border: 1px dashed #555; padding: 4px;">
+                    🏆 记录: {{ achievements[char.id].maxMonth }}月 / ${{ achievements[char.id].maxMoney.toFixed(1) }}亿
+                </div>
+
                 <div style="margin: 10px 0;">
                     <span class="skill-tag">技能: {{ char.skillName }}</span>
                 </div>
@@ -50,7 +56,7 @@
 
     <!-- 教程遮罩 -->
     <div v-if="showTutorial" class="tutorial-overlay"></div>
-    <div v-if="showTutorial" class="tutorial-box animate__animated animate__bounceIn" :style="tutorialStyle">
+    <div v-if="showTutorial" class="tutorial-box" :style="tutorialStyle">
         <h3>{{ tutorialTitle }}</h3>
         <p>{{ tutorialText }}</p>
         <button class="next-turn-btn" style="padding: 8px; font-size: 1em;" @click="nextTutorialStep">
@@ -163,7 +169,7 @@
             <div class="cards-area">
                 <div v-for="(card, index) in hand" :key="index" class="game-card animate__animated animate__fadeInUp">
                     <div style="display: flex; justify-content: space-between; align-items: start;">
-                        <div class="card-cost">消耗 {{ card.cost }} AP</div>
+                        <div class="card-cost" :class="getCardCostClass(card.cost)">消耗 {{ card.cost }} AP</div>
                         <!-- 弃牌按钮 -->
                         <div class="discard-btn" @click.stop="discardCard(index)" title="花费1 AP废弃此文件" style="position: static; margin-left: auto;">✖</div>
                     </div>
@@ -268,23 +274,57 @@
                 </div>
             </div>
 
-            <!-- 移动端常驻下一步按钮 -->
-            <div class="mobile-next-turn-container" v-if="isMobile">
-                <button class="next-turn-btn" @click="nextTurn">
-                    {{ month === 48 ? '卸任结算' : '结束本月' }}
-                </button>
-            </div>
+
 
             <button class="next-turn-btn" @click="nextTurn" v-if="!isMobile">
                 {{ month === 48 ? '卸任结算' : '结束本月' }}
             </button>
         </aside>
 
+        <!-- 移动端常驻 "结束本月" 按钮 (Floating) -->
+        <div v-if="isMobile" class="mobile-floating-next">
+            <button class="next-turn-btn" @click="nextTurn">
+                {{ month === 48 ? '卸任结算' : '结束本月 >>' }}
+            </button>
+        </div>
+
         <!-- 移动端底部导航 -->
         <nav class="mobile-nav" v-if="isMobile">
             <button :class="{active: activeTab === 'desk'}" @click="activeTab = 'desk'">🗂️ 办公</button>
-            <button :class="{active: activeTab === 'market'}" @click="activeTab = 'market'">💰 市场</button>
+            <button :class="{active: activeTab === 'market'}" @click="activeTab = 'market'">💰 市场 ({{ positions.length }})</button>
         </nav>
+    </div>
+
+    <!-- 月度报告弹窗 -->
+    <div v-if="reportModal.show" class="modal-overlay" style="z-index: 2500;">
+        <div class="report-modal animate__animated animate__fadeInUp">
+            <h3 style="text-align: center; color: var(--accent-gold); margin-bottom: 20px;">{{ reportModal.title }}</h3>
+            
+            <div class="report-list">
+                <div v-for="(change, idx) in reportModal.changes" :key="idx" class="report-item">
+                    <span>{{ change.label }}</span>
+                    <span :class="change.class" style="font-weight: bold;">{{ change.val }}</span>
+                </div>
+            </div>
+
+            <div class="report-hint">
+                <strong>💡 顾问建议:</strong><br>
+                {{ reportModal.hint }}
+            </div>
+
+            <button class="next-turn-btn" style="width: 100%; margin-top: 20px;" @click="confirmReport">
+                开启下个月
+            </button>
+        </div>
+    </div>
+
+    <!-- 通用弹窗 (Game Over / Info) -->
+    <div v-if="modal.show" class="modal-overlay">
+        <div class="modal-content animate__animated animate__zoomIn" :class="modal.type">
+            <h3>{{ modal.title }}</h3>
+            <p>{{ modal.msg }}</p>
+            <button @click="modal.show = false; if(state === 'GAME_OVER') state = 'SELECT_CHAR';">{{ modal.btnText }}</button>
+        </div>
     </div>
 </div>
 

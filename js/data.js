@@ -90,7 +90,32 @@ const CARD_DB = [
     // --- 阴谋类 ---
     { type: "阴谋", title: "打压媒体", desc: "让那些批评家闭嘴。", cost: 1, effect: { approval: -2, money: 0 } },
     { type: "阴谋", title: "政治献金", desc: "接受财团的'馈赠'。", cost: 0, effect: { approval: -8, money: 5 } },
-    { type: "阴谋", title: "伪造丑闻", desc: "制造对手的黑料。", cost: 1, effect: { approval: 5, money: -0.5 } }
+    { type: "阴谋", title: "伪造丑闻", desc: "制造对手的黑料。", cost: 1, effect: { approval: 5, money: -0.5 } },
+
+    // --- 角色专属卡牌 ---
+    // 1. 金发大亨
+    { reqCharId: 1, type: "商业", title: "自家酒店", desc: "政府会议都在你的酒店举办。", cost: 1, effect: { money: 3, approval: -2 } },
+    { reqCharId: 1, type: "商业", title: "品牌授权", desc: "出售名字使用权。", cost: 1, effect: { money: 2, approval: 1 } },
+    
+    // 2. 资深政客
+    { reqCharId: 2, type: "阴谋", title: "各方妥协", desc: "谁都不得罪的废话法案。", cost: 1, effect: { approval: 3, money: 0.5 } },
+    { reqCharId: 2, type: "阴谋", title: "暗箱操作", desc: "在法案里夹带私货。", cost: 2, effect: { money: 3, approval: -5 } },
+
+    // 3. 科技新贵
+    { reqCharId: 3, type: "科技", title: "AI监控", desc: "用算法预测犯罪。", cost: 2, effect: { approval: -5, money: 0, market: "bull" } },
+    { reqCharId: 3, type: "科技", title: "数字货币", desc: "推行官方数字美元。", cost: 1, effect: { crypto: "bull", money: 1 } },
+
+    // 4. 退役将军
+    { reqCharId: 4, type: "军事", title: "阅兵仪式", desc: "展示肌肉。", cost: 2, effect: { approval: 10, money: -3 } },
+    { reqCharId: 4, type: "军事", title: "军工复合体", desc: "批准新的武器研发。", cost: 1, effect: { money: 2, approval: -3, market: "bull" } },
+
+    // 5. 平权斗士
+    { reqCharId: 5, type: "民权", title: "平权法案", desc: "强制配额。", cost: 2, effect: { approval: 5, money: -1 } },
+    { reqCharId: 5, type: "民权", title: "富人税", desc: "向最富有的1%征税。", cost: 2, effect: { money: 5, approval: 5, market: "bear" } },
+
+    // 6. 好莱坞明星
+    { reqCharId: 6, type: "娱乐", title: "电视讲话", desc: "运用你的表演天赋。", cost: 1, effect: { approval: 10, money: 0 } },
+    { reqCharId: 6, type: "娱乐", title: "明星带货", desc: "在直播中推荐国货。", cost: 1, effect: { money: 2, approval: 5 } }
 ];
 
 // 随机事件库 (基于2000-2025真实历史改编)
