@@ -35,6 +35,8 @@
                 characters: CHARACTERS,
                 
                 // 游戏核心数据
+                term: 1, // 1 or 2
+                hiddenStats: {}, // e.g. { happiness: 10, unity: -5 }
                 month: 1,
                 approval: 50,
                 money: 0,
@@ -301,6 +303,8 @@
                 this.money = 0;
                 this.ap = 2;
                 this.maxAp = 2;
+                this.term = 1;
+                this.hiddenStats = {};
                 this.hand = [];
                 this.logs = [];
                 this.currentEvent = null;
@@ -446,6 +450,8 @@
             saveGame() {
                 if (this.state !== 'PLAYING') return;
                 const saveData = {
+                    term: this.term,
+                    hiddenStats: this.hiddenStats,
                     month: this.month,
                     approval: this.approval,
                     money: this.money,
@@ -479,6 +485,8 @@
                     // Simple validation
                     if (!data.player || !data.month) return false;
 
+                    this.term = data.term || 1;
+                    this.hiddenStats = data.hiddenStats || {};
                     this.month = data.month;
                     this.approval = data.approval;
                     this.money = data.money;
@@ -546,11 +554,58 @@
                 return 'cost-low';
             },
 
+            startSecondTerm() {
+                // Determine buff based on Term 1 stats
+                let legacyMsg = [];
+                
+                // Happiness > 3 -> +10 Approval
+                if ((this.hiddenStats.happiness || 0) > 3) {
+                    this.approval += 15;
+                    legacyMsg.push(this.t('legacy_happiness_buff'));
+                }
+                
+                // Corruption > 3 -> +5 Billion Money, -10 Approval
+                if ((this.hiddenStats.corruption || 0) > 3) {
+                     this.money += 5;
+                     this.approval -= 10;
+                     legacyMsg.push(this.t('legacy_corruption_buff'));
+                }
+                
+                // Notoriety > 3 -> +2 AP cap, -15 Approval
+                if ((this.hiddenStats.notoriety || 0) > 3) {
+                    this.approval -= 15;
+                    legacyMsg.push(this.t('legacy_notoriety_debuff'));
+                }
+
+                // Unity > 3 -> 
+                if ((this.hiddenStats.unity || 0) > 3) {
+                    this.approval += 10;
+                    legacyMsg.push(this.t('legacy_unity_buff'));
+                }
+                
+                this.approval = Math.min(100, Math.max(0, this.approval));
+
+                // Reset Game State for Term 2
+                this.term = 2;
+                this.month = 0; // startNewMonth will set to 1
+                this.hand = [];
+                this.positions = []; 
+                this.deck = [...this.cards]; // Reshuffle
+                
+                this.addLog(this.t('log_term_2_start'));
+                legacyMsg.forEach(msg => this.addLog(msg));
+                
+                this.drawCards(3);
+                this.startNewMonth();
+            },
+
             checkGameOver() {
                 let isOver = false;
                 let title = "";
                 let msg = "";
                 let type = "info";
+                let btnText = this.t('btn_ok');
+                let action = null;
 
                 // 财富 < 1亿 -> 暗杀
                 if (this.money < 1) {
@@ -571,25 +626,84 @@
                     const moneyStr = '$' + this.money.toFixed(1);
                     const unit = this.t('unit_billion');
                     
-                    if (this.money >= 200) {
-                        title = this.t('game_end_win_title');
-                        msg = this.t('game_end_win_msg', [moneyStr, unit]);
-                        type = "win";
+                    if (this.term === 1) {
+                         // Check Re-election Condition
+                         // Must have decent approval (e.g. > 50) and no extreme bad stats
+                         // e.g. High Chaos/Notoriety might ban you.
+                         
+                         const isNotorietyHigh = (this.hiddenStats.notoriety || 0) > 8;
+                         const isChaosHigh = (this.hiddenStats.chaos || 0) > 8;
+                         const isApprovalLow = this.approval < 50;
+
+                         if (isNotorietyHigh || isChaosHigh) {
+                             // Ban
+                             title = this.t('game_over_banned_title');
+                             msg = this.t('game_over_banned_msg');
+                             type = "fail";
+                             isOver = true;
+                         } else if (isApprovalLow) {
+                             // Lost Election
+                             title = this.t('game_over_lost_election_title');
+                             msg = this.t('game_over_lost_election_msg');
+                             type = "fail";
+                             isOver = true;
+                         } else {
+                             // Success! Offer Term 2
+                             title = this.t('term_1_end_title');
+                             msg = this.t('term_1_end_msg', [moneyStr, unit]);
+                             type = "win"; // Green Text
+                             btnText = this.t('btn_start_term_2');
+                             action = "start_term_2";
+                             
+                             // Don't set isOver = true in state yet, wait for player choice
+                             this.saveAchievement(true);
+                             // But we call showModal directly
+                             this.modal = { show: true, title, msg, type, btnText, action };
+                             return true;
+                         }
                     } else {
-                        title = this.t('game_end_fail_title');
-                        msg = this.t('game_end_fail_msg', [moneyStr, unit]);
-                        type = "fail";
+                        // Term 2 End
+                        if (this.money >= 200) {
+                            title = this.t('game_end_win_title');
+                            msg = this.t('game_end_win_msg', [moneyStr, unit]);
+                            type = "win";
+                        } else {
+                            title = this.t('game_end_fail_title');
+                            msg = this.t('game_end_fail_msg', [moneyStr, unit]);
+                            type = "fail";
+                        }
+                        
+                        // Flavor Text based on stats
+                        const maxStat = Object.keys(this.hiddenStats).reduce((a, b) => (this.hiddenStats[a] > (this.hiddenStats[b]||0) ? a : b), 'none');
+                        if (maxStat !== 'none' && this.hiddenStats[maxStat] > 5) {
+                            msg += "\n\n" + this.t('honoric_title') + ": " + this.t('honoric_' + maxStat);
+                        }
+                        
+                        isOver = true;
                     }
-                    isOver = true;
                 }
 
                 if (isOver) {
                     this.saveAchievement(type === 'win');
-                    this.showModal(title, msg, type);
+                    // this.showModal(title, msg, type);
+                    // Custom modal call to handle btnText/action
+                    this.modal = { show: true, title, msg, type, btnText: this.t('btn_restart'), action: 'restart' };
                     this.state = 'GAME_OVER';
                     return true;
                 }
                 return false;
+            },
+
+            handleModalAction() {
+                 if (this.modal.action === 'start_term_2') {
+                     this.startSecondTerm();
+                 } else if (this.modal.action === 'restart' || this.state === 'GAME_OVER') {
+                     this.modal.show = false;
+                     this.state = 'SELECT_CHAR';
+                     this.selectedCharId = null;
+                 } else {
+                     this.modal.show = false;
+                 }
             },
 
             makeChoice(choiceIdx) {
@@ -611,6 +725,14 @@
             if (effect.market) this.modifyMarketScore('market', effect.market);
             if (effect.crypto) this.modifyMarketScore('crypto', effect.crypto);
             if (effect.commodity) this.modifyMarketScore('commodity', effect.commodity);
+            
+            // Accumulate hidden stats
+            for (let key in effect) {
+                if (['approval', 'money', 'market', 'crypto', 'commodity', 'global_economy'].includes(key)) continue;
+                if (!this.hiddenStats[key]) this.hiddenStats[key] = 0;
+                this.hiddenStats[key] += effect[key];
+            }
+
             if (effect.global_economy) {
                 // 事件对周期的冲击
                 const type = effect.global_economy;
@@ -1164,17 +1286,6 @@
                     type: type, 
                     btnText: (type === 'win' || type === 'fail') ? this.t('btn_restart') : this.t('btn_ok')
                 };
-            },
-
-            handleModalAction() {
-                if (this.modal.type === 'win' || this.modal.type === 'fail') {
-                    // Reset to character selection instead of reloading
-                    this.state = 'SELECT_CHAR';
-                    this.selectedCharId = null; // Optional: Reset selection
-                    this.modal.show = false;
-                } else {
-                    this.modal.show = false;
-                }
             }
         }
     }).mount('#app');
