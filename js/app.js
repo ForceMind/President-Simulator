@@ -783,20 +783,55 @@
                 
                 // Calculate Rating
                 let rating = "rating_average";
+                let banReason = null;
+                let preventReelection = false;
+
+                // Check Reelection Ban based on new stats (Threshold > 50?)
+                // Default threshold should be high enough.
+                const BAN_THRESHOLD = 80;
+
+                // Sort stats to find highest bad one
+                if (hiddenSorted.length > 0) {
+                     const highest = hiddenSorted[0]; // Object { label, value, key? no key in current obj }
+                     // We need the key to determine reason.
+                     // Refetch with key:
+                     const entries = Object.entries(this.hiddenStats)
+                        .filter(pair => pair[1] !== 0)
+                        .sort((a,b) => b[1] - a[1]);
+                    
+                    if (entries.length > 0 && entries[0][1] >= BAN_THRESHOLD) {
+                        const maxKey = entries[0][0];
+                        preventReelection = true;
+                        // Determine Reason
+                        banReason = this.t('prevention_' + maxKey);
+                        if (banReason === 'prevention_' + maxKey) {
+                            banReason = this.t('prevention_generic', this.t(maxKey));
+                        }
+                    }
+                }
+
                 if (type === 'fail' && this.month < 48) rating = "rating_terrible"; // Assassinated/Impeached
+                else if (preventReelection) rating = "rating_bad"; // Banned
                 else if (type === 'fail') rating = "rating_bad"; // Lost reelection
                 else if (this.money > 100 && this.approval > 80) rating = "rating_legendary";
                 else if (this.money > 50 || this.approval > 60) rating = "rating_great";
                 
+                // Construct Outcome Message
+                let msg = outcomeMsg;
+                if (preventReelection) {
+                    msg += "\n\n" + banReason;
+                }
+
                 this.modal = {
                     show: true,
                     title: this.t('modal_end_summary_title'), // "Term Summary"
-                    msg: outcomeMsg, // Keep the narrative text
+                    msg: msg, 
                     type: type,
                     isSummary: true, // Special flag for template
                     summaryData: summary,
                     hiddenData: hiddenSorted,
                     rating: this.t(rating),
+                    banReason: preventReelection ? banReason : null, // Pass to template specifically
                     btnText: this.t('btn_restart'),
                     action: 'restart'
                 };
@@ -839,13 +874,29 @@
             for (let key in effect) {
                 if (['approval', 'money', 'market', 'crypto', 'commodity', 'global_economy'].includes(key)) continue;
                 
-                const val = effect[key];
+                let val = effect[key];
+                let targetKey = key;
+
+                 // --- MAPPING LOGIC START ---
+                 if (window.STAT_MAPPING && window.STAT_MAPPING[key]) {
+                    const map = window.STAT_MAPPING[key];
+                    if (typeof map === 'string') {
+                        targetKey = map;
+                    } else if (typeof map === 'object') {
+                        targetKey = map.key;
+                        if (map.invert) val = -val;
+                    }
+                } else {
+                     if (!key.startsWith('stat_')) continue;
+                }
+                // --- MAPPING LOGIC END ---
+
                 if (typeof val === 'number') {
-                     if (!this.hiddenStats[key]) this.hiddenStats[key] = 0;
-                     this.hiddenStats[key] += val;
+                     if (!this.hiddenStats[targetKey]) this.hiddenStats[targetKey] = 0;
+                     this.hiddenStats[targetKey] += val;
 
                      const sign = val >= 0 ? '+' : '';
-                     const localizedKey = this.t(key) === key ? key : this.t(key);
+                     const localizedKey = this.t(targetKey);
                      hiddenLog.push(`${localizedKey} ${sign}${val}`);
                 }
             }
@@ -1033,18 +1084,50 @@
                 for (let key in card.effect) {
                     if (ignoreKeys.includes(key)) continue;
                     
-                    const val = card.effect[key];
+                    let val = card.effect[key];
+                    let targetKey = key;
+                    
+                    // --- MAPPING LOGIC START ---
+                    if (window.STAT_MAPPING && window.STAT_MAPPING[key]) {
+                        const map = window.STAT_MAPPING[key];
+                        if (typeof map === 'string') {
+                            targetKey = map;
+                        } else if (typeof map === 'object') {
+                            targetKey = map.key;
+                            if (map.invert) val = -val;
+                        }
+                    } else {
+                         // Fallback for unmapped keys: if they aren't in keys to show, ignore or map to closest?
+                         // For now, if not mapped, we assume it's one of the 6 stats already OR a new one we don't track.
+                         // But we want to consolidate. If it's not mapped, we assign to 'Chaos' if negative, nothing if positive?
+                         // Better: Just keep it if it starts with 'stat_'.
+                         if (!key.startsWith('stat_')) {
+                             // console.warn("Unmapped stat key:", key);
+                             continue; // Skip unmapped keys to enforce 6 stats rule
+                         }
+                    }
+                    // --- MAPPING LOGIC END ---
+
                     if (typeof val === 'number') {
                         if (!this.hiddenStats) this.hiddenStats = {}; // Ensure init
-                        if (!this.hiddenStats[key]) this.hiddenStats[key] = 0;
-                        this.hiddenStats[key] += val;
+                        if (!this.hiddenStats[targetKey]) this.hiddenStats[targetKey] = 0;
+                        this.hiddenStats[targetKey] += val;
                         
-                        // Log 
+                        // Log (Using targetKey)
+                        // Don't log repeats if multiple keys map to same target.
+                        // Actually, logging the *original* key helps player understand flavor, 
+                        // but logging the *target* key helps them understand mechanics.
+                        // Let's log the target key name.
+                        
+                        // Debounce log? No, just push.
                         const sign = val >= 0 ? '+' : '';
-                        const localizedKey = this.t(key) === key ? key : this.t(key); // Use Translation if available
+                        const localizedKey = this.t(targetKey);
                         hiddenLog.push(`${localizedKey} ${sign}${val}`);
                     }
                 }
+                
+                // Deduplicate hiddenLog based on keys (e.g. if "Panic" and "Violence" both map to "Chaos", just show "Chaos +20")
+                // Simplified: Just show them. 
 
                 // 特殊效果
                 if (card.effect.market) this.modifyMarketScore('market', card.effect.market);

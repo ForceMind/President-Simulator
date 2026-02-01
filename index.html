@@ -446,6 +446,12 @@
                     <div style="font-size: 2.8em; color: var(--accent-gold); font-weight: 800; text-shadow: 0 0 15px rgba(241, 196, 15, 0.4); letter-spacing: 2px;">{{ modal.rating }}</div>
                 </div>
 
+                <!-- Ban Reason / Special Status -->
+                <div v-if="modal.banReason" style="background: rgba(231, 76, 60, 0.1); border-left: 4px solid var(--accent-red); padding: 15px; margin: 15px 0; text-align: left; font-size: 0.95em;">
+                    <div style="color: var(--accent-red); font-weight: bold; margin-bottom: 5px;">⚠️ {{ t('reelection_denied') }}</div>
+                    <div style="line-height: 1.5; color: #ecf0f1;">{{ modal.banReason }}</div>
+                </div>
+
                 <div v-if="modal.hiddenData && modal.hiddenData.length > 0">
                     <h4 style="border-bottom: 1px solid #7f8c8d; padding-bottom: 8px; margin-bottom: 10px; font-size: 0.95em; color: #bdc3c7;">{{ t('stats_hidden_overview') }}</h4>
                      <div style="max-height: 180px; overflow-y: auto; padding-right: 5px;" class="custom-scroll">
@@ -472,6 +478,7 @@
 <script src="./js/data/cards_scandal.js"></script>
 <script src="./js/data/events.js"></script>
 <script src="./js/data/events_expanded.js"></script>
+<script src="./js/stat_mapping.js"></script>
 <script src="./js/i18n.js"></script>
 <script src="./js/app.js"></script>
 </body>

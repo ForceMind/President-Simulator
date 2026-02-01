@@ -349,6 +349,22 @@ window.I18N = {
         dictator: "独裁",
 
         // Localization Fixes 2026-02-01
+        stat_dictatorship: "独裁指数",
+        stat_corruption: "腐败指数",
+        stat_chaos: "混乱指数",
+        stat_infamy: "恶名指数",
+        stat_polarization: "社会撕裂",
+        stat_ignorance: "愚昧指数",
+        
+        reelection_denied: "最高法院禁止参选",
+        prevention_generic: "因您的【{0}】过高，不符合候选人资格。",
+        prevention_stat_dictatorship: "最高法院裁定您的行为已构成实质性独裁，违反宪法第22修正案精神。",
+        prevention_stat_corruption: "国会已启动弹劾调查。因您及家族财富来源不明，联邦选举委员会冻结了您的资格。",
+        prevention_stat_chaos: "因全美范围内的持续暴乱，为了国家存亡，军方和国会联合宣布推迟选举。",
+        prevention_stat_infamy: "尽管您可能有支持者，但作为'国际笑柄'，党内初选委员会一致决定取消您的提名。",
+        prevention_stat_polarization: "国家正处于内战边缘。反对派控制的州威胁若您参选将直接脱离联邦。",
+        prevention_stat_ignorance: "由于您在多次公开讲话中表现出的严重认知障碍，内阁援引第25修正案暂停了您的职务。",
+
         obstruction: "司法阻挠",
         treason_risk: "叛国嫌疑",
         conspiracy_confirmed: "阴谋实锤",
