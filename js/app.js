@@ -557,30 +557,52 @@
             startSecondTerm() {
                 // Determine buff based on Term 1 stats
                 let legacyMsg = [];
+                const h = this.hiddenStats || {};
                 
-                // Happiness > 3 -> +10 Approval
-                if ((this.hiddenStats.happiness || 0) > 3) {
+                // 1. Happiness > 5 -> +10 Approval (Legacy: The People LOVED you)
+                if ((h.happiness || 0) > 5) {
                     this.approval += 15;
                     legacyMsg.push(this.t('legacy_happiness_buff'));
                 }
                 
-                // Corruption > 3 -> +5 Billion Money, -10 Approval
-                if ((this.hiddenStats.corruption || 0) > 3) {
+                // 2. Corruption > 5 -> +$5B Money, -10 Approval (Legacy: The Grifting Continues)
+                if ((h.corruption || 0) > 5) {
                      this.money += 5;
                      this.approval -= 10;
                      legacyMsg.push(this.t('legacy_corruption_buff'));
                 }
                 
-                // Notoriety > 3 -> +2 AP cap, -15 Approval
-                if ((this.hiddenStats.notoriety || 0) > 3) {
+                // 3. Notoriety > 5 -> -15 Approval, +10 Power (Legacy: Fear)
+                if ((h.notoriety || 0) > 5) {
                     this.approval -= 15;
+                    h.power = (h.power || 0) + 10; 
                     legacyMsg.push(this.t('legacy_notoriety_debuff'));
                 }
 
-                // Unity > 3 -> 
-                if ((this.hiddenStats.unity || 0) > 3) {
+                // 4. Unity > 5 -> +10 Approval, +5 Security
+                if ((h.unity || 0) > 5) {
                     this.approval += 10;
+                    h.security = (h.security || 0) + 5;
                     legacyMsg.push(this.t('legacy_unity_buff'));
+                }
+
+                // 5. Tech Dominance/Level > 5 -> +15 Market Score (Legacy: Tech Boom)
+                if ((h.tech_level || 0) > 5 || (h.tech_dominance || 0) > 5) {
+                    this.marketScore += 20;
+                    legacyMsg.push(this.t('legacy_tech_buff'));
+                }
+
+                // 6. Military Power > 20 -> -5 Diplomacy, +10 Security (Legacy: Hawkish)
+                if ((h.power || 0) > 20) {
+                    h.diplomacy = (h.diplomacy || 0) - 5;
+                    h.security = (h.security || 0) + 10;
+                    legacyMsg.push(this.t('legacy_power_buff'));
+                }
+
+                // 7. Ego > 50 -> +2 AP Cap (simulated energy?), -10 Unity (Legacy: Cult of Personality)
+                if ((h.ego || 0) > 50) {
+                    this.approval = Math.max(50, this.approval); // Floor approval
+                    legacyMsg.push(this.t('legacy_ego_buff'));
                 }
                 
                 this.approval = Math.min(100, Math.max(0, this.approval));

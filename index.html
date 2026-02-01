@@ -212,19 +212,14 @@
                     </div>
                     
                     <div class="card-effect" @click="playCard(index)">
-                        <div v-if="card.effect.approval">{{ t('effect_approval') }}: <span :class="card.effect.approval > 0 ? 'text-green' : 'text-red'">{{ card.effect.approval > 0 ? '+' : ''}}{{ card.effect.approval }}%</span></div>
-                        <div v-if="card.effect.money">{{ t('effect_money') }}: <span :class="card.effect.money > 0 ? 'text-green' : 'text-red'">{{ card.effect.money > 0 ? '+' : ''}}{{ card.effect.money }}{{ t('unit_billion') }}</span></div>
-                        <div v-if="card.effect.scandal_risk">
-                            {{ lang === 'zh' || lang === 'zh-tw' ? '丑闻风险' : 'Scandal Risk' }}: <span :class="card.effect.scandal_risk < 0 ? 'text-green' : 'text-red'">{{ card.effect.scandal_risk > 0 ? '+' : ''}}{{ card.effect.scandal_risk }}%</span>
-                        </div>
-                        <div v-if="card.effect.legislation_pass_chance">
-                            {{ lang === 'zh' || lang === 'zh-tw' ? '法案成功率' : 'Pass Chance' }}: <span class="text-green">+{{ card.effect.legislation_pass_chance }}%</span>
-                        </div>
-                        <div v-if="card.effect.society">
-                            {{ lang === 'zh' || lang === 'zh-tw' ? '社会' : 'Society' }}: <span :class="card.effect.society > 0 ? 'text-green' : 'text-red'">{{ card.effect.society > 0 ? '+' : ''}}{{ card.effect.society }}</span>
-                        </div>
-                         <div v-if="card.effect.economy">
-                            {{ lang === 'zh' || lang === 'zh-tw' ? '经济' : 'Economy' }}: <span :class="card.effect.economy > 0 ? 'text-green' : 'text-red'">{{ card.effect.economy > 0 ? '+' : ''}}{{ card.effect.economy }}</span>
+                        <div v-if="card.effect.approval">{{ t('stats_approval') }}: <span :class="card.effect.approval > 0 ? 'text-green' : 'text-red'">{{ card.effect.approval > 0 ? '+' : ''}}{{ card.effect.approval }}%</span></div>
+                        <div v-if="card.effect.money">{{ t('stats_money') }}: <span :class="card.effect.money > 0 ? 'text-green' : 'text-red'">{{ card.effect.money > 0 ? '+' : ''}}{{ card.effect.money }}{{ t('unit_billion') }}</span></div>
+                       
+                        <!-- Dynamic Hidden Stats Display -->
+                         <div v-for="(val, key) in card.effect" :key="key">
+                            <template v-if="!['approval', 'money', 'market', 'crypto', 'commodity', 'global_economy', 'inflation'].includes(key) && typeof val === 'number'">
+                                {{ t(key) === key ? key.charAt(0).toUpperCase() + key.slice(1) : t(key) }}: <span :class="val >= 0 ? 'text-green' : 'text-red'">{{ val > 0 ? '+' : ''}}{{ val }}</span>
+                            </template>
                         </div>
                     </div>
                 </div>
