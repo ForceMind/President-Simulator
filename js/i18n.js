@@ -1,4 +1,4 @@
-const I18N = {
+window.I18N = {
     zh: {
         title: "总统模拟器: 权力的游戏",
         goal: "目标：任期结束时存活，并积累 $200 亿财富",
@@ -143,7 +143,28 @@ const I18N = {
         log_skill_effect_12: "气候紧急状态：商品市场受挫，年轻人为你欢呼。",
         log_skill_effect_13: "棱镜计划：已获取未来市场情报(Beta)",
         log_skill_effect_14: "房地产泡沫：资产价格上涨，但经济过热。",
-        log_skill_effect_15: "MMT理论：凭空创造了 {0}{1}。"
+        log_skill_effect_15: "MMT理论：凭空创造了 {0}{1}。",
+        
+        // Added for App.js localization
+        lock_reason_1: "🔒 需通关任意 1 位角色",
+        lock_reason_3: "🔒 需通关任意 3 位角色",
+        lock_reason_all: "🔒 需通关所有基础角色(6位)",
+        lock_unlocked: "未解锁",
+        tutorial_text_mobile_1: "目标：存活48个月并赚取$200亿。",
+        tutorial_text_mobile_2: "顶部是您的状态。支持率影响行动力(AP)。",
+        tutorial_text_mobile_3: "这是您的手牌。打出卡牌会消耗AP。",
+        tutorial_text_mobile_4: "在此通过买卖赚取资金。记得低买高卖！",
+        tutorial_text_pc_1: "总统先生/女士，您的目标是在48个月内积累$200亿财富，并保证支持率不崩盘。",
+        tutorial_text_pc_2: "左侧/顶部显示您的支持率和资金。支持率决定每回合行动点(AP)，资金决定生死。",
+        tutorial_text_pc_3: "这里是待处理的文件。打出它们会消耗AP，并影响国家和您的财富。",
+        tutorial_text_pc_4: "这是家族基金会。您可以利用信息差在股市、加密货币或商品市场进行多空操作。记得及时平仓！",
+        end_turn_final: "卸任结算",
+        end_turn_next: "结束本月 >>",
+        end_turn_simple: "结束本月",
+        tutorial_title_base_1: "欢迎来到总统府",
+        tutorial_title_base_2: "关键数据",
+        tutorial_title_base_3: "政治手牌",
+        tutorial_title_base_4: "金融市场"
     },
     en: {
         title: "President Simulator: Game of Power",
@@ -289,7 +310,28 @@ const I18N = {
         log_skill_effect_12: "Climate Emergency: Commodities hit, youth cheers.",
         log_skill_effect_13: "Prism Project: Future market intel acquired (Beta)",
         log_skill_effect_14: "Real Estate Bubble: Assets up, economy overheated.",
-        log_skill_effect_15: "MMT Theory: Created {0}{1} out of thin air."
+        log_skill_effect_15: "MMT Theory: Created {0}{1} out of thin air.",
+
+        // Added for App.js localization
+        lock_reason_1: "🔒 Clear any 1 character to unlock",
+        lock_reason_3: "🔒 Clear any 3 characters to unlock",
+        lock_reason_all: "🔒 Clear all 6 base characters to unlock",
+        lock_unlocked: "Locked",
+        tutorial_text_mobile_1: "Goal: Survive 48 months and earn $20B.",
+        tutorial_text_mobile_2: "Top bar: Stats. Approval affects AP.",
+        tutorial_text_mobile_3: "Your Hand. Playing cards costs AP.",
+        tutorial_text_mobile_4: "Market. Buy low, sell high!",
+        tutorial_text_pc_1: "Mr./Ms. President, survive 48 months and amass $20B without getting impeached.",
+        tutorial_text_pc_2: "Left/Top: Stats. Approval determines Action Points (AP). Money determines life.",
+        tutorial_text_pc_3: "Your Desk. Playing files costs AP and affects the nation and your wallet.",
+        tutorial_text_pc_4: "Family Fund. Long/Short stocks, crypto, commodities. Close positions to profit!",
+        end_turn_final: "Final Settlement",
+        end_turn_next: "End Month >>",
+        end_turn_simple: "End Month",
+        tutorial_title_base_1: "Welcome to the Oval Office",
+        tutorial_title_base_2: "Key Stats",
+        tutorial_title_base_3: "Political Cards",
+        tutorial_title_base_4: "Financial Market"
     },
     es: {
         title: "Simulador de Presidente: Juego de Poder",

@@ -57,9 +57,9 @@
                 </div>
 
                 <div style="margin: 10px 0;">
-                    <span class="skill-tag">{{ t('char_skill') }}: {{ char.skillName }}</span>
+                    <span class="skill-tag">{{ t('char_skill') }}: {{ getLoc(char.skillName) }}</span>
                 </div>
-                <p style="font-size: 0.85em;">{{ char.skillDesc }}</p>
+                <p style="font-size: 0.85em;">{{ getLoc(char.skillDesc) }}</p>
                 <div style="margin-top: 10px; font-weight: bold;">{{ t('char_initial_money') }}: ${{ char.money }}{{ t('unit_billion') }}</div>
             </div>
         </div>
@@ -172,23 +172,23 @@
                 <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                     <div style="display: flex; align-items: center;">
                         <span style="font-size: 1.2em; margin-right: 5px;">⚡</span>
-                        <strong style="font-size: 1.1em;">{{ currentEvent.title }}</strong>
+                        <strong style="font-size: 1.1em;">{{ getLoc(currentEvent.title) }}</strong>
                     </div>
                     <button @click="ignoreEvent" style="font-size: 0.8em; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.3); color: #ecf0f1; border-radius: 4px; padding: 4px 8px; cursor: pointer; white-space: nowrap; margin-left: 10px;">
                         {{ t('ignore') }} (-5%)
                     </button>
                 </div>
                 
-                <div style="font-size: 0.95em; line-height: 1.4; opacity: 0.9;">{{ currentEvent.desc }}</div>
+                <div style="font-size: 0.95em; line-height: 1.4; opacity: 0.9;">{{ getLoc(currentEvent.desc) }}</div>
                 
                 <div v-if="currentEvent.choices" class="event-choices">
                     <button v-for="(choice, idx) in currentEvent.choices" :key="idx" 
                             class="choice-btn" @click="makeChoice(idx)">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-weight: bold;">{{ choice.text }}</span>
+                            <span style="font-weight: bold;">{{ getLoc(choice.text) }}</span>
                             <span style="font-size: 0.75em; background: rgba(255,255,255,0.15); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1);">-1 AP</span>
                         </div>
-                        <div style="font-size: 0.8em; opacity: 0.8; margin-top: 4px;">{{ choice.desc }}</div>
+                        <div style="font-size: 0.8em; opacity: 0.8; margin-top: 4px;">{{ getLoc(choice.desc) }}</div>
                     </button>
                 </div>
             </div>

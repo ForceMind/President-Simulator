@@ -139,36 +139,21 @@
                 return '';
             },
             tutorialTitle() {
-                const titles = ['', '欢迎来到总统府', '关键数据', '政治手牌', '金融市场'];
-                return titles[this.tutorialStep];
+                if (this.tutorialStep === 0) return '';
+                return this.t('tutorial_title_base_' + this.tutorialStep);
             },
             tutorialText() {
-                if (this.isMobile) {
-                    const texts = [
-                        '',
-                        '目标：存活48个月并赚取$200亿。',
-                        '顶部是您的状态。支持率影响行动力(AP)。',
-                        '这是您的手牌。打出卡牌会消耗AP。',
-                        '在此通过买卖赚取资金。记得低买高卖！'
-                    ];
-                    return texts[this.tutorialStep];
-                }
-                const texts = [
-                    '',
-                    '总统先生/女士，您的目标是在48个月内积累$200亿财富，并保证支持率不崩盘。',
-                    '左侧/顶部显示您的支持率和资金。支持率决定每回合行动点(AP)，资金决定生死。',
-                    '这里是待处理的文件。打出它们会消耗AP，并影响国家和您的财富。',
-                    '这是家族基金会。您可以利用信息差在股市、加密货币或商品市场进行多空操作。记得及时平仓！'
-                ];
-                return texts[this.tutorialStep];
+                if (this.tutorialStep === 0) return '';
+                const prefix = this.isMobile ? 'tutorial_text_mobile_' : 'tutorial_text_pc_';
+                return this.t(prefix + this.tutorialStep);
             },
             endTurnText() {
-                if (this.month === 48) return '卸任结算';
-                if (this.ap < 1 && this.hand.length === 0) return '结束本月 >>';
+                if (this.month === 48) return this.t('end_turn_final');
+                if (this.ap < 1 && this.hand.length === 0) return this.t('end_turn_next');
                 // 如果所有经济操作都做了(或者没钱了)，且AP没了
                 const noMoney = this.money < 5 && this.positions.length === 0; // Simple heuristic
-                if (this.ap === 0) return '结束本月 >>';
-                return '结束本月';
+                if (this.ap === 0) return this.t('end_turn_next');
+                return this.t('end_turn_simple');
             }
         },
         methods: {
@@ -228,11 +213,11 @@
             
             getLockReason(char) {
                  if (char.id <= 6) {
-                     if (char.id === 1 || char.id === 4) return "🔒 需通关任意 1 位角色";
-                     if (char.id === 3 || char.id === 6) return "🔒 需通关任意 3 位角色";
+                     if (char.id === 1 || char.id === 4) return this.t('lock_reason_1');
+                     if (char.id === 3 || char.id === 6) return this.t('lock_reason_3');
                  }
-                 if (char.id > 6) return "🔒 需通关所有基础角色(6位)";
-                 return "未解锁";
+                 if (char.id > 6) return this.t('lock_reason_all');
+                 return this.t('lock_unlocked');
             },
 
             getClearedCharIds() {
