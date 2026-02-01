@@ -482,10 +482,10 @@
                         type = "fail";
                     }
                     isOver = true;
-                }type === 'win'); // Pass save param
+                }
 
                 if (isOver) {
-                    this.saveAchievement();
+                    this.saveAchievement(type === 'win');
                     this.showModal(title, msg, type);
                     this.state = 'GAME_OVER';
                     return true;

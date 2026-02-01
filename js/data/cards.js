@@ -3,7 +3,7 @@ window.GAME_DATA = window.GAME_DATA || {};
 // Categories: "经济", "外交", "内政", "军事", "阴谋", "关税"
 // Phases: "early", "mid", "late", "any"
 
-window.GAME_DATA.CARDS = [
+window.GAME_DATA.CARD_DB = [
     // --- 经济 (Economic) ---
     {
         id: "eco_print_money",
