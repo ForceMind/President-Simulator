@@ -17,8 +17,18 @@
     }
 
     const app = createApp({
-    data() {
+        data() {
             return {
+                lang: 'zh',
+                langOptions: [
+                    { code: 'zh', label: '🇨🇳 简体中文' },
+                    { code: 'zh-tw', label: '🇹🇼 繁體中文' },
+                    { code: 'en', label: '🇺🇸 English' },
+                    { code: 'es', label: '🇪🇸 Español' },
+                    { code: 'fr', label: '🇫🇷 Français' },
+                    { code: 'ja', label: '🇯🇵 日本語' },
+                    { code: 'ko', label: '🇰🇷 한국어' }
+                ],
                 state: 'SELECT_CHAR', // SELECT_CHAR, PLAYING, GAME_OVER
                 selectedCharId: null,
                 player: null,
@@ -93,6 +103,9 @@
             }
         },
         mounted() {
+            if (localStorage.getItem('ps_lang')) {
+                this.lang = localStorage.getItem('ps_lang');
+            }
             window.addEventListener('resize', this.checkMobile);
             this.loadAchievements();
 
@@ -159,6 +172,25 @@
             }
         },
         methods: {
+            t(key, ...args) {
+                if (!window.I18N) return key;
+                let str = (window.I18N[this.lang] && window.I18N[this.lang][key]) || (window.I18N['zh'] && window.I18N['zh'][key]) || key;
+                args.forEach((arg, i) => {
+                    str = str.replace(`{${i}}`, arg);
+                });
+                return str;
+            },
+            getLoc(val) {
+                if (typeof val === 'object' && val !== null) {
+                    return val[this.lang] || val['zh'] || val['en'] || '';
+                }
+                return val;
+            },
+            setLang(code) {
+                this.lang = code;
+                localStorage.setItem('ps_lang', code);
+            },
+
             // --- Unlock System ---
             isCharLocked(char) {
                 const clearedIds = this.getClearedCharIds();
@@ -577,7 +609,12 @@
                     if (pool.length === 0) pool = CARD_DB; // Fallback
 
                     const template = pool[Math.floor(Math.random() * pool.length)];
-                    this.hand.push({ ...template });
+                    // Ensure every card has a cost. Default to 1 AP if not specified.
+                    const cardData = { ...template };
+                    if (cardData.cost === undefined) {
+                        cardData.cost = 1;
+                    }
+                    this.hand.push(cardData);
                 }
                 // 消耗一次性技能状态
                 if (this.player.id === 2 && this.skillActive) this.skillActive = false; 
@@ -984,6 +1021,9 @@
 
             getEconomyName(state) {
                 const map = { 'growth': '稳定增长', 'boom': '繁荣', 'recession': '衰退', 'crisis': '危机' };
+                if (this.t('eco_' + state) !== 'eco_' + state) {
+                    return this.t('eco_' + state);
+                }
                 return map[state] || state;
             },
 

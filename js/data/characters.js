@@ -3,12 +3,14 @@ window.GAME_DATA = window.GAME_DATA || {};
 window.GAME_DATA.CHARACTERS = [
     // --- 经典 ---
     { 
-        id: 1, name: '金发大亨', icon: '👱‍♂️', 
-        desc: '商业帝国的继承人，擅长操纵媒体。', 
+        id: 1, 
+        name: { zh: '金发大亨', en: 'Blonde Tycoon', es: 'Magnate Rubio', fr: 'Magnat Blond', ja: '金髪の富豪', ko: '금발의 재벌', 'zh-tw': '金髮大亨' },
+        icon: '👱‍♂️', 
+        desc: { zh: '商业帝国的继承人，擅长操纵媒体。', en: 'Heir to a business empire, master of media manipulation.', es: 'Heredero de un imperio, maestro de los medios.', fr: 'Héritier d\'un empire, maître des médias.', ja: 'ビジネス帝国の後継者。メディア操作が得意。', ko: '상업 제국의 계승자, 미디어 조작의 달인.', 'zh-tw': '商業帝國的繼承人，擅長操縱媒體。' },
         gender: 'male',
         money: 20, 
-        skillName: '推特治国', 
-        skillDesc: '消耗$2亿，支持率定向增加 15%。',
+        skillName: { zh: '推特治国', en: 'Tweet Diplomacy', es: 'Diplomacia Twitter', fr: 'Twitter Diplomatie', ja: 'ツイッター政治', ko: '트위터 정치', 'zh-tw': '推特治國' },
+        skillDesc: { zh: '消耗$2亿，支持率定向增加 15%。', en: 'Cost $2B. Approval +15%.', es: 'Cuesta $2B. Aprobación +15%.', fr: 'Coût 2Mrd $. Popularité +15%.', ja: 'コスト20億ドル。支持率+15%。', ko: '비용 $20억. 지지율 +15%.', 'zh-tw': '消耗$2億，支持率定向增加 15%。' },
         skillCostMoney: 2
     },
     { 

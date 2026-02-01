@@ -25,8 +25,14 @@
     
     <!-- 阶段1: 角色选择 -->
     <div v-if="state === 'SELECT_CHAR'">
-        <h1 style="text-align: center; color: var(--accent-gold);">总统模拟器: 权力的游戏</h1>
-        <p style="text-align: center; color: #bdc3c7;">目标：任期结束时存活，并积累 $200 亿财富</p>
+        <div style="position:absolute; top:10px; right:10px; z-index:100;">
+            <select v-model="lang" @change="setLang($event.target.value)" style="background:#2c3e50; color:#ecf0f1; border:1px solid #7f8c8d; padding:5px; border-radius:4px; font-family:sans-serif;">
+                <option v-for="opt in langOptions" :key="opt.code" :value="opt.code">{{ opt.label }}</option>
+            </select>
+        </div>
+
+        <h1 style="text-align: center; color: var(--accent-gold);">{{ t('title') }}</h1>
+        <p style="text-align: center; color: #bdc3c7;">{{ t('goal') }}</p>
         
         <div class="char-grid">
             <div v-for="char in characters" :key="char.id" 
@@ -41,8 +47,8 @@
                 </div>
 
                 <div class="char-icon">{{ char.icon }}</div>
-                <h3>{{ char.name }}</h3>
-                <p style="color: #7f8c8d; font-size: 0.9em;">{{ char.desc }}</p>
+                <h3>{{ getLoc(char.name) }}</h3>
+                <p style="color: #7f8c8d; font-size: 0.9em;">{{ getLoc(char.desc) }}</p>
                 
                 <!-- 成就显示 -->
                 <div v-if="achievements[char.id]" style="font-size: 0.8em; color: var(--accent-gold); margin: 5px 0; border: 1px dashed #555; padding: 4px;">
@@ -93,15 +99,15 @@
         <header v-if="isMobile" class="mobile-stats-header">
             <div class="mobile-stats-row">
                 <div class="stat-box">
-                    <span class="stat-label">📅进度</span>
+                    <span class="stat-label">📅</span>
                     <span class="stat-val">{{ month }}/48</span>
                 </div>
                 <div class="stat-box">
-                    <span class="stat-label">👍支持率</span>
+                    <span class="stat-label">👍{{ t('stats_approval') }}</span>
                     <span class="stat-val" :class="approvalColor">{{ approval }}%</span>
                 </div>
                 <div class="stat-box">
-                    <span class="stat-label">💰资金</span>
+                    <span class="stat-label">💰{{ t('stats_money') }}</span>
                     <span class="stat-val" :class="money < 5 ? 'text-red' : 'text-green'">${{ money.toFixed(0) }}亿</span>
                 </div>
                 <div class="stat-box">
@@ -126,26 +132,26 @@
 
         <!-- 左侧：数据面板 (桌面端) -->
         <aside class="stats-panel" v-show="!isMobile">
-            <h2 style="margin: 0; color: var(--accent-gold);">{{ player.name }}</h2>
+            <h2 style="margin: 0; color: var(--accent-gold);">{{ getLoc(player.name) }}</h2>
             
             <div class="stat-item">
-                <label>任期进度 (第 {{ month }}/48 月)</label>
+                <label>{{ t('month', month) }} / 48</label>
                 <div class="progress-bar-bg"><div class="progress-bar-fill" :style="{ width: (month/48)*100 + '%', background: '#3498db' }"></div></div>
             </div>
 
             <div class="stat-item">
-                <label>民意支持率 (需 >25%)</label>
+                <label>{{ t('stats_approval') }} (>25%)</label>
                 <div class="stat-value" :class="approvalColor">{{ approval }}%</div>
                 <div class="progress-bar-bg"><div class="progress-bar-fill" :style="{ width: approval + '%', background: approval < 30 ? '#e74c3c' : '#2ecc71' }"></div></div>
             </div>
 
             <div class="stat-item">
-                <label>家族财富 (需 >$1亿 / 目标 $200亿)</label>
-                <div class="stat-value" :class="money < 5 ? 'text-red' : 'text-green'">${{ money.toFixed(2) }}亿</div>
+                <label>{{ t('stats_money') }} (>1 / 200)</label>
+                <div class="stat-value" :class="money < 5 ? 'text-red' : 'text-green'">${{ money.toFixed(2) }}{{ t('unit_billion') }}</div>
             </div>
 
             <div class="stat-item">
-                <label>行动力 (AP)</label>
+                <label>{{ t('stat_ap') }}</label>
                 <div style="display: flex; gap: 5px; flex-wrap: wrap;">
                     <div v-for="n in maxAp" :key="n" 
                          style="width: 20px; height: 20px; border-radius: 50%;"
@@ -169,7 +175,7 @@
                         <strong style="font-size: 1.1em;">{{ currentEvent.title }}</strong>
                     </div>
                     <button @click="ignoreEvent" style="font-size: 0.8em; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.3); color: #ecf0f1; border-radius: 4px; padding: 4px 8px; cursor: pointer; white-space: nowrap; margin-left: 10px;">
-                        忽略 (-5%)
+                        {{ t('ignore') }} (-5%)
                     </button>
                 </div>
                 
@@ -188,37 +194,37 @@
             </div>
 
             <div v-if="!isMobile" style="display: flex; justify-content: space-between; align-items: center;">
-                <h3>待处理文件 (手牌 {{ hand.length }}/6)</h3>
-                <span style="font-size: 0.8em; color: #95a5a6;">支持率决定下月AP回复量</span>
+                <h3>{{ t('desk_title') }} ({{ hand.length }}/6)</h3>
+                <span style="font-size: 0.8em; color: #95a5a6;">{{ t('ap_hint') }}</span>
             </div>
             
             <!-- 移动端简单标题 -->
             <div v-else style="padding: 10px 0 5px 0; font-size: 0.9em; color: #95a5a6; display: flex; justify-content: space-between;">
-                <span>📂 待处理: {{ hand.length }}/6</span>
-                <span>⚡ 消耗AP: 1-3</span>
+                <span>📂 {{ t('desk_title') }}: {{ hand.length }}/6</span>
+                <span>⚡ AP: 1-3</span>
             </div>
 
             <div class="cards-area">
                 <div v-for="(card, index) in hand" :key="index" class="game-card animate__animated animate__fadeInUp">
                     <div style="display: flex; justify-content: space-between; align-items: start;">
-                        <div class="card-cost" :class="getCardCostClass(card.cost)">消耗 {{ card.cost }} AP</div>
+                        <div class="card-cost" :class="getCardCostClass(card.cost)">{{ t('cost_ap', card.cost) }}</div>
                         <!-- 弃牌按钮 -->
-                        <div class="discard-btn" @click.stop="discardCard(index)" title="花费1 AP废弃此文件" style="position: static; margin-left: auto;">✖</div>
+                        <div class="discard-btn" @click.stop="discardCard(index)" :title="t('discard_tooltip')" style="position: static; margin-left: auto;">✖</div>
                     </div>
                     
                     <div @click="playCard(index)" class="card-content-wrapper">
-                        <div class="card-type">{{ card.type }}</div>
-                        <div class="card-title">{{ card.title }}</div>
-                        <div class="card-desc">{{ card.desc }}</div>
+                        <div class="card-type">{{ getLoc(card.type) }}</div>
+                        <div class="card-title">{{ getLoc(card.title) }}</div>
+                        <div class="card-desc">{{ getLoc(card.desc) }}</div>
                     </div>
                     
                     <div class="card-effect" @click="playCard(index)">
-                        <div v-if="card.effect.approval">支持率: {{ card.effect.approval > 0 ? '+' : ''}}{{ card.effect.approval }}%</div>
-                        <div v-if="card.effect.money">财富: {{ card.effect.money > 0 ? '+' : ''}}{{ card.effect.money }}亿</div>
+                        <div v-if="card.effect.approval">{{ t('effect_approval') }}: {{ card.effect.approval > 0 ? '+' : ''}}{{ card.effect.approval }}%</div>
+                        <div v-if="card.effect.money">{{ t('effect_money') }}: {{ card.effect.money > 0 ? '+' : ''}}{{ card.effect.money }}{{ t('unit_billion') }}</div>
                     </div>
                 </div>
                 <div v-if="hand.length === 0" style="width: 100%; text-align: center; color: #7f8c8d; margin-top: 50px;">
-                    当前没有待处理的政治文件。
+                    {{ t('empty_desk') }}
                 </div>
             </div>
         </main>
@@ -228,12 +234,12 @@
             
             <div class="market-trend">
                 <div style="font-size: 0.9em; margin-bottom: 5px; color: #bdc3c7;">
-                    全球经济: <strong style="color: white;">{{ getEconomyName(globalEconomy) }}</strong>
+                    {{ t('market_global_eco') }}: <strong style="color: white;">{{ getEconomyName(globalEconomy) }}</strong>
                 </div>
-                股市: <span :style="{color: marketTrend === 'bull' ? '#2ecc71' : (marketTrend === 'crash' ? '#e74c3c' : (marketTrend === 'bear' ? '#e67e22' : 'white'))}">{{ marketTrend === 'bull' ? '📈' : (marketTrend === 'crash' ? '📉 崩盘' : (marketTrend === 'bear' ? '📉' : '➡️')) }}</span> | 
-                加密: <span :style="{color: cryptoTrend === 'bull' ? '#2ecc71' : (cryptoTrend === 'crash' ? '#e74c3c' : (cryptoTrend === 'bear' ? '#e67e22' : 'white'))}">{{ cryptoTrend === 'bull' ? '🚀' : (cryptoTrend === 'crash' ? '🩸 崩盘' : (cryptoTrend === 'bear' ? '🩸' : '➡️')) }}</span>
+                {{ t('market_stock') }}: <span :style="{color: marketTrend === 'bull' ? '#2ecc71' : (marketTrend === 'crash' ? '#e74c3c' : (marketTrend === 'bear' ? '#e67e22' : 'white'))}">{{ marketTrend === 'bull' ? '📈' : (marketTrend === 'crash' ? '📉 崩盘' : (marketTrend === 'bear' ? '📉' : '➡️')) }}</span> | 
+                {{ t('market_crypto') }}: <span :style="{color: cryptoTrend === 'bull' ? '#2ecc71' : (cryptoTrend === 'crash' ? '#e74c3c' : (cryptoTrend === 'bear' ? '#e67e22' : 'white'))}">{{ cryptoTrend === 'bull' ? '🚀' : (cryptoTrend === 'crash' ? '🩸 崩盘' : (cryptoTrend === 'bear' ? '🩸' : '➡️')) }}</span>
                 <br>
-                商品: <span :style="{color: commodityTrend === 'bull' ? '#2ecc71' : (commodityTrend === 'crash' ? '#e74c3c' : (commodityTrend === 'bear' ? '#e67e22' : 'white'))}">{{ commodityTrend === 'bull' ? '🔥 紧俏' : (commodityTrend === 'crash' ? '🧊 滞销' : (commodityTrend === 'bear' ? '🧊' : '➡️')) }}</span>
+                {{ t('market_commodity') }}: <span :style="{color: commodityTrend === 'bull' ? '#2ecc71' : (commodityTrend === 'crash' ? '#e74c3c' : (commodityTrend === 'bear' ? '#e67e22' : 'white'))}">{{ commodityTrend === 'bull' ? '🔥 紧俏' : (commodityTrend === 'crash' ? '🧊 滞销' : (commodityTrend === 'bear' ? '🧊' : '➡️')) }}</span>
             </div>
 
             <div class="action-grid">
@@ -241,17 +247,17 @@
                 <div class="market-group" style="grid-column: span 2; background: rgba(255,255,255,0.05); padding: 5px; border-radius: 6px;">
                     <div v-if="getPosition('stock')" class="pos-active" style="display: flex; justify-content: space-between; align-items: center; padding: 5px;">
                         <div style="text-align: left;">
-                            <div>{{ getPosition('stock').position === 'long' ? '📈' : '📉' }} 股市市值: ${{ getPosition('stock').currentVal.toFixed(1) }}亿</div>
-                            <div :class="getPosRoi('stock') >= 0 ? 'text-green' : 'text-red'">收益: {{ getPosRoi('stock') }}%</div>
+                            <div>{{ getPosition('stock').position === 'long' ? '📈' : '📉' }} {{ t('market_stock') }}: ${{ getPosition('stock').currentVal.toFixed(1) }}{{ t('unit_billion') }}</div>
+                            <div :class="getPosRoi('stock') >= 0 ? 'text-green' : 'text-red'">{{ t('roi') }}: {{ getPosRoi('stock') }}%</div>
                         </div>
-                        <button class="close-pos-btn" style="width: auto; padding: 5px 10px;" @click="closePositionByType('stock')">平仓</button>
+                        <button class="close-pos-btn" style="width: auto; padding: 5px 10px;" @click="closePositionByType('stock')">{{ t('action_close') }}</button>
                     </div>
                     <div v-else style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                         <button class="invest-btn" @click="makeInvestment('stock', 'long')" :disabled="actionsTaken.stock || money < 5">
-                            <div>🏢 做多股市</div>
+                            <div>🏢 {{ t('action_buy') }} {{ t('market_stock') }}</div>
                         </button>
                         <button class="invest-btn" @click="makeInvestment('stock', 'short')" :disabled="actionsTaken.stock || money < 5">
-                            <div>📉 做空股市</div>
+                            <div>📉 {{ t('action_short') }} {{ t('market_stock') }}</div>
                         </button>
                     </div>
                 </div>
@@ -260,17 +266,17 @@
                 <div class="market-group" style="grid-column: span 2; background: rgba(255,255,255,0.05); padding: 5px; border-radius: 6px;">
                     <div v-if="getPosition('crypto')" class="pos-active" style="display: flex; justify-content: space-between; align-items: center; padding: 5px;">
                         <div style="text-align: left;">
-                            <div>{{ getPosition('crypto').position === 'long' ? '🚀' : '🩸' }} 加密市值: ${{ getPosition('crypto').currentVal.toFixed(1) }}亿</div>
-                            <div :class="getPosRoi('crypto') >= 0 ? 'text-green' : 'text-red'">收益: {{ getPosRoi('crypto') }}%</div>
+                            <div>{{ getPosition('crypto').position === 'long' ? '🚀' : '🩸' }} {{ t('market_crypto') }}: ${{ getPosition('crypto').currentVal.toFixed(1) }}{{ t('unit_billion') }}</div>
+                            <div :class="getPosRoi('crypto') >= 0 ? 'text-green' : 'text-red'">{{ t('roi') }}: {{ getPosRoi('crypto') }}%</div>
                         </div>
-                        <button class="close-pos-btn" style="width: auto; padding: 5px 10px;" @click="closePositionByType('crypto')">平仓</button>
+                        <button class="close-pos-btn" style="width: auto; padding: 5px 10px;" @click="closePositionByType('crypto')">{{ t('action_close') }}</button>
                     </div>
                     <div v-else style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                         <button class="invest-btn" @click="makeInvestment('crypto', 'long')" :disabled="actionsTaken.crypto || money < 5">
-                            <div>🪙 做多加密</div>
+                            <div>🪙 {{ t('action_buy') }} {{ t('market_crypto') }}</div>
                         </button>
                         <button class="invest-btn" @click="makeInvestment('crypto', 'short')" :disabled="actionsTaken.crypto || money < 5">
-                            <div>🩸 做空加密</div>
+                            <div>🩸 {{ t('action_short') }} {{ t('market_crypto') }}</div>
                         </button>
                     </div>
                 </div>
@@ -279,45 +285,45 @@
                 <div class="market-group" style="grid-column: span 2; background: rgba(255,255,255,0.05); padding: 5px; border-radius: 6px;">
                     <div v-if="getPosition('commodity')" class="pos-active" style="display: flex; justify-content: space-between; align-items: center; padding: 5px;">
                         <div style="text-align: left;">
-                            <div>{{ getPosition('commodity').position === 'long' ? '🔥' : '🧊' }} 商品市值: ${{ getPosition('commodity').currentVal.toFixed(1) }}亿</div>
-                            <div :class="getPosRoi('commodity') >= 0 ? 'text-green' : 'text-red'">收益: {{ getPosRoi('commodity') }}%</div>
+                            <div>{{ getPosition('commodity').position === 'long' ? '🔥' : '🧊' }} {{ t('market_commodity') }}: ${{ getPosition('commodity').currentVal.toFixed(1) }}{{ t('unit_billion') }}</div>
+                            <div :class="getPosRoi('commodity') >= 0 ? 'text-green' : 'text-red'">{{ t('roi') }}: {{ getPosRoi('commodity') }}%</div>
                         </div>
-                        <button class="close-pos-btn" style="width: auto; padding: 5px 10px;" @click="closePositionByType('commodity')">平仓</button>
+                        <button class="close-pos-btn" style="width: auto; padding: 5px 10px;" @click="closePositionByType('commodity')">{{ t('action_close') }}</button>
                     </div>
                     <div v-else style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                         <button class="invest-btn" @click="makeInvestment('commodity', 'long')" :disabled="actionsTaken.commodity || money < 5">
-                            <div>🛢️ 做多商品</div>
+                            <div>🛢️ {{ t('action_buy') }} {{ t('market_commodity') }}</div>
                         </button>
                         <button class="invest-btn" @click="makeInvestment('commodity', 'short')" :disabled="actionsTaken.commodity || money < 5">
-                            <div>📉 做空商品</div>
+                            <div>📉 {{ t('action_short') }} {{ t('market_commodity') }}</div>
                         </button>
                     </div>
                 </div>
                 
                 <!-- 寻租 -->
                 <button class="invest-btn full-width" @click="embezzle" :disabled="actionsTaken.embezzle" style="grid-column: span 2; border-color: #e74c3c; color: #e74c3c;">
-                    <div>🤝 权力寻租 (风险)</div>
+                    <div>🤝 {{ t('action_embezzle') }}</div>
                 </button>
             </div>
             
             <div style="margin-top: 15px;">
                  <button class="skill-btn" @click="useSkill" :disabled="skillCooldown > 0" style="width: 100%;">
-                    ★ 技能: {{ player.skillName }} ({{ skillCooldown > 0 ? skillCooldown + '月冷却' : '$' + (player.skillCostMoney||0) + '亿' }})
+                    ★ {{ getLoc(player.skillName) }} ({{ skillCooldown > 0 ? t('skill_cooldown', skillCooldown) : t('skill_cost', player.skillCostMoney||0, t('unit_billion')) }})
                 </button>
             </div>
 
             <!-- 技能确认弹窗 -->
             <div v-if="skillModal.show" class="modal-overlay" style="z-index: 2000;">
                 <div class="skill-modal-content animate__animated animate__zoomIn">
-                    <h3>{{ player.skillName }}</h3>
-                    <p style="color: #666; font-size: 0.9em; margin: 15px 0;">{{ player.skillDesc }}</p>
+                    <h3>{{ getLoc(player.skillName) }}</h3>
+                    <p style="color: #666; font-size: 0.9em; margin: 15px 0;">{{ getLoc(player.skillDesc) }}</p>
                     <div style="background: #f8f9fa; padding: 10px; border-radius: 6px; margin-bottom: 15px;">
-                        <div>💰 消耗资金: ${{ player.skillCostMoney || 0 }}亿</div>
-                        <div>⏳ 冷却时间: 6个月</div>
+                        <div>💰 {{ t('skill_cost', player.skillCostMoney || 0, t('unit_billion')) }}</div>
+                        <div>⏳ {{ t('skill_cooldown', 6) }}</div>
                     </div>
                     <div class="skill-modal-btn-group">
-                        <button class="btn-cancel" @click="skillModal.show = false">取消</button>
-                        <button class="btn-confirm" @click="confirmSkill">确认发动</button>
+                        <button class="btn-cancel" @click="skillModal.show = false">{{ t('btn_cancel') }}</button>
+                        <button class="btn-confirm" @click="confirmSkill">{{ t('btn_confirm') }}</button>
                     </div>
                 </div>
             </div>
@@ -338,8 +344,8 @@
 
         <!-- 移动端底部导航 -->
         <nav class="mobile-nav" v-if="isMobile">
-            <button :class="{active: activeTab === 'desk'}" @click="activeTab = 'desk'">🗂️ 办公</button>
-            <button :class="{active: activeTab === 'market'}" @click="activeTab = 'market'">💰 市场 ({{ positions.length }})</button>
+            <button :class="{active: activeTab === 'desk'}" @click="activeTab = 'desk'">🗂️ {{ t('tab_desk') }}</button>
+            <button :class="{active: activeTab === 'market'}" @click="activeTab = 'market'">💰 {{ t('tab_market') }} ({{ positions.length }})</button>
         </nav>
     </div>
 
@@ -356,12 +362,12 @@
             </div>
 
             <div class="report-hint">
-                <strong>💡 顾问建议:</strong><br>
+                <strong>💡 {{ t('advisor_hint') }}:</strong><br>
                 {{ reportModal.hint }}
             </div>
 
             <button class="next-turn-btn" style="width: 100%; margin-top: 20px;" @click="confirmReport">
-                开启下个月
+                {{ t('btn_start_month') }}
             </button>
         </div>
     </div>
@@ -385,6 +391,7 @@
 <script src="./js/data/cards_scandal.js"></script>
 <script src="./js/data/events.js"></script>
 <script src="./js/data/events_expanded.js"></script>
+<script src="./js/i18n.js"></script>
 <script src="./js/app.js"></script>
 </body>
 </html>
