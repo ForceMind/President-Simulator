@@ -92,6 +92,7 @@
 
                 // 弹窗
                 modal: { show: false, title: '', msg: '', type: 'info', btnText: '确定' },
+                eventModal: { show: false },  // Fixed: Added eventModal state
                 skillModal: { show: false },
                 reportModal: { show: false, title: '', changes: [] },
                 discardModal: { show: false, index: -1, noAsk: false }, // Discard Modal State
@@ -112,6 +113,9 @@
             }
             window.addEventListener('resize', this.checkMobile);
             this.loadAchievements();
+            
+            // Try to load saved game
+            this.loadGame();
 
             // Check Char Select Tutorial
             if (!localStorage.getItem('president_sim_char_tutorial_done')) {
@@ -338,6 +342,8 @@
                     this.showTutorial = true;
                     this.tutorialStep = 1;
                 }
+                
+                this.saveGame();
             },
 
             // --- 核心循环 ---
@@ -433,6 +439,73 @@
 
                 // 8. 补充卡牌 (手牌上限6，每回合抽2张)
                 this.drawCards(2);
+
+                this.saveGame();
+            },
+
+            saveGame() {
+                if (this.state !== 'PLAYING') return;
+                const saveData = {
+                    month: this.month,
+                    approval: this.approval,
+                    money: this.money,
+                    ap: this.ap,
+                    hand: this.hand,
+                    logs: this.logs,
+                    currentEvent: this.currentEvent,
+                    marketScore: this.marketScore,
+                    cryptoScore: this.cryptoScore,
+                    commodityScore: this.commodityScore,
+                    marketTrend: this.marketTrend,
+                    cryptoTrend: this.cryptoTrend,
+                    commodityTrend: this.commodityTrend,
+                    globalEconomy: this.globalEconomy,
+                    economyPhase: this.economyPhase,
+                    actionsTaken: this.actionsTaken,
+                    positions: this.positions,
+                    player: this.player,
+                    tutorialFlags: this.tutorialFlags,
+                    timstamp: Date.now()
+                };
+                localStorage.setItem('ps_save_data', JSON.stringify(saveData));
+            },
+
+            loadGame() {
+                const json = localStorage.getItem('ps_save_data');
+                if (!json) return false;
+                try {
+                    const data = JSON.parse(json);
+                    
+                    // Simple validation
+                    if (!data.player || !data.month) return false;
+
+                    this.month = data.month;
+                    this.approval = data.approval;
+                    this.money = data.money;
+                    this.ap = data.ap;
+                    this.hand = data.hand || [];
+                    this.logs = data.logs || [];
+                    this.currentEvent = data.currentEvent;
+                    this.marketScore = data.marketScore;
+                    this.cryptoScore = data.cryptoScore;
+                    this.commodityScore = data.commodityScore;
+                    this.marketTrend = data.marketTrend;
+                    this.cryptoTrend = data.cryptoTrend;
+                    this.commodityTrend = data.commodityTrend;
+                    this.globalEconomy = data.globalEconomy;
+                    this.economyPhase = data.economyPhase;
+                    this.actionsTaken = data.actionsTaken;
+                    this.positions = data.positions || [];
+                    this.player = data.player;
+                    this.tutorialFlags = data.tutorialFlags || this.tutorialFlags;
+                    
+                    this.state = 'PLAYING';
+                    this.addLog("🔄 Game Loaded from Save.");
+                    return true;
+                } catch (e) {
+                    console.error("Load failed", e);
+                    return false;
+                }
             },
 
             loadAchievements() {
@@ -561,6 +634,7 @@
 
             this.addLog(`⚡ 应对危机: 选择了【${choice.text}】`);
             this.currentEvent = null; // 事件处理完毕
+            this.saveGame();
         },
 
         ignoreEvent() {
@@ -569,6 +643,7 @@
             this.addLog(`⚠️ 忽视危机: 未处理突发事件，民怨沸腾 (支持率 -5%)`);
             this.currentEvent = null;
             this.eventModal.show = false;
+            this.saveGame();
         },
 
         openEventModal() {
@@ -658,6 +733,7 @@
                 const card = this.hand[index];
                 this.hand.splice(index, 1);
                 this.addLog(this.t('log_discard', this.getLoc(card.title)));
+                this.saveGame();
             },
 
             playCard(index) {
@@ -712,6 +788,7 @@
                 this.money = parseFloat(this.money.toFixed(2));
 
                 this.addLog(this.t('log_play_card', this.getLoc(card.title)));
+                this.saveGame();
             },
             
             modifyMarketScore(market, trend) {
@@ -782,6 +859,7 @@
                     this.positions[this.positions.length-1].isInsider = true; 
                     this.addLog("💡 内幕消息已生效，该仓位将受到特殊优待。");
                 }
+                this.saveGame();
             },
 
             closePosition(index) {
@@ -794,6 +872,7 @@
 
                 const profit = pos.currentVal - pos.amount;
                 this.addLog(`💰 平仓: 收回 $${pos.currentVal.toFixed(2)}亿 (${profit>=0?'+':''}${profit.toFixed(2)}亿)`);
+                this.saveGame();
             },
 
             updatePositions() {
@@ -842,6 +921,7 @@
                 const gain = 2 + Math.random() * 2; 
                 this.money += gain;
                 this.addLog(this.t('log_embezzle', '$' + gain.toFixed(1), this.t('unit_billion')));
+                this.saveGame();
             },
 
             // --- 技能系统 ---
@@ -958,6 +1038,7 @@
                         this.addLog("巡回演出：支持率飙升，门票收入入账。");
                         break;
                 }
+                this.saveGame();
             },
 
             // --- 动态事件与市场系统 ---

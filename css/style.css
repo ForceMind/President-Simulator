@@ -7,6 +7,10 @@
     --text-main: #ecf0f1;
 }
 
+* {
+    box-sizing: border-box;
+}
+
 body {
     font-family: 'Helvetica Neue', Arial, sans-serif;
     background-color: var(--bg-color);
@@ -379,6 +383,11 @@ body {
         overflow: hidden;
         padding: 0;
         margin: 0;
+    }
+    
+    /* Remove padding from body specifically to ensure full width */
+    body {
+        padding: 0 !important;
     }
 
     #app {

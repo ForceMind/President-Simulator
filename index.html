@@ -349,9 +349,15 @@
                                 <span style="font-size: 0.8em; background: #95a5a6; color: white; padding: 2px 6px; border-radius: 4px;">-1 AP</span>
                             </div>
                             <div style="font-size: 0.9em; color: #7f8c8d; margin-bottom: 5px;">{{ getLoc(choice.desc) }}</div>
-                            <div v-if="choice.effect" style="font-size: 0.85em; color: #d35400; border-top: 1px dashed #bdc3c7; padding-top: 4px;">
-                                <span v-if="choice.effect.approval">👍 {{ choice.effect.approval > 0 ? '+' : '' }}{{ choice.effect.approval }}% </span>
-                                <span v-if="choice.effect.money">💰 {{ choice.effect.money > 0 ? '+' : '' }}{{ choice.effect.money }}B </span>
+                            <div v-if="choice.effect" style="font-size: 0.85em; color: #d35400; border-top: 1px dashed #bdc3c7; padding-top: 4px; display: flex; flex-wrap: wrap; gap: 8px;">
+                                <span v-for="(val, key) in choice.effect" :key="key">
+                                    <template v-if="key === 'approval'">👍 {{ val > 0 ? '+' : '' }}{{ val }}%</template>
+                                    <template v-else-if="key === 'money'">💰 {{ val > 0 ? '+' : '' }}{{ val }}B</template>
+                                    <template v-else-if="key === 'market'">📈 {{ lang === 'zh' ? '市场' : 'Market' }}: {{ val }}</template>
+                                    <template v-else>
+                                        ✨ <strong style="text-transform: capitalize;">{{ t(key) }}</strong>: {{ val > 0 ? '+' : '' }}{{ val }}
+                                    </template>
+                                </span>
                             </div>
                         </button>
                     </div>

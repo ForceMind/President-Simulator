@@ -2,102 +2,102 @@ window.GAME_DATA = window.GAME_DATA || {};
 window.GAME_DATA.EVENTS_DB = window.GAME_DATA.EVENTS_DB || [];
 
 // Helper to push multiple events
-const events = [
+window.GAME_DATA.EVENTS_DB.push(
     // ================= EARLY PHASE (0-10) =================
     {
-        title: "就职典礼演说",
-        desc: "是你最重要的时刻。你要说什么？",
+        title: { zh: "就职典礼演说", en: "Inauguration Speech" },
+        desc: { zh: "是你最重要的时刻。你要说什么？", en: "It's your big moment. What do you say?" },
         phase: "early",
         choices: [
-            { text: "团结与希望", effect: { approval: 5, unity: 5 } },
-            { text: "黑暗与复仇", effect: { approval: -5, base_loyalty: 10 } },
-            { text: "关于你自己有多棒", effect: { approval: -2, ego: 5 } }
+            { text: { zh: "团结与希望", en: "Unity & Hope" }, effect: { approval: 5, unity: 5 } },
+            { text: { zh: "黑暗与复仇", en: "Darkness & Revenge" }, effect: { approval: -5, loyalty: 10 } },
+            { text: { zh: "关于你自己有多棒", en: "All About Me" }, effect: { approval: -2, ego: 5 } }
         ]
     },
     {
-        title: "白宫装修",
-        desc: "这里看起来太... 穷酸了。需要金子。",
+        title: { zh: "白宫装修", en: "White House Reno" },
+        desc: { zh: "这里看起来太... 穷酸了。需要金子。", en: "This place looks... poor. It needs gold." },
         phase: "early",
         choices: [
-            { text: "全部镀金", effect: { money: -5, approval: -2 } },
-            { text: "保持原样", effect: { money: 0, approval: 2 } },
-            { text: "把椭圆形办公室变成高尔夫模拟室", effect: { money: -2, productivity: -5 } }
+            { text: { zh: "全部镀金", en: "Gold Plating" }, effect: { money: -5, approval: -2 } },
+            { text: { zh: "保持原样", en: "Keep it Classic" }, effect: { money: 0, approval: 2 } },
+            { text: { zh: "改为高尔夫模拟室", en: "Golf Simulator" }, effect: { money: -2, approval: -1 } }
         ]
     },
     {
-        title: "第一份法案",
-        desc: "你要签署什么作为你的第一项成就？",
+        title: { zh: "第一份法案", en: "First Bill" },
+        desc: { zh: "你要签署什么作为你的第一项成就？", en: "What will be your first signature achievement?" },
         phase: "early",
         choices: [
-            { text: "每个人发钱", effect: { money: -10, approval: 10 } },
-            { text: "驱逐不受欢迎的人", effect: { approval: -5, base_loyalty: 5 } },
-            { text: "命名一种新三明治", effect: { approval: 1, mockery: 2 } }
+            { text: { zh: "每个人发钱", en: "Free Money" }, effect: { money: -10, approval: 10 } },
+            { text: { zh: "驱逐不受欢迎的人", en: "Deport Unwanted" }, effect: { approval: -5, loyalty: 5 } },
+            { text: { zh: "命名一种新三明治", en: "Name a Sandwich" }, effect: { approval: 1, mockery: 2 } }
         ]
     },
     {
-        title: "内阁选拔",
-        desc: "谁来管理国家？",
+        title: { zh: "内阁选拔", en: "Cabinet Picking" },
+        desc: { zh: "谁来管理国家？", en: "Who runs the country?" },
         phase: "early",
         choices: [
-            { text: "行业专家", effect: { efficiency: 5, corruption: -2 } },
-            { text: "你的家人", effect: { corruption: 5, loyalty: 10 } },
-            { text: "给钱最多的人", effect: { money: 10, approval: -5 } }
+            { text: { zh: "行业专家", en: "Experts" }, effect: { approval: 5, corruption: -2 } },
+            { text: { zh: "你的家人", en: "Family Members" }, effect: { corruption: 5, loyalty: 10 } },
+            { text: { zh: "给钱最多的人", en: "Highest Bidders" }, effect: { money: 10, approval: -5 } }
         ]
     },
     {
-        title: "第一次新闻发布会",
-        desc: "记者们像饥饿的狼。喂给他们什么？",
+        title: { zh: "第一次新闻发布会", en: "First Press Conference" },
+        desc: { zh: "记者们像饥饿的狼。喂给他们什么？", en: "The press are like hungry wolves. What do you feed them?" },
         phase: "early",
         choices: [
-            { text: "真相", effect: { approval: 2, boredom: 5 } },
-            { text: "谎言", effect: { approval: -2, media_attention: 10 } },
-            { text: "侮辱他们的发型", effect: { approval: 1, chaos: 5 } }
+            { text: { zh: "真相", en: "The Truth" }, effect: { approval: 2, boredom: 5 } },
+            { text: { zh: "谎言", en: "Lies" }, effect: { approval: -2, attention: 10 } },
+            { text: { zh: "侮辱他们的发型", en: "Insults" }, effect: { approval: 1, chaos: 5 } }
         ]
     },
     {
-        title: "反对党的橄榄枝",
-        desc: "他们想合作。真的吗？",
+        title: { zh: "反对党的橄榄枝", en: "Opposition Olive Branch" },
+        desc: { zh: "他们想合作。真的吗？", en: "They want to work together. Really?" },
         phase: "early",
         choices: [
-            { text: "接受合作", effect: { approval: 5, base_loyalty: -5 } },
-            { text: "公开羞辱他们", effect: { approval: -2, base_loyalty: 5 } },
-            { text: "设下陷阱", effect: { scandal_chance: 5 } }
+            { text: { zh: "接受合作", en: "Accept" }, effect: { approval: 5, loyalty: -5 } },
+            { text: { zh: "公开羞辱他们", en: "Humiliate Them" }, effect: { approval: -2, loyalty: 5 } },
+            { text: { zh: "设下陷阱", en: "Set a Trap" }, effect: { scandal_chance: 5 } }
         ]
     },
     {
-        title: "特勤局代号",
-        desc: "你需要一个很酷的代号。",
+        title: { zh: "特勤局代号", en: "Secret Service Code Name" },
+        desc: { zh: "你需要一个很酷的代号。", en: "You need a cool name." },
         phase: "early",
         choices: [
-            { text: "爱国者", effect: { dignity: 2 } },
-            { text: "大老板", effect: { ego: 2 } },
-            { text: "性感野兽", effect: { mockery: 10 } }
+            { text: { zh: "爱国者", en: "Patriot" }, effect: { approval: 2 } },
+            { text: { zh: "大老板", en: "Big Boss" }, effect: { ego: 2 } },
+            { text: { zh: "性感野兽", en: "Sexy Beast" }, effect: { mockery: 10 } }
         ]
     },
     {
-        title: "发现前任总统的秘密笔记",
-        desc: "他在抽屉里留了一张条子：‘没有钱了，祝好运。’",
+        title: { zh: "发现前任的秘密笔记", en: "Secret Note" },
+        desc: { zh: "他在抽屉里留了一张条子：‘没有钱了，祝好运。’", en: "A note in the drawer: 'No money left. Good luck.'" },
         phase: "early",
         choices: [
-            { text: "公开它", effect: { approval: 2, blame: 5 } },
-            { text: "烧掉它", effect: { secrets: 1 } },
-            { text: "吃掉它", effect: { digestion: -1 } }
+            { text: { zh: "公开它", en: "Publicize It" }, effect: { approval: 2, blame: 5 } },
+            { text: { zh: "烧掉它", en: "Burn It" }, effect: { secrets: 1 } },
+            { text: { zh: "吃掉它", en: "Eat It" }, effect: { digestion: -1 } }
         ]
     },
     {
-        title: "第一次出国访问",
-        desc: "去哪里？",
+        title: { zh: "第一次出国访问", en: "First State Visit" },
+        desc: { zh: "去哪里？", en: "Where to go?" },
         phase: "early",
         choices: [
-            { text: "传统盟友", effect: { relations: 5 } },
-            { text: "敌对独裁者", effect: { relations: -5, notoriety: 10 } },
-            { text: "迪士尼乐园", effect: { approval: -5, happiness: 5 } }
+            { text: { zh: "传统盟友", en: "Allies" }, effect: { relations: 5 } },
+            { text: { zh: "敌对独裁者", en: "Dictators" }, effect: { relations: -5, notoriety: 10 } },
+            { text: { zh: "迪士尼乐园", en: "Disneyland" }, effect: { approval: -5, happiness: 5 } }
         ]
     },
-
-    // ================= MID PHASE (Lots of them) =================
+    
+    // ================= MID PHASE =================
     {
-        title: "流感爆发",
+        title: { zh: "流感爆发", en: "Flu Season" },
         desc: "人们在咳嗽。这是真的病还是假新闻？",
         phase: "mid",
         choices: [
@@ -539,6 +539,4 @@ const events = [
             { text: "留下一封鼓励的信", effect: { maturity: 100 } } // Rare
         ]
     }
-];
-
-window.GAME_DATA.EVENTS_DB.push(...events);
+);

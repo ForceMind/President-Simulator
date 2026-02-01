@@ -47,7 +47,7 @@ window.I18N = {
         market_stock: "股市",
         market_crypto: "加密货币",
         market_commodity: "大宗商品",
-        action_buy: "买入",
+        action_buy: "做多",
         action_sell: "卖出",
         action_short: "做空",
         action_close: "平仓",
@@ -169,7 +169,19 @@ window.I18N = {
         tutorial_title_base_1: "欢迎来到总统府",
         tutorial_title_base_2: "关键数据",
         tutorial_title_base_3: "政治手牌",
-        tutorial_title_base_4: "金融市场"
+        tutorial_title_base_4: "金融市场",
+
+        // Effect Keys
+        unity: "团结",
+        relations: "外交",
+        notoriety: "恶名",
+        chaos: "混乱",
+        secrets: "秘密",
+        loyalty: "忠诚",
+        corruption: "腐败",
+        efficiency: "效率",
+        happiness: "幸福",
+        ego: "自尊"
     },
     en: {
         title: "President Simulator: Game of Power",
@@ -341,7 +353,19 @@ window.I18N = {
         tutorial_title_base_1: "Welcome to the Oval Office",
         tutorial_title_base_2: "Key Stats",
         tutorial_title_base_3: "Political Cards",
-        tutorial_title_base_4: "Financial Market"
+        tutorial_title_base_4: "Financial Market",
+
+        // Effect Keys
+        unity: "Unity",
+        relations: "Relations",
+        notoriety: "Notoriety",
+        chaos: "Chaos",
+        secrets: "Secrets",
+        loyalty: "Loyalty",
+        corruption: "Corruption",
+        efficiency: "Efficiency",
+        happiness: "Happiness",
+        ego: "Ego"
     },
     es: {
         title: "Simulador de Presidente: Juego de Poder",
