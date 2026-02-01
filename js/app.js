@@ -57,7 +57,7 @@
                 positions: [], // 持仓列表
                 
                 // 引导与教程
-                showTutorial: true,
+                showTutorial: false,
                 tutorialStep: 1,
 
                 // 技能状态
@@ -192,6 +192,28 @@
                 }
             },
             startGame() {
+                // 重置游戏核心状态
+                this.month = 1;
+                this.approval = 50;
+                this.money = 0;
+                this.ap = 2;
+                this.maxAp = 2;
+                this.hand = [];
+                this.logs = [];
+                this.currentEvent = null;
+                
+                // 重置经济与持仓
+                this.marketScore = 0;
+                this.cryptoScore = 10;
+                this.commodityScore = 0;
+                this.globalEconomy = 'growth';
+                this.economyPhase = 0;
+                this.actionsTaken = { stock: false, crypto: false, commodity: false, embezzle: false };
+                this.positions = []; 
+                this.lastActionTime = Date.now();
+                this.achievements = {}; // Reload or keep persistent? Usually reloading from storage is safer here
+                this.loadAchievements(); // Ensure achievements are fresh
+
                 const char = this.characters.find(c => c.id === this.selectedCharId);
                 this.player = { ...char }; // 深拷贝
                 this.money = this.player.money;
@@ -784,7 +806,10 @@
 
             handleModalAction() {
                 if (this.modal.type === 'win' || this.modal.type === 'fail') {
-                    location.reload();
+                    // Reset to character selection instead of reloading
+                    this.state = 'SELECT_CHAR';
+                    this.selectedCharId = null; // Optional: Reset selection
+                    this.modal.show = false;
                 } else {
                     this.modal.show = false;
                 }

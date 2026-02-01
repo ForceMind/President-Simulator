@@ -323,7 +323,7 @@
         <div class="modal-content animate__animated animate__zoomIn" :class="modal.type">
             <h3>{{ modal.title }}</h3>
             <p>{{ modal.msg }}</p>
-            <button @click="modal.show = false; if(state === 'GAME_OVER') state = 'SELECT_CHAR';">{{ modal.btnText }}</button>
+            <button class="next-turn-btn" style="margin-top: 20px; width: 100%;" @click="handleModalAction">{{ modal.btnText }}</button>
         </div>
     </div>
 </div>
