@@ -52,6 +52,19 @@
         <div style="text-align: center; margin-top: 30px;">
             <button class="next-turn-btn" style="width: 200px;" @click="startGame" :disabled="!selectedCharId">宣誓就职</button>
         </div>
+
+        <!-- 角色选择引导 -->
+        <div v-if="showCharTutorial" class="tutorial-overlay"></div>
+        <div v-if="showCharTutorial" class="tutorial-box" 
+             style="top: 50%; left: 50%; transform: translate(-50%, -50%); position: fixed; text-align: left;">
+            <h3>{{ charTutorialStep === 1 ? '选择您的背景' : '准备就绪' }}</h3>
+            <p style="margin: 10px 0; line-height: 1.5;">{{ charTutorialStep === 1 ? '每位候选人都有独特的【技能】和【初始资金】。有的适合操纵市场(资金多)，有的适合政治斗争(技能强)。点击卡片查看详情。' : '选定心仪的角色后，点击下方的“宣誓就职”按钮开启您的任期。' }}</p>
+            <div style="text-align: right;">
+                <button class="next-turn-btn" style="padding: 5px 15px; font-size: 0.9em;" @click="nextCharTutorialStep">
+                    {{ charTutorialStep === 1 ? '下一步' : '明白了' }}
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- 教程遮罩 -->
@@ -139,18 +152,28 @@
         <!-- 中间：桌面与卡牌 -->
         <main class="desk-area" v-show="activeTab === 'desk' || !isMobile">
             <!-- 突发事件栏 (带选项) -->
-            <div v-if="currentEvent" class="event-banner animate__animated animate__pulse">
-                <div style="display: flex; align-items: center; margin-bottom: 5px;">
-                    <span>⚡ 突发:</span>
-                    <strong style="margin-left: 5px;">{{ currentEvent.title }}</strong>
+            <div v-if="currentEvent" class="event-banner animate__animated animate__pulse" 
+                 style="flex-direction: column; align-items: stretch; gap: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div style="display: flex; align-items: center;">
+                        <span style="font-size: 1.2em; margin-right: 5px;">⚡</span>
+                        <strong style="font-size: 1.1em;">{{ currentEvent.title }}</strong>
+                    </div>
+                    <button @click="ignoreEvent" style="font-size: 0.8em; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.3); color: #ecf0f1; border-radius: 4px; padding: 4px 8px; cursor: pointer; white-space: nowrap; margin-left: 10px;">
+                        忽略 (-5%)
+                    </button>
                 </div>
-                <div style="font-size: 0.9em; margin-bottom: 10px;">{{ currentEvent.desc }}</div>
+                
+                <div style="font-size: 0.95em; line-height: 1.4; opacity: 0.9;">{{ currentEvent.desc }}</div>
                 
                 <div v-if="currentEvent.choices" class="event-choices">
                     <button v-for="(choice, idx) in currentEvent.choices" :key="idx" 
                             class="choice-btn" @click="makeChoice(idx)">
-                        <div style="font-weight: bold;">{{ choice.text }}</div>
-                        <div style="font-size: 0.8em; opacity: 0.8;">{{ choice.desc }}</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: bold;">{{ choice.text }}</span>
+                            <span style="font-size: 0.75em; background: rgba(255,255,255,0.15); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1);">-1 AP</span>
+                        </div>
+                        <div style="font-size: 0.8em; opacity: 0.8; margin-top: 4px;">{{ choice.desc }}</div>
                     </button>
                 </div>
             </div>
@@ -204,51 +227,67 @@
                 商品: <span :style="{color: commodityTrend === 'bull' ? '#2ecc71' : (commodityTrend === 'crash' ? '#e74c3c' : (commodityTrend === 'bear' ? '#e67e22' : 'white'))}">{{ commodityTrend === 'bull' ? '🔥 紧俏' : (commodityTrend === 'crash' ? '🧊 滞销' : (commodityTrend === 'bear' ? '🧊' : '➡️')) }}</span>
             </div>
 
-            <!-- 持仓列表 -->
-            <div v-if="positions.length > 0" class="positions-panel">
-                <h4 style="margin: 10px 0;">当前持仓</h4>
-                <div v-for="(pos, idx) in positions" :key="pos.id" class="position-card">
-                    <div style="display: flex; justify-content: space-between;">
-                        <span style="font-weight: bold;">{{ pos.position === 'long' ? '📈 做多' : '📉 做空' }} {{ pos.type === 'stock' ? '股市' : (pos.type === 'crypto' ? '加密' : '商品') }}</span>
-                        <span :class="pos.currentVal >= pos.amount ? 'text-green' : 'text-red'">
-                            {{ ((pos.currentVal - pos.amount)/pos.amount*100).toFixed(1) }}%
-                        </span>
-                    </div>
-                    <div style="font-size: 0.8em; color: #bdc3c7; margin: 5px 0;">
-                        市值: ${{ pos.currentVal.toFixed(2) }}亿 (本金: ${{ pos.amount }}亿)
-                    </div>
-                    <button class="close-pos-btn" @click="closePosition(idx)">平仓</button>
-                </div>
-            </div>
-
             <div class="action-grid">
                 <!-- 股票 -->
-                <button class="invest-btn" @click="makeInvestment('stock', 'long')" :disabled="actionsTaken.stock">
-                    <div>🏢 做多股市</div>
-                </button>
-                <button class="invest-btn" @click="makeInvestment('stock', 'short')" :disabled="actionsTaken.stock">
-                    <div>📉 做空股市</div>
-                </button>
+                <div class="market-group" style="grid-column: span 2; background: rgba(255,255,255,0.05); padding: 5px; border-radius: 6px;">
+                    <div v-if="getPosition('stock')" class="pos-active" style="display: flex; justify-content: space-between; align-items: center; padding: 5px;">
+                        <div style="text-align: left;">
+                            <div>{{ getPosition('stock').position === 'long' ? '📈' : '📉' }} 股市市值: ${{ getPosition('stock').currentVal.toFixed(1) }}亿</div>
+                            <div :class="getPosRoi('stock') >= 0 ? 'text-green' : 'text-red'">收益: {{ getPosRoi('stock') }}%</div>
+                        </div>
+                        <button class="close-pos-btn" style="width: auto; padding: 5px 10px;" @click="closePositionByType('stock')">平仓</button>
+                    </div>
+                    <div v-else style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <button class="invest-btn" @click="makeInvestment('stock', 'long')" :disabled="actionsTaken.stock || money < 5">
+                            <div>🏢 做多股市</div>
+                        </button>
+                        <button class="invest-btn" @click="makeInvestment('stock', 'short')" :disabled="actionsTaken.stock || money < 5">
+                            <div>📉 做空股市</div>
+                        </button>
+                    </div>
+                </div>
 
                 <!-- 加密 -->
-                <button class="invest-btn" @click="makeInvestment('crypto', 'long')" :disabled="actionsTaken.crypto">
-                    <div>🪙 做多加密</div>
-                </button>
-                <button class="invest-btn" @click="makeInvestment('crypto', 'short')" :disabled="actionsTaken.crypto">
-                    <div>🩸 做空加密</div>
-                </button>
+                <div class="market-group" style="grid-column: span 2; background: rgba(255,255,255,0.05); padding: 5px; border-radius: 6px;">
+                    <div v-if="getPosition('crypto')" class="pos-active" style="display: flex; justify-content: space-between; align-items: center; padding: 5px;">
+                        <div style="text-align: left;">
+                            <div>{{ getPosition('crypto').position === 'long' ? '🚀' : '🩸' }} 加密市值: ${{ getPosition('crypto').currentVal.toFixed(1) }}亿</div>
+                            <div :class="getPosRoi('crypto') >= 0 ? 'text-green' : 'text-red'">收益: {{ getPosRoi('crypto') }}%</div>
+                        </div>
+                        <button class="close-pos-btn" style="width: auto; padding: 5px 10px;" @click="closePositionByType('crypto')">平仓</button>
+                    </div>
+                    <div v-else style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <button class="invest-btn" @click="makeInvestment('crypto', 'long')" :disabled="actionsTaken.crypto || money < 5">
+                            <div>🪙 做多加密</div>
+                        </button>
+                        <button class="invest-btn" @click="makeInvestment('crypto', 'short')" :disabled="actionsTaken.crypto || money < 5">
+                            <div>🩸 做空加密</div>
+                        </button>
+                    </div>
+                </div>
 
                 <!-- 商品 -->
-                <button class="invest-btn" @click="makeInvestment('commodity', 'long')" :disabled="actionsTaken.commodity">
-                    <div>🛢️ 做多商品</div>
-                </button>
-                <button class="invest-btn" @click="makeInvestment('commodity', 'short')" :disabled="actionsTaken.commodity">
-                    <div>📉 做空商品</div>
-                </button>
+                <div class="market-group" style="grid-column: span 2; background: rgba(255,255,255,0.05); padding: 5px; border-radius: 6px;">
+                    <div v-if="getPosition('commodity')" class="pos-active" style="display: flex; justify-content: space-between; align-items: center; padding: 5px;">
+                        <div style="text-align: left;">
+                            <div>{{ getPosition('commodity').position === 'long' ? '🔥' : '🧊' }} 商品市值: ${{ getPosition('commodity').currentVal.toFixed(1) }}亿</div>
+                            <div :class="getPosRoi('commodity') >= 0 ? 'text-green' : 'text-red'">收益: {{ getPosRoi('commodity') }}%</div>
+                        </div>
+                        <button class="close-pos-btn" style="width: auto; padding: 5px 10px;" @click="closePositionByType('commodity')">平仓</button>
+                    </div>
+                    <div v-else style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <button class="invest-btn" @click="makeInvestment('commodity', 'long')" :disabled="actionsTaken.commodity || money < 5">
+                            <div>🛢️ 做多商品</div>
+                        </button>
+                        <button class="invest-btn" @click="makeInvestment('commodity', 'short')" :disabled="actionsTaken.commodity || money < 5">
+                            <div>📉 做空商品</div>
+                        </button>
+                    </div>
+                </div>
                 
                 <!-- 寻租 -->
-                <button class="invest-btn full-width" @click="embezzle" :disabled="actionsTaken.embezzle" style="border-color: #e74c3c; color: #e74c3c;">
-                    <div>🤝 权力寻租</div>
+                <button class="invest-btn full-width" @click="embezzle" :disabled="actionsTaken.embezzle" style="grid-column: span 2; border-color: #e74c3c; color: #e74c3c;">
+                    <div>🤝 权力寻租 (风险)</div>
                 </button>
             </div>
             
@@ -277,14 +316,14 @@
 
 
             <button class="next-turn-btn" @click="nextTurn" v-if="!isMobile">
-                {{ month === 48 ? '卸任结算' : '结束本月' }}
+                {{ endTurnText }}
             </button>
         </aside>
 
         <!-- 移动端常驻 "结束本月" 按钮 (Floating) -->
         <div v-if="isMobile" class="mobile-floating-next">
             <button class="next-turn-btn" @click="nextTurn">
-                {{ month === 48 ? '卸任结算' : '结束本月 >>' }}
+                {{ endTurnText }}
             </button>
         </div>
 

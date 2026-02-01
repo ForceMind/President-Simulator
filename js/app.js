@@ -59,6 +59,16 @@
                 // 引导与教程
                 showTutorial: false,
                 tutorialStep: 1,
+                showCharTutorial: false,
+                charTutorialStep: 1,
+                
+                // 新手引导 Flags
+                tutorialFlags: {
+                    firstCard: false,
+                    firstInvest: false,
+                    firstCrisis: false,
+                    firstClose: false
+                },
 
                 // 技能状态
                 skillCooldown: 0,
@@ -85,6 +95,11 @@
         mounted() {
             window.addEventListener('resize', this.checkMobile);
             this.loadAchievements();
+
+            // Check Char Select Tutorial
+            if (!localStorage.getItem('president_sim_char_tutorial_done')) {
+                this.showCharTutorial = true;
+            }
 
             // Tab Visibility Check
             document.addEventListener("visibilitychange", this.handleVisibilityChange);
@@ -134,26 +149,30 @@
                 ];
                 return texts[this.tutorialStep];
             },
-            tutorialStyle() {
-                // 移动端：强制居中
-                if (this.isMobile) {
-                    return { 
-                        top: '50%', 
-                        left: '50%', 
-                        transform: 'translate(-50%, -50%)',
-                        position: 'fixed'
-                    };
-                }
-                // 桌面端：引导位置
-                switch(this.tutorialStep) {
-                    case 2: return { top: '20px', left: '270px' };
-                    case 3: return { top: '30%', left: '30%' };
-                    case 4: return { top: '30%', right: '300px' };
-                    default: return { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' };
-                }
+            endTurnText() {
+                if (this.month === 48) return '卸任结算';
+                if (this.ap < 1 && this.hand.length === 0) return '结束本月 >>';
+                // 如果所有经济操作都做了(或者没钱了)，且AP没了
+                const noMoney = this.money < 5 && this.positions.length === 0; // Simple heuristic
+                if (this.ap === 0) return '结束本月 >>';
+                return '结束本月';
             }
         },
         methods: {
+            // --- Helper Methods for UI ---
+            getPosition(type) {
+                return this.positions.find(p => p.type === type);
+            },
+            getPosRoi(type) {
+                const pos = this.getPosition(type);
+                if (!pos) return 0;
+                return ((pos.currentVal - pos.amount) / pos.amount * 100).toFixed(1);
+            },
+            closePositionByType(type) {
+                const idx = this.positions.findIndex(p => p.type === type);
+                if (idx !== -1) this.closePosition(idx);
+            },
+
             handleVisibilityChange() {
                 if (document.hidden) {
                     this.lastHiddenTime = Date.now();
@@ -183,6 +202,16 @@
             checkMobile() {
                 this.isMobile = window.innerWidth < 900;
             },
+            
+            // --- 教程逻辑 ---
+            nextCharTutorialStep() {
+                if (this.charTutorialStep < 2) {
+                    this.charTutorialStep++;
+                } else {
+                    this.showCharTutorial = false;
+                    localStorage.setItem('president_sim_char_tutorial_done', 'true');
+                }
+            },
             nextTutorialStep() {
                 if (this.tutorialStep < 4) {
                     this.tutorialStep++;
@@ -210,6 +239,12 @@
                 this.economyPhase = 0;
                 this.actionsTaken = { stock: false, crypto: false, commodity: false, embezzle: false };
                 this.positions = []; 
+                this.tutorialFlags = { firstCard: false, firstInvest: false, firstClose: false }; // Reset flags? Or Keep? Keep persistent usually better for tutorial but this is session based.
+                // Load flags from localstorage if intended to be once-ever
+                if (localStorage.getItem('ps_t_flags')) {
+                    this.tutorialFlags = JSON.parse(localStorage.getItem('ps_t_flags'));
+                }
+
                 this.lastActionTime = Date.now();
                 this.achievements = {}; // Reload or keep persistent? Usually reloading from storage is safer here
                 this.loadAchievements(); // Ensure achievements are fresh
@@ -218,7 +253,10 @@
                 this.player = { ...char }; // 深拷贝
                 this.money = this.player.money;
                 this.state = 'PLAYING';
-                this.logs.push(`总统先生/女士，欢迎入主总统府。当前是第1个月。`);
+                
+                const title = this.player.gender === 'female' ? '女士' : '先生';
+                this.logs.push(`总统${title}，欢迎入主总统府。当前是第1个月。`);
+                
                 this.drawCards(3);
                 this.updateMarketTrends(true); // 初始随机
                 
@@ -271,10 +309,19 @@
 
                 // 提示
                 let hint = "保持现状，稳步发展。";
-                if (this.approval < 30) hint = "🔥 警告：支持率极低，小心弹劾风险！";
+                let isCrisis = this.globalEconomy === 'crisis' || this.globalEconomy === 'recession';
+                
+                // 优先根据宏观周期给出建议
+                if (this.globalEconomy === 'crisis') hint = "🌍 警告：全球危机！现金为王，或者做空一切。";
+                else if (this.globalEconomy === 'recession') hint = "📉 提示：经济衰退，避险资产(如商品)通常表现更好。";
+                else if (this.globalEconomy === 'boom') hint = "🚀 提示：繁荣时期，大胆做多股市和加密货币！";
+                
+                // 特殊情况覆盖
+                if (this.approval < 30) hint = "🔥 警告：支持率极低，小心弹劾风险！优先处理民生。";
                 else if (this.money < 2) hint = "💸 警告：资金枯竭，注意人身安全！";
-                else if (this.globalEconomy === 'crisis') hint = "🌍 提示：全球经济危机，持有现金或做空市场。";
-                else if (this.marketTrend === 'bull') hint = "📈 提示：牛市来了，加大投资！";
+                
+                // 如果没有宏观大问题，再看市场趋势
+                else if (!isCrisis && this.marketTrend === 'bull') hint = "📈 提示：股市牛市，可以适当加仓。";
 
                 this.reportModal.hint = hint;
                 this.reportModal.show = true;
@@ -395,8 +442,15 @@
             },
 
             makeChoice(choiceIdx) {
-            const choice = this.currentEvent.choices[choiceIdx];
-            const effect = choice.effect;
+                // AP 检查 (紧急事件消耗 1 AP)
+                if (this.ap < 1) {
+                    this.showModal("行动力不足", "你需要 1 点行动力(AP)来处理此事件。请选择【忽略】。", "warning");
+                    return;
+                }
+                this.ap -= 1;
+
+                const choice = this.currentEvent.choices[choiceIdx];
+                const effect = choice.effect;
             
             if (effect.approval) this.approval += effect.approval;
             if (effect.money) this.money += effect.money;
@@ -426,6 +480,13 @@
 
             this.addLog(`⚡ 应对危机: 选择了【${choice.text}】`);
             this.currentEvent = null; // 事件处理完毕
+        },
+
+        ignoreEvent() {
+            // 忽略事件惩罚
+            this.approval -= 5;
+            this.addLog(`⚠️ 忽视危机: 未处理突发事件，民怨沸腾 (支持率 -5%)`);
+            this.currentEvent = null;
         },
 
         // --- 行为逻辑 ---
@@ -470,6 +531,14 @@
             },
 
             playCard(index) {
+                // Check Tutorial Flag
+                if (!this.tutorialFlags.firstCard) {
+                    this.showModal("新手引导: 政治手牌", "这是你的第一次政治决策！\n\n1. 每张卡牌都会消耗 【AP (行动力)】。\n2. 卡牌主要影响 【支持率】 和 【资金】。\n3. 部分卡牌还会影响 【全球经济】 或 【特定市场】。\n\n请谨慎选择，AP 用完就只能等下个月了。", "info");
+                    this.tutorialFlags.firstCard = true;
+                    localStorage.setItem('ps_t_flags', JSON.stringify(this.tutorialFlags));
+                    return; 
+                }
+
                 const card = this.hand[index];
                 if (this.ap < card.cost) {
                     this.addLog("⚠️ 行动力不足！");
@@ -535,6 +604,14 @@
 
             // --- 新增：长期持仓系统 ---
             makeInvestment(type, position) {
+                 // Check Tutorial Flag
+                 if (!this.tutorialFlags.firstInvest) {
+                    this.showModal("新手引导: 基金会投资", "欢迎来到金融市场！\n\n1. 【做多(Long)】: 认为市场会涨。\n2. 【做空(Short)】: 认为市场会跌。\n3. 每个仓位固定投入 $5亿。\n4. 记得在合适的时机 【平仓】 锁定利润，否则只能看着钱变少！", "info");
+                    this.tutorialFlags.firstInvest = true;
+                    localStorage.setItem('ps_t_flags', JSON.stringify(this.tutorialFlags));
+                    return;
+                }
+
                 if (this.actionsTaken[type]) return;
 
                 // 检查是否已有同类持仓
@@ -580,6 +657,9 @@
                 this.money += pos.currentVal;
                 this.positions.splice(index, 1);
                 
+                // 允许当回合再次该类型操作 (平仓后解锁)
+                this.actionsTaken[pos.type] = false; // Reset action flag
+
                 const profit = pos.currentVal - pos.amount;
                 this.addLog(`💰 平仓: 收回 $${pos.currentVal.toFixed(2)}亿 (${profit>=0?'+':''}${profit.toFixed(2)}亿)`);
             },
