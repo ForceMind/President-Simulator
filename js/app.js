@@ -48,6 +48,9 @@
                 
                 // 全局经济周期 (growth, recession, crisis, boom)
                 globalEconomy: 'growth', 
+                economyPhase: 0, // 0 - 2PI 周期
+                economyCycleStatus: '', // 文本描述
+
                 
                 // 行为控制
                 actionsTaken: { stock: false, crypto: false, commodity: false, embezzle: false },
@@ -73,15 +76,33 @@
                 reportModal: { show: false, title: '', changes: [] },
 
                 // 成就系统
-                achievements: {}
+                achievements: {},
+                lastActionTime: Date.now(),
+                idleCheckInterval: null,
+                isIdleWarned: false
             }
         },
         mounted() {
             window.addEventListener('resize', this.checkMobile);
             this.loadAchievements();
+
+            // Tab Visibility Check
+            document.addEventListener("visibilitychange", this.handleVisibilityChange);
+
+            // Idle Check
+            ['mousemove', 'click', 'keydown', 'touchstart'].forEach(evt => {
+                window.addEventListener(evt, this.resetIdleTimer);
+            });
+            this.idleCheckInterval = setInterval(this.checkIdle, 1000);
+            this.lastActionTime = Date.now();
         },
         beforeUnmount() {
             window.removeEventListener('resize', this.checkMobile);
+            document.removeEventListener("visibilitychange", this.handleVisibilityChange);
+            ['mousemove', 'click', 'keydown', 'touchstart'].forEach(evt => {
+                window.removeEventListener(evt, this.resetIdleTimer);
+            });
+            if (this.idleCheckInterval) clearInterval(this.idleCheckInterval);
         },
         computed: {
             approvalColor() {
@@ -90,7 +111,7 @@
                 return '';
             },
             tutorialTitle() {
-                const titles = ['', '欢迎来到白宫', '关键数据', '政治手牌', '金融市场'];
+                const titles = ['', '欢迎来到总统府', '关键数据', '政治手牌', '金融市场'];
                 return titles[this.tutorialStep];
             },
             tutorialText() {
@@ -133,6 +154,32 @@
             }
         },
         methods: {
+            handleVisibilityChange() {
+                if (document.hidden) {
+                    this.lastHiddenTime = Date.now();
+                } else {
+                    if (this.lastHiddenTime && Date.now() - this.lastHiddenTime > 5000) {
+                        // Away for more than 5s
+                        this.approval -= 1;
+                        this.addLog("📉 摸鱼警告: 您因擅离职守导致支持率轻微下降。");
+                    }
+                }
+            },
+            resetIdleTimer() {
+                this.lastActionTime = Date.now();
+            },
+            checkIdle() {
+                if (this.state !== 'PLAYING') return;
+                const idleTime = Date.now() - this.lastActionTime;
+                if (idleTime > 60000 && !this.isIdleWarned) { // 1 minute
+                    this.addLog("📢 秘书提醒: 总统先生，文件堆积如山，请尽快处理。");
+                    this.isIdleWarned = true;
+                }
+                if (idleTime < 1000) {
+                    this.isIdleWarned = false;
+                }
+            },
+
             checkMobile() {
                 this.isMobile = window.innerWidth < 900;
             },
@@ -149,7 +196,7 @@
                 this.player = { ...char }; // 深拷贝
                 this.money = this.player.money;
                 this.state = 'PLAYING';
-                this.logs.push(`总统先生/女士，欢迎入主白宫。当前是第1个月。`);
+                this.logs.push(`总统先生/女士，欢迎入主总统府。当前是第1个月。`);
                 this.drawCards(3);
                 this.updateMarketTrends(true); // 初始随机
                 
@@ -193,6 +240,13 @@
                     class: this.approvalColor
                 });
 
+                // 显示经济周期状态
+                this.reportModal.changes.push({
+                    label: '宏观经济',
+                    val: this.economyCycleStatus || '波动中',
+                    class: 'text-blue' // 假设 text-blue 存在或默认样式
+                });
+
                 // 提示
                 let hint = "保持现状，稳步发展。";
                 if (this.approval < 30) hint = "🔥 警告：支持率极低，小心弹劾风险！";
@@ -206,6 +260,7 @@
 
             confirmReport() {
                 this.reportModal.show = false;
+                this.activeTab = 'desk';
                 this.startNewMonth();
             },
 
@@ -327,8 +382,20 @@
             if (effect.crypto) this.modifyMarketScore('crypto', effect.crypto);
             if (effect.commodity) this.modifyMarketScore('commodity', effect.commodity);
             if (effect.global_economy) {
-                this.globalEconomy = effect.global_economy;
-                this.addLog(`🌍 政策影响: 全球经济转向 ${this.getEconomyName(this.globalEconomy)}`);
+                // 事件对周期的冲击
+                const type = effect.global_economy;
+                if (type === 'boom' || type === 'growth') {
+                    this.marketScore += 10;
+                } else {
+                    this.marketScore -= 10;
+                    // 事件导致的危机通常会直接把周期推向谷底
+                    if (type === 'crisis') {
+                        // 强制相位偏移向 3PI/2 (270度 = 4.71)
+                        // 简单处理：如果正处在复苏(cos>0)，强行加相位
+                        if (Math.cos(this.economyPhase) > 0) this.economyPhase += 1.0; 
+                    }
+                }
+                this.addLog(`🌍 危机影响: 经济周期受到冲击`);
             }
 
             // 限制数值范围
@@ -400,10 +467,23 @@
                 if (card.effect.crypto) this.modifyMarketScore('crypto', card.effect.crypto);
                 if (card.effect.inflation) this.globalEconomy = 'recession'; // 通胀导致衰退风险
                 
-                // 政治行为改变全球经济
+                // 政治行为改变经济周期
                 if (card.effect.global_economy) {
-                    this.globalEconomy = card.effect.global_economy;
-                    this.addLog(`🌍 政策影响: 全球经济转向 ${this.getEconomyName(this.globalEconomy)}`);
+                    const type = card.effect.global_economy;
+                    let logMsg = "";
+                    
+                    if (type === 'boom' || type === 'growth') {
+                        // 刺激政策：推高分数，如果在衰退期则尝试扭转
+                        this.marketScore += 15;
+                        this.economyPhase += 0.1; // 加快周期流转
+                        logMsg = "市场因刺激政策而兴奋";
+                    } else {
+                        // 紧缩/危机政策
+                        this.marketScore -= 15;
+                        this.economyPhase += 0.05; // 略微推进
+                        logMsg = "市场因恐慌而下跌";
+                    }
+                    this.addLog(`🌍 政策干预: ${logMsg}`);
                 }
 
                 // 限制数值范围
@@ -434,6 +514,13 @@
             // --- 新增：长期持仓系统 ---
             makeInvestment(type, position) {
                 if (this.actionsTaken[type]) return;
+
+                // 检查是否已有同类持仓
+                const existing = this.positions.find(p => p.type === type && p.position === position);
+                if (existing) {
+                    this.showModal('重复建仓', `您已经持有 ${type==='stock'?'股市':(type==='crypto'?'加密货币':'商品')} 的${position==='long'?'多单':'空单'}了。请勿重复下注。`, 'info');
+                    return;
+                }
                 
                 // 资金检查
                 const cost = 5; // 每次固定投入5亿
@@ -622,37 +709,43 @@
                 };
 
                 if (forceRandom) {
-                    this.marketScore = (Math.random() * 60) - 30;
-                    this.cryptoScore = (Math.random() * 100) - 40;
-                    this.commodityScore = (Math.random() * 60) - 30;
-                    this.marketTrend = scoreToTrend(this.marketScore);
-                    this.cryptoTrend = scoreToTrend(this.cryptoScore);
-                    this.commodityTrend = scoreToTrend(this.commodityScore);
-                    return;
+                    this.economyPhase = Math.random() * Math.PI * 2;
+                } else {
+                    // 推进经济周期 (步进 0.15 ~ 0.3, 约20-40回合一个周期)
+                    const step = 0.15 + Math.random() * 0.15;
+                    this.economyPhase += step;
                 }
 
-                // 更新全局经济状态
-                const economyCycle = ['growth', 'growth', 'boom', 'recession', 'crisis', 'recession'];
-                // 10% 概率切换经济周期
-                if (Math.random() < 0.1) {
-                    this.globalEconomy = economyCycle[Math.floor(Math.random() * economyCycle.length)];
-                    this.addLog(`🌍 全球经济进入: ${this.getEconomyName(this.globalEconomy)} 阶段`);
-                }
+                // 保持 Phase 在 0-2PI
+                if (this.economyPhase > Math.PI * 2) this.economyPhase -= Math.PI * 2;
 
-                // 分数自然衰减 (回归中值)
-                this.marketScore *= 0.9;
-                this.cryptoScore *= 0.85; // 加密货币波动大
-                this.commodityScore *= 0.95;
+                // 计算基础经济分数 (-50 ~ 50)
+                const baseEcoScore = Math.sin(this.economyPhase) * 50;
+
+                // 更新全局状态
+                if (baseEcoScore > 35) this.globalEconomy = 'boom';
+                else if (baseEcoScore > 5) this.globalEconomy = 'growth';
+                else if (baseEcoScore > -25) this.globalEconomy = 'recession';
+                else this.globalEconomy = 'crisis';
+                
+                // 周期状态描述
+                const slope = Math.cos(this.economyPhase);
+                this.economyCycleStatus = `周期: ${baseEcoScore.toFixed(0)} (${slope > 0 ? '🔺复苏' : '🔻衰退'})`;
+
+                if (!forceRandom) {
+                    // 分数自然衰减
+                    this.marketScore *= 0.8; 
+                    this.cryptoScore *= 0.8;
+                    this.commodityScore *= 0.9;
+                }
 
                 // 经济周期影响分数
-                let ecoFactor = 0;
-                if (this.globalEconomy === 'boom') ecoFactor = 5;
-                if (this.globalEconomy === 'recession') ecoFactor = -5;
-                if (this.globalEconomy === 'crisis') ecoFactor = -15;
-
-                this.marketScore += ecoFactor + (Math.random() * 10 - 5);
-                this.commodityScore += (ecoFactor * -0.5) + (Math.random() * 10 - 5); // 商品有时反周期
-                this.cryptoScore += (Math.random() * 30 - 15);
+                // 股市：顺周期，波动中等
+                this.marketScore += baseEcoScore * 0.6 + (Math.random() * 10 - 5);
+                // 商品：弱反周期或滞后 (此处设为弱反)
+                this.commodityScore += (baseEcoScore * -0.2) + (Math.random() * 12 - 6); 
+                // 加密：强顺周期，高波动
+                this.cryptoScore += (baseEcoScore * 0.9) + (Math.random() * 30 - 15);
 
                 this.marketTrend = scoreToTrend(this.marketScore);
                 this.cryptoTrend = scoreToTrend(this.cryptoScore);
