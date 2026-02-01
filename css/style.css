@@ -21,7 +21,7 @@ body {
     margin: 0 auto;
 }
 
-/* --- 角色选择界面 --- */
+/* --- Character Selection --- */
 .char-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -75,15 +75,15 @@ body {
 .char-icon { font-size: 3rem; margin-bottom: 10px; }
 .skill-tag { background: #e67e22; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.8em; }
 
-/* --- 游戏主界面布局 --- */
+/* --- Game Dashboard Layout --- */
 .dashboard-grid {
     display: grid;
-    grid-template-columns: 250px 1fr 280px; /* 左中右布局 */
+    grid-template-columns: 250px 1fr 280px; /* Left Center Right */
     gap: 20px;
     height: calc(100vh - 60px);
 }
 
-/* 左侧：状态栏 */
+/* Left Panel: Stats */
 .stats-panel {
     background: var(--panel-bg);
     padding: 20px;
@@ -98,7 +98,7 @@ body {
 .progress-bar-bg { background: #333; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 5px; }
 .progress-bar-fill { height: 100%; transition: width 0.5s; }
 
-/* 中间：办公桌 */
+/* Center: Desk */
 .desk-area {
     display: flex;
     flex-direction: column;
@@ -155,7 +155,7 @@ body {
     margin-bottom: 5px;
 }
 
-/* 事件选项 */
+/* Event Choices */
 .event-choices {
     display: flex;
     flex-direction: column;
@@ -177,7 +177,7 @@ body {
     border-color: var(--accent-gold);
 }
 
-/* 持仓卡片 */
+/* Positions Panel */
 .positions-panel {
     margin-bottom: 15px;
     background: rgba(0,0,0,0.2);
@@ -202,12 +202,12 @@ body {
     font-weight: bold;
 }
 
-/* 教程遮罩 */
+/* Tutorial Overlay */
 .tutorial-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.7);
     z-index: 3000;
-    pointer-events: none; /* 让点击穿透到高亮区域 */
+    pointer-events: none;
 }
 .tutorial-box {
     position: fixed;
@@ -227,21 +227,21 @@ body {
 .tutorial-highlight {
     position: relative;
     z-index: 3002;
-    box-shadow: 0 0 0 9999px rgba(0,0,0,0.7); /* 反向遮罩 */
+    box-shadow: 0 0 0 9999px rgba(0,0,0,0.7);
     border-radius: 8px;
 }
 
-/* 移动端底部下一步按钮 */
+/* Mobile Next Turn Button */
 .mobile-next-turn-container {
     position: fixed;
-    bottom: 60px; /* 导航栏高度 */
+    bottom: 60px;
     left: 0;
     width: 100%;
     padding: 10px;
     box-sizing: border-box;
     background: linear-gradient(to top, var(--bg-color), transparent);
     z-index: 90;
-    pointer-events: none; /* 让背景点击穿透 */
+    pointer-events: none;
 }
 .mobile-next-turn-container button {
     width: 100%;
@@ -249,7 +249,7 @@ body {
     box-shadow: 0 4px 15px rgba(0,0,0,0.5);
 }
 
-/* 移动端顶部数据优化 */
+/* Mobile Stats Header */
 .mobile-stats-row {
     display: flex;
     justify-content: space-between;
@@ -272,7 +272,7 @@ body {
     font-size: 1.1em;
 }
 
-/* 技能弹窗 */
+/* Skill Modal */
 .skill-modal-content {
     background: #fff;
     color: #333;
@@ -349,7 +349,7 @@ body {
     font-weight: bold;
 }
 
-/* 模态框 */
+/* Modals */
 .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.85);
@@ -361,21 +361,22 @@ body {
     padding: 30px; border-radius: 10px;
     max-width: 500px; text-align: center;
     box-shadow: 0 0 30px rgba(241, 196, 15, 0.5);
-        }
+}
 
-/* 工具类 */
+/* Utils */
 .text-green { color: var(--accent-green); }
 .text-red { color: var(--accent-red); }
 .log-area { 
     height: 150px; overflow-y: auto; background: rgba(0,0,0,0.2); 
     padding: 10px; border-radius: 6px; font-size: 0.85em; font-family: monospace;
-    display: flex; flex-direction: column; /* 新消息在下面 */
+    display: flex; flex-direction: column;
 }
 
+/* Base Mobile Layout */
 @media (max-width: 900px) {
     html, body {
         height: 100%;
-        overflow: hidden; /* 禁止全局滚动 */
+        overflow: hidden;
         padding: 0;
         margin: 0;
     }
@@ -386,14 +387,7 @@ body {
         flex-direction: column;
     }
 
-    /* 阶段1容器需要滚动 */
-    #app > div:first-child {
-        height: 100%;
-        overflow-y: auto;
-        padding: 20px;
-        box-sizing: border-box;
-    }
-
+    /* RESTORED: Critical Mobile Dashboard Layout layout */
     .dashboard-grid { 
         display: flex; 
         flex-direction: column; 
@@ -406,26 +400,27 @@ body {
         flex: 1;
         overflow-y: auto;
         padding: 10px;
-        padding-bottom: 70px; /* 留出底部导航空间 */
+        padding-bottom: 70px; /* Space for bottom nav */
         box-sizing: border-box;
     }
 
-    /* 修复卡片阴影被遮挡 */
-    .char-grid {
-        display: flex;
-        overflow-x: auto;
-        padding: 10px 20px 25px 20px; /* 增加左右 padding，让首尾不贴边 */
-        scroll-snap-type: x mandatory;
-        gap: 15px;
-    }
-    .char-card {
-        min-width: 80vw; /* 使用视口比例，确保右侧露出下一张的一角 */
-        max-width: 350px;
-        scroll-snap-align: center;
-        margin: 5px 0; /* 左右由 gap 控制 */
+    /* Phase 1 Scroller */
+    #app > div:first-child {
+        height: 100%;
+        overflow-y: auto;
+        padding: 20px 0; /* Vertical padding only */
+        box-sizing: border-box;
     }
 
-    /* 移动端底部导航 */
+    /* Mobile Stats Header */
+    .mobile-stats-header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        width: 100%;
+    }
+
+    /* Mobile Nav */
     .mobile-nav {
         position: fixed;
         bottom: 0;
@@ -465,37 +460,32 @@ body {
     }
     
     .game-card {
-        width: 100%; /* 卡牌在移动端全宽 */
+        width: 100%;
         max-width: 320px;
         margin-bottom: 10px;
     }
 }
 
-/* 弃牌按钮样式 */
+/* Discard Button (Global) */
 .discard-btn {
-    position: absolute;
-    top: -10px;
-    left: -10px;
-    width: 25px;
-    height: 25px;
-    background: #7f8c8d;
-    color: white;
-    border-radius: 50%;
+    position: static;
+    margin-left: auto;
     display: flex;
-    justify-content: center;
     align-items: center;
-    font-size: 0.8em;
+    gap: 4px;
+    background: rgba(0,0,0,0.3);
+    padding: 2px 6px;
+    border-radius: 12px;
     cursor: pointer;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    z-index: 20;
-    transition: all 0.2s;
+    transition: background 0.2s;
+    color: white;
+    font-size: 0.8em;
 }
 .discard-btn:hover {
-    background: #e74c3c;
-    transform: scale(1.1);
+    background: rgba(231, 76, 60, 0.8);
 }
 
-/* 移动端顶部数据栏 */
+/* Mobile Stats Header */
 .mobile-stats-header {
     background: var(--panel-bg);
     padding: 10px;
@@ -556,7 +546,7 @@ body {
     z-index: 101;
 }
 
-/* 市场操作网格 */
+/* Action Grid */
 .action-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -567,84 +557,17 @@ body {
     grid-column: span 2;
 }
 
-@media (max-width: 900px) {
-    /* 角色选择横向滚动 */
-    .char-grid {
-        display: flex;
-        overflow-x: auto;
-        padding-bottom: 20px;
-        scroll-snap-type: x mandatory;
-        gap: 15px;
-    }
-    .char-card {
-        min-width: 280px;
-        scroll-snap-align: center;
-    }
+/* --- Feature Update: Mobile & Styles --- */
 
-    /* 移动端卡牌布局 */
-    .cards-area {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-        align-content: start;
-    }
-
-    .game-card {
-        width: auto;
-        max-width: none;
-        height: auto;
-        min-height: 140px;
-        margin-bottom: 0;
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .card-content-wrapper {
-        flex-grow: 1;
-    }
-
-    .card-desc {
-        display: none; /* 移动端隐藏描述以节省空间 */
-    }
-    
-    .card-title {
-        font-size: 1em;
-        margin: 5px 0;
-    }
-    
-    .card-type {
-        font-size: 0.7em;
-    }
-    
-    .card-effect {
-        font-size: 0.75em;
-        margin-top: auto;
-        border-top: 1px solid #bdc3c7;
-        padding-top: 3px;
-    }
-    
-    /* 调整顶部留白 */
-    .dashboard-grid {
-        height: calc(100vh - 60px); /* 减去底部导航高度 */
-    }
-    
-    .desk-area, .action-panel {
-        padding-bottom: 70px; /* 防止被底部导航遮挡 */
-        overflow-y: auto;
-    }
-}
-
-/* --- ������ʽ (Feature Update) --- */
-
-/* 1. ���Ʒ�����ɫ */
+/* 1. Cost Indicators */
 .cost-low { background: #27ae60 !important; }
 .cost-med { background: #f39c12 !important; }
 .cost-high { background: #c0392b !important; }
 
-/* 2. �ƶ��˸�����ť */
+/* 2. Mobile Floating Button */
 .mobile-floating-next {
     position: fixed;
-    bottom: 70px; /* �������߶�60px + 10px */
+    bottom: 70px; 
     left: 0;
     width: 100%;
     padding: 0 10px;
@@ -663,7 +586,7 @@ body {
     animation: pulse 2s infinite;
 }
 
-/* 3. �¶ȱ��浯�� */
+/* 3. Report Modal */
 .report-modal {
     background: #2c3e50;
     color: white;
@@ -698,7 +621,24 @@ body {
     line-height: 1.6;
 }
 
-/* 4. �ƶ��˽̳����� */
+.card-effect {
+  margin-top: 10px;
+  font-size: 0.85em;
+  color: #f1c40f;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 5px;
+  border-radius: 4px;
+  display: block;
+}
+
+/* Event Modal */
+.event-modal-content {
+    background: #2c3e50;
+    color: white;
+    border: 2px solid var(--accent-gold);
+}
+
+/* Mobile Tutorial Box */
 @media screen and (max-width: 900px) {
     .tutorial-box {
         width: 85% !important;
@@ -709,90 +649,6 @@ body {
     }
 }
 
- 
- / *   A d d e d   v i a   H e l p e r   A g e n t   * /  
- . c a r d - e f f e c t   {  
-         m a r g i n - t o p :   1 0 p x ;  
-         f o n t - s i z e :   0 . 8 5 e m ;  
-         c o l o r :   # f 1 c 4 0 f ;  
-         b a c k g r o u n d :   r g b a ( 0 ,   0 ,   0 ,   0 . 2 ) ;  
-         p a d d i n g :   5 p x ;  
-         b o r d e r - r a d i u s :   4 p x ;  
-         d i s p l a y :   b l o c k   ! i m p o r t a n t ;  
- }  
-  
- @ m e d i a   s c r e e n   a n d   ( m a x - w i d t h :   6 0 0 p x )   {  
-         . c h a r - g r i d   {  
-                 d i s p l a y :   f l e x ;   / *   C h a n g e d   f r o m   g r i d   t o   f l e x   f o r   s w i p i n g   * /  
-                 o v e r f l o w - x :   a u t o ;  
-                 s c r o l l - s n a p - t y p e :   x   m a n d a t o r y ;  
-                 p a d d i n g - b o t t o m :   2 0 p x ;  
-                 g a p :   1 5 p x ;  
-         }  
-          
-         . c h a r - c a r d   {  
-                 m i n - w i d t h :   2 8 0 p x ;  
-                 s c r o l l - s n a p - a l i g n :   c e n t e r ;  
-         }  
- }  
- / *   M o b i l e   a d j u s t m e n t s   f o r   C h a r a c t e r   S e l e c t i o n   s c r o l l i n g   * /  
- @ m e d i a   s c r e e n   a n d   ( m a x - w i d t h :   6 0 0 p x )   {  
-         . c h a r - g r i d   {  
-                 d i s p l a y :   f l e x ;   / *   E n s u r e   f l e x   b e h a v i o r   * /  
-                 o v e r f l o w - x :   a u t o ;  
-                 s c r o l l - s n a p - t y p e :   x   m a n d a t o r y ;  
-                 p a d d i n g - b o t t o m :   2 0 p x ;  
-                 g a p :   1 5 p x ;  
-                 / *   E n s u r e   s c r o l l i n g   w o r k s   s m o o t h l y   * /  
-                 - w e b k i t - o v e r f l o w - s c r o l l i n g :   t o u c h ;  
-                 / *   A d d   r i g h t   p a d d i n g   s o   l a s t   c a r d   i s n ' t   f l u s h   * /  
-                 p a d d i n g - r i g h t :   2 0 p x ;    
-         }  
-          
-         . c h a r - c a r d   {  
-                 / *   S e t   w i d t h   s o   a p p r o x   1 . 1   c a r d s   s h o w ,   e n c o u r a g i n g   s w i p e   * /  
-                 m i n - w i d t h :   8 5 v w   ! i m p o r t a n t ;    
-                 w i d t h :   8 5 v w   ! i m p o r t a n t ;  
-                 s c r o l l - s n a p - a l i g n :   c e n t e r ;  
-                 / *   R e s e t   m a r g i n   t o   e n s u r e   c a l c u l a t i o n   i s   c o r r e c t   * /  
-                 m a r g i n :   0   ! i m p o r t a n t ;  
-         }  
-  
-         / *   T a s k   4 :   F i x   c a r d   d e s k   s c r o l l i n g   f e e l i n g   b l o c k e d   b y   b o t t o m   b u t t o n   * /  
-         . c a r d s - a r e a   {  
-                 p a d d i n g - b o t t o m :   1 0 0 p x   ! i m p o r t a n t ;   / *   E x t r a   p a d d i n g   f o r   b o t t o m   b u t t o n   c l e a r a n c e   * /  
-         }  
- }  
-  
- / *   T a s k   2 :   F i x   D i s c a r d   B u t t o n   U I   * /  
- . d i s c a r d - b t n   {  
-         p o s i t i o n :   s t a t i c ;  
-         m a r g i n - l e f t :   a u t o ;  
-         d i s p l a y :   f l e x ;  
-         a l i g n - i t e m s :   c e n t e r ;  
-         g a p :   4 p x ;  
-         b a c k g r o u n d :   r g b a ( 0 , 0 , 0 , 0 . 3 ) ;  
-         p a d d i n g :   2 p x   6 p x ;  
-         b o r d e r - r a d i u s :   1 2 p x ;  
-         c u r s o r :   p o i n t e r ;  
-         t r a n s i t i o n :   b a c k g r o u n d   0 . 2 s ;  
- }  
- . d i s c a r d - b t n : h o v e r   {  
-         b a c k g r o u n d :   r g b a ( 2 3 1 ,   7 6 ,   6 0 ,   0 . 8 ) ;  
- }  
-  
- / *   T a s k   3   &   N e w :   E v e n t   M o d a l   S t y l i n g   * /  
- . m o d a l - o v e r l a y   {  
-         b a c k g r o u n d :   r g b a ( 0 , 0 , 0 , 0 . 8 5 ) ;   / *   D a r k e r   o v e r l a y   * /  
- }  
-  
- / *   E v e n t   M o d a l   s p e c i f i c   o v e r r i d e s   i f   n e e d e d   * /  
- . e v e n t - m o d a l - c o n t e n t   {  
-         b a c k g r o u n d :   # 2 c 3 e 5 0 ;  
-         c o l o r :   w h i t e ;  
-         b o r d e r :   2 p x   s o l i d   v a r ( - - a c c e n t - g o l d ) ;  
- }  
- 
 /* Fix: Mobile Game Card Horizontal Scroll (85% width peek) */
 @media (max-width: 900px) {
     .cards-area {
@@ -801,7 +657,7 @@ body {
         flex-wrap: nowrap !important;
         overflow-x: auto !important;
         justify-content: flex-start !important;
-        align-items: stretch !important;
+        align-items: flex-start !important;
         padding: 10px 10px 100px 10px !important; /* Bottom padding for FAB */
         gap: 15px !important;
         -webkit-overflow-scrolling: touch;
@@ -809,18 +665,51 @@ body {
     }
     
     .game-card {
-        min-width: 85vw !important;
-        width: 85vw !important;
+        flex: 0 0 42vw !important; /* Allow seeing 2 full cards + peel */
+        width: 42vw !important;
+        max-width: 200px !important;
+        min-width: 140px !important;
         margin: 0 !important;
-        flex-shrink: 0 !important;
-        scroll-snap-align: center;
+        scroll-snap-align: start;
+        height: auto !important; 
+        min-height: 200px; /* Reduced height */
+        font-size: 0.9em; /* Slightly smaller text */
     }
 
     /* Fix: Ensure spacer at end so last card isn't stuck to edge */
     .cards-area::after {
         content: '';
-        min-width: 1px;
-        height: 100%;
+        flex: 0 0 20px;
+        min-width: 20px;
+        height: 1px;
+    }
+}
+
+
+/* Final Restoration of Character Grid for Mobile */
+@media (max-width: 900px) {
+    .char-grid {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding: 10px 20px 25px 20px;
+        scroll-snap-type: x mandatory;
+        gap: 15px;
+        justify-content: flex-start;
+        -webkit-overflow-scrolling: touch;
+    }
+    .char-card {
+        flex: 0 0 80vw;
+        width: 80vw;
+        max-width: 320px;
+        min-width: 0;
+        scroll-snap-align: center;
+        margin: 0;
+    }
+    .char-grid::after {
+        content: '';
+        flex: 0 0 20px;
+        min-width: 20px;
     }
 }
 

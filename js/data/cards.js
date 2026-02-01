@@ -430,7 +430,7 @@ window.GAME_DATA.CARD_DB = [
         desc: "这不叫贿赂，这叫游说。",
         costMoney: 5,
         costApproval: 0,
-        effect: { legislation_pass_chance: 100, money: -5 },
+        effect: { approval: 10, money: -5 },
         phase: "mid"
     },
     {
@@ -440,7 +440,7 @@ window.GAME_DATA.CARD_DB = [
         desc: "碎纸机卡住了？那就把文件吞下去！",
         costMoney: 5,
         costApproval: 0,
-        effect: { scandal_risk: -50 },
+        effect: { approval: 5 },
         phase: "any"
     },
     {
