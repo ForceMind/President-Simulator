@@ -2,11 +2,11 @@
     // 错误检查与容错
     if (!window.GAME_DATA) {
         console.error('CRITICAL: GAME_DATA not found. data.js failed to load.');
-        alert('游戏数据加载失败，请刷新重试或检查 data.js 文件。');
+        alert('Game Data Load Failed. Please refresh or check data.js.');
     }
     if (typeof Vue === 'undefined') {
         console.error('CRITICAL: Vue not found. CDN failed.');
-        alert('Vue.js 核心库加载失败，请检查网络连接。');
+        alert('Vue.js failed to load. Check network connection.');
     }
 
     const { CHARACTERS, CARD_DB, EVENTS_DB } = window.GAME_DATA || {};
@@ -261,7 +261,7 @@
                     if (this.lastHiddenTime && Date.now() - this.lastHiddenTime > 5000) {
                         // Away for more than 5s
                         this.approval -= 1;
-                        this.addLog("📉 摸鱼警告: 您因擅离职守导致支持率轻微下降。");
+                        this.addLog(this.t('log_afk_warning'));
                     }
                 }
             },
@@ -272,7 +272,7 @@
                 if (this.state !== 'PLAYING') return;
                 const idleTime = Date.now() - this.lastActionTime;
                 if (idleTime > 60000 && !this.isIdleWarned) { // 1 minute
-                    this.addLog("📢 秘书提醒: 总统先生，文件堆积如山，请尽快处理。");
+                    this.addLog(this.t('log_idle_warning'));
                     this.isIdleWarned = true;
                 }
                 if (idleTime < 1000) {
@@ -335,8 +335,8 @@
                 this.money = this.player.money;
                 this.state = 'PLAYING';
                 
-                const title = this.player.gender === 'female' ? '女士' : '先生';
-                this.logs.push(`总统${title}，欢迎入主总统府。当前是第1个月。`);
+                // const title = this.player.gender === 'female' ? '女士' : '先生';
+                this.logs.push(this.t('log_welcome'));
                 
                 this.drawCards(3);
                 this.updateMarketTrends(true); // 初始随机
@@ -364,45 +364,45 @@
                 const posChange = newPositionsVal - oldPositionsVal;
 
                 // 2. 生成报告
-                this.reportModal.title = `第 ${this.month} 月结报告`;
+                this.reportModal.title = this.t('report_title', this.month);
                 this.reportModal.changes = [];
 
                 if (Math.abs(posChange) > 0.01) {
                     this.reportModal.changes.push({
-                        label: '基金会盈亏',
-                        val: (posChange > 0 ? '+' : '') + '$' + posChange.toFixed(2) + '亿',
+                        label: this.t('report_profit'),
+                        val: (posChange > 0 ? '+' : '') + '$' + posChange.toFixed(2) + this.t('unit_billion'),
                         class: posChange >= 0 ? 'text-green' : 'text-red'
                     });
                 }
                 
                 this.reportModal.changes.push({
-                    label: '当前支持率',
+                    label: this.t('report_approval'),
                     val: this.approval + '%',
                     class: this.approvalColor
                 });
 
                 // 显示经济周期状态
                 this.reportModal.changes.push({
-                    label: '宏观经济',
-                    val: this.economyCycleStatus || '波动中',
+                    label: this.t('report_economy'),
+                    val: this.economyCycleStatus || this.t('eco_fluctuation'),
                     class: 'text-blue' // 假设 text-blue 存在或默认样式
                 });
 
                 // 提示
-                let hint = "保持现状，稳步发展。";
+                let hint = this.t('hint_default');
                 let isCrisis = this.globalEconomy === 'crisis' || this.globalEconomy === 'recession';
                 
                 // 优先根据宏观周期给出建议
-                if (this.globalEconomy === 'crisis') hint = "🌍 警告：全球危机！现金为王，或者做空一切。";
-                else if (this.globalEconomy === 'recession') hint = "📉 提示：经济衰退，避险资产(如商品)通常表现更好。";
-                else if (this.globalEconomy === 'boom') hint = "🚀 提示：繁荣时期，大胆做多股市和加密货币！";
+                if (this.globalEconomy === 'crisis') hint = this.t('hint_crisis');
+                else if (this.globalEconomy === 'recession') hint = this.t('hint_recession');
+                else if (this.globalEconomy === 'boom') hint = this.t('hint_boom');
                 
                 // 特殊情况覆盖
-                if (this.approval < 30) hint = "🔥 警告：支持率极低，小心弹劾风险！优先处理民生。";
-                else if (this.money < 2) hint = "💸 警告：资金枯竭，注意人身安全！";
+                if (this.approval < 30) hint = this.t('hint_low_approval');
+                else if (this.money < 2) hint = this.t('hint_low_money');
                 
                 // 如果没有宏观大问题，再看市场趋势
-                else if (!isCrisis && this.marketTrend === 'bull') hint = "📈 提示：股市牛市，可以适当加仓。";
+                else if (!isCrisis && this.marketTrend === 'bull') hint = this.t('hint_bull');
 
                 this.reportModal.hint = hint;
                 this.reportModal.show = true;
@@ -431,7 +431,7 @@
 
                 // 6. 随机事件触发
                 if (this.currentEvent && this.currentEvent.choices) {
-                    this.showModal("紧急国务", "你必须先处理当前的突发危机！", "info");
+                    this.showModal(this.t('modal_emergency'), this.t('modal_emergency_msg'), "info");
                     return;
                 }
                 this.currentEvent = null;
@@ -528,7 +528,7 @@
             makeChoice(choiceIdx) {
                 // AP 检查 (紧急事件消耗 1 AP)
                 if (this.ap < 1) {
-                    this.showModal("行动力不足", "你需要 1 点行动力(AP)来处理此事件。请选择【忽略】。", "warning");
+                    this.showModal(this.t('modal_ap_short_title'), this.t('modal_ap_short_msg'), "warning");
                     return;
                 }
                 this.ap -= 1;
@@ -622,19 +622,19 @@
 
             discardCard(index) {
                 if (this.ap < 1) {
-                    this.addLog("⚠️ 行动力不足，无法清理文件！");
+                    this.addLog(this.t('log_ap_insufficient'));
                     return;
                 }
                 this.ap -= 1;
                 const card = this.hand[index];
                 this.hand.splice(index, 1);
-                this.addLog(`🗑️ 废弃文件【${card.title}】`);
+                this.addLog(this.t('log_discard', this.getLoc(card.title)));
             },
 
             playCard(index) {
                 // Check Tutorial Flag
                 if (!this.tutorialFlags.firstCard) {
-                    this.showModal("新手引导: 政治手牌", "这是你的第一次政治决策！\n\n1. 每张卡牌都会消耗 【AP (行动力)】。\n2. 卡牌主要影响 【支持率】 和 【资金】。\n3. 部分卡牌还会影响 【全球经济】 或 【特定市场】。\n\n请谨慎选择，AP 用完就只能等下个月了。", "info");
+                    this.showModal(this.t('tutorial_card_title'), this.t('tutorial_card_text'), "info");
                     this.tutorialFlags.firstCard = true;
                     localStorage.setItem('ps_t_flags', JSON.stringify(this.tutorialFlags));
                     return; 
@@ -642,7 +642,7 @@
 
                 const card = this.hand[index];
                 if (this.ap < card.cost) {
-                    this.addLog("⚠️ 行动力不足！");
+                    this.addLog(this.t('log_ap_insufficient'));
                     return;
                 }
 
@@ -668,21 +668,21 @@
                         // 刺激政策：推高分数，如果在衰退期则尝试扭转
                         this.marketScore += 15;
                         this.economyPhase += 0.1; // 加快周期流转
-                        logMsg = "市场因刺激政策而兴奋";
+                        logMsg = this.t('log_market_excited');
                     } else {
                         // 紧缩/危机政策
                         this.marketScore -= 15;
                         this.economyPhase += 0.05; // 略微推进
-                        logMsg = "市场因恐慌而下跌";
+                        logMsg = this.t('log_market_panic');
                     }
-                    this.addLog(`🌍 政策干预: ${logMsg}`);
+                    this.addLog(this.t('log_policy_intervention', logMsg));
                 }
 
                 // 限制数值范围
                 this.approval = Math.min(100, Math.max(0, this.approval));
                 this.money = parseFloat(this.money.toFixed(2));
 
-                this.addLog(`签署文件【${card.title}】`);
+                this.addLog(this.t('log_play_card', this.getLoc(card.title)));
             },
             
             modifyMarketScore(market, trend) {
@@ -707,7 +707,7 @@
             makeInvestment(type, position) {
                  // Check Tutorial Flag
                  if (!this.tutorialFlags.firstInvest) {
-                    this.showModal("新手引导: 基金会投资", "欢迎来到金融市场！\n\n1. 【做多(Long)】: 认为市场会涨。\n2. 【做空(Short)】: 认为市场会跌。\n3. 每个仓位固定投入 $5亿。\n4. 记得在合适的时机 【平仓】 锁定利润，否则只能看着钱变少！", "info");
+                    this.showModal(this.t('tutorial_invest_title'), this.t('tutorial_invest_msg'), "info");
                     this.tutorialFlags.firstInvest = true;
                     localStorage.setItem('ps_t_flags', JSON.stringify(this.tutorialFlags));
                     return;
@@ -718,14 +718,16 @@
                 // 检查是否已有同类持仓
                 const existing = this.positions.find(p => p.type === type && p.position === position);
                 if (existing) {
-                    this.showModal('重复建仓', `您已经持有 ${type==='stock'?'股市':(type==='crypto'?'加密货币':'商品')} 的${position==='long'?'多单':'空单'}了。请勿重复下注。`, 'info');
+                    const typeText = this.t('market_' + type);
+                    const posText = position === 'long' ? this.t('pos_long') : this.t('pos_short');
+                    this.showModal(this.t('modal_duplicate_title'), this.t('modal_duplicate_msg', typeText, posText), 'info');
                     return;
                 }
                 
                 // 资金检查
                 const cost = 5; // 每次固定投入5亿
                 if (this.money < cost) {
-                    this.showModal('资金不足', '你需要至少$5亿才能开设新仓位。', 'info');
+                    this.showModal(this.t('modal_funds_short_title'), this.t('modal_funds_short_msg'), 'info');
                     return;
                 }
 
@@ -810,7 +812,7 @@
                 this.approval -= 10;
                 const gain = 2 + Math.random() * 2; 
                 this.money += gain;
-                this.addLog(`🤫 进行了权力寻租，获得 $${gain.toFixed(1)}亿，支持率下降。`);
+                this.addLog(this.t('log_embezzle', '$' + gain.toFixed(1), this.t('unit_billion')));
             },
 
             // --- 技能系统 ---
@@ -823,89 +825,95 @@
                 this.skillModal.show = false;
                 
                 if (this.player.skillCostMoney && this.money < this.player.skillCostMoney) {
-                    this.addLog("❌ 资金不足以发动技能！");
+                    this.addLog(this.t('log_skill_fail_money'));
                     return;
                 }
                 
                 // this.ap -= this.skillCost; // 技能不消耗点数
                 this.money -= (this.player.skillCostMoney || 0);
                 this.skillCooldown = 6; // 6个月冷却
-                this.addLog(`★ 发动技能: ${this.player.skillName}`);
+                this.addLog(this.t('log_skill_use', this.getLoc(this.player.skillName)));
 
                 switch(this.player.id) {
                     case 1: // 金发大亨
                         this.approval += 15;
                         if(this.approval > 100) this.approval = 100;
-                        this.addLog("推特治国生效：支持率大幅上升。");
+                        this.addLog(this.t('log_skill_effect_1'));
                         break;
                     case 2: // 资深政客
                         this.ap += 2;
                         this.skillActive = true; 
-                        this.addLog("深层政府运作：获得了额外的行动力，且下回合将操纵卡牌库。");
+                        this.addLog(this.t('log_skill_effect_2'));
                         break;
                     case 3: // 科技新贵
                         this.skillActive = true; 
-                        this.addLog("内幕消息已获取：下次投资必定大赚。");
+                        this.addLog(this.t('log_skill_effect_3'));
                         break;
                     case 4: // 退役将军
                         this.approval -= 20;
                         this.money += 5;
-                        this.addLog("戒严令生效：支持率暴跌，但军费已入账。");
+                        this.addLog(this.t('log_skill_effect_4'));
                         break;
                     case 5: // 平权斗士
                         const convert = this.approval * 0.1;
                         this.money += convert;
                         this.approval -= 10;
-                        this.addLog(`草根筹款：获得了 $${convert.toFixed(1)}亿 捐款。`);
+                        this.addLog(this.t('log_skill_effect_5', '$' + convert.toFixed(1), this.t('unit_billion')));
                         break;
                     case 6: // 好莱坞明星
                         this.approval += 10;
                         this.skillActive = true;
-                        this.addLog("粉丝狂热：支持率上升，本回合投资无风险。");
+                        this.addLog(this.t('log_skill_effect_6'));
                         break;
                     
                     // --- 新增角色技能 (7-18) ---
                     case 7: // 石油大亨 (能源垄断)
                         this.commodityScore += 30; 
                         this.money += 10;
-                        this.addLog("能源垄断：商品市场暴涨，获利 $10亿。");
+                        this.addLog(this.t('log_skill_effect_7', this.t('unit_billion')));
                         break;
                     case 8: // 律政俏佳人 (宪法解释)
                         this.approval += 15;
-                        this.addLog("宪法解释：这不违宪，支持率回升。");
+                        this.addLog(this.t('log_skill_effect_8'));
                         break;
                     case 9: // 加密极客 (去中心化)
                         this.cryptoScore += (Math.random() > 0.5 ? 40 : -40); 
-                        this.hand.push({type: "经济", title: "空投代币", desc: "天上掉馅饼。", cost: 0, effect: {money: 2, crypto: "bull"}});
-                        this.addLog("去中心化：加密市场剧烈波动，获得一张特殊卡牌。");
+                        this.hand.push({
+                            type: {zh: "经济", en: "Economy", es: "Economía", fr: "Économie", ja: "経済", ko: "경제", 'zh-tw': "經濟"},
+                            title: {zh: "空投代币", en: "Token Airdrop", es: "Airdrop", fr: "Parachutage", ja: "トークン配布", ko: "토큰 에어드랍", 'zh-tw': "空投代幣"},
+                            desc: {zh: "天上掉馅饼。", en: "Free money from the sky.", es: "Dinero gratis del cielo.", fr: "L'argent tombe du ciel.", ja: "棚からぼた餅。", ko: "하늘에서 돈이 떨어진다.", 'zh-tw': "天上掉餡餅。"},
+                            cost: 0, 
+                            effect: {money: 2, crypto: "bull"}
+                        });
+                        this.addLog(this.t('log_skill_effect_9'));
                         break;
                     case 10: // 脱口秀女王 (黄金时段)
                         this.approval = 60;
                         this.ap = 0;
-                        this.addLog("黄金时段：支持率重置为60%，但耗尽了精力。");
+                        this.addLog(this.t('log_skill_effect_10'));
                         break;
                     case 11: // 工会领袖 (全国罢工)
                         this.globalEconomy = 'recession';
                         this.approval += 15;
-                        this.addLog("全国罢工：经济衰退，但工人阶级支持你。");
+                        this.addLog(this.t('log_skill_effect_11'));
                         break;
                     case 12: // 环保少女 (气候紧急状态)
                         this.approval += 5;
                         this.commodityScore -= 20; 
-                        this.addLog("气候紧急状态：商品市场受挫，年轻人为你欢呼。");
+                        this.addLog(this.t('log_skill_effect_12'));
                         break;
                     case 13: //情报局长
-                        this.addLog("棱镜计划：已获取未来市场情报(Beta)");
+                        this.addLog(this.t('log_skill_effect_13'));
                         break;
                     case 14: // 地产皇后
                         this.marketScore += 20;
                         this.commodityScore += 20;
                         this.globalEconomy = 'recession'; 
-                        this.addLog("房地产泡沫：资产价格上涨，但经济过热。");
+                        this.addLog(this.t('log_skill_effect_14'));
                         break;
                     case 15: // 学术泰斗
                         this.money += 10;
-                        this.addLog("MMT理论：凭空创造了 $10亿。");
+                        this.addLog(this.t('log_skill_effect_15', '$10', this.t('unit_billion')));
                         break;
                     case 16: // 网红医生
                         this.approval += 8;
@@ -949,7 +957,7 @@
                     const event = JSON.parse(JSON.stringify(eventTemplate)); // Deep copy based on template
                     
                     this.currentEvent = event;
-                    this.addLog(`⚡ 突发: ${event.title}`);
+                    this.addLog(this.t('log_event', this.getLoc(event.title)));
                     
                     // 应用事件效果 (现在叠加分数)
                     // Some events might have immediate effects without choices, handle them if needed.
@@ -992,7 +1000,8 @@
                 
                 // 周期状态描述
                 const slope = Math.cos(this.economyPhase);
-                this.economyCycleStatus = `周期: ${baseEcoScore.toFixed(0)} (${slope > 0 ? '🔺复苏' : '🔻衰退'})`;
+                const status = slope > 0 ? this.t('cycle_recovery') : this.t('cycle_decline');
+                this.economyCycleStatus = this.t('cycle_status', baseEcoScore.toFixed(0), status);
 
                 if (!forceRandom) {
                     // 分数自然衰减
@@ -1043,7 +1052,7 @@
                     title: title,
                     msg: msg,
                     type: type, 
-                    btnText: (type === 'win' || type === 'fail') ? '重新开始' : '确定'
+                    btnText: (type === 'win' || type === 'fail') ? this.t('btn_restart') : this.t('btn_ok')
                 };
             },
 

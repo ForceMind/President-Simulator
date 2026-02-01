@@ -236,10 +236,10 @@
                 <div style="font-size: 0.9em; margin-bottom: 5px; color: #bdc3c7;">
                     {{ t('market_global_eco') }}: <strong style="color: white;">{{ getEconomyName(globalEconomy) }}</strong>
                 </div>
-                {{ t('market_stock') }}: <span :style="{color: marketTrend === 'bull' ? '#2ecc71' : (marketTrend === 'crash' ? '#e74c3c' : (marketTrend === 'bear' ? '#e67e22' : 'white'))}">{{ marketTrend === 'bull' ? '📈' : (marketTrend === 'crash' ? '📉 崩盘' : (marketTrend === 'bear' ? '📉' : '➡️')) }}</span> | 
-                {{ t('market_crypto') }}: <span :style="{color: cryptoTrend === 'bull' ? '#2ecc71' : (cryptoTrend === 'crash' ? '#e74c3c' : (cryptoTrend === 'bear' ? '#e67e22' : 'white'))}">{{ cryptoTrend === 'bull' ? '🚀' : (cryptoTrend === 'crash' ? '🩸 崩盘' : (cryptoTrend === 'bear' ? '🩸' : '➡️')) }}</span>
+                {{ t('market_stock') }}: <span :style="{color: marketTrend === 'bull' ? '#2ecc71' : (marketTrend === 'crash' ? '#e74c3c' : (marketTrend === 'bear' ? '#e67e22' : 'white'))}">{{ marketTrend === 'bull' ? '📈' : (marketTrend === 'crash' ? t('trend_crash') : (marketTrend === 'bear' ? '📉' : '➡️')) }}</span> | 
+                {{ t('market_crypto') }}: <span :style="{color: cryptoTrend === 'bull' ? '#2ecc71' : (cryptoTrend === 'crash' ? '#e74c3c' : (cryptoTrend === 'bear' ? '#e67e22' : 'white'))}">{{ cryptoTrend === 'bull' ? '🚀' : (cryptoTrend === 'crash' ? t('trend_crash') : (cryptoTrend === 'bear' ? '🩸' : '➡️')) }}</span>
                 <br>
-                {{ t('market_commodity') }}: <span :style="{color: commodityTrend === 'bull' ? '#2ecc71' : (commodityTrend === 'crash' ? '#e74c3c' : (commodityTrend === 'bear' ? '#e67e22' : 'white'))}">{{ commodityTrend === 'bull' ? '🔥 紧俏' : (commodityTrend === 'crash' ? '🧊 滞销' : (commodityTrend === 'bear' ? '🧊' : '➡️')) }}</span>
+                {{ t('market_commodity') }}: <span :style="{color: commodityTrend === 'bull' ? '#2ecc71' : (commodityTrend === 'crash' ? '#e74c3c' : (commodityTrend === 'bear' ? '#e67e22' : 'white'))}">{{ commodityTrend === 'bull' ? t('trend_boom_commodity') : (commodityTrend === 'crash' ? t('trend_stagnant') : (commodityTrend === 'bear' ? '🧊' : '➡️')) }}</span>
             </div>
 
             <div class="action-grid">
