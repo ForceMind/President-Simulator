@@ -97,7 +97,7 @@ window.GAME_DATA.CARD_DB.push(
         type: { zh: "政治", en: "Politics", es: "Política", fr: "Politique", ja: "政治", ko: "정치", "zh-tw": "政治" },
         title: { zh: "成立太空军", en: "Create Space Force", es: "Crear Fuerza Espacial", fr: "Créer Force Spatiale", ja: "宇宙軍創設", ko: "우주군 창설", "zh-tw": "成立太空軍" },
         desc: { zh: "因为星球大战真的很酷。 pew pew!", en: "Star Wars is cool. Pew pew!", es: "Star Wars es genial. ¡Pew pew!", fr: "Star Wars c'est cool. Pew pew !", ja: "スターウォーズはかっこいいから。ピューピュー！", ko: "스타워즈는 멋지니까요. 쓩쓩!", "zh-tw": "因為星球大戰真的很酷。 pew pew!" },
-        cost: 8,
+        cost: 4,
         phase: "mid",
         effect: { approval: 10, money: -15 }
     },
@@ -177,7 +177,7 @@ window.GAME_DATA.CARD_DB.push(
         type: { zh: "政治", en: "Politics", es: "Política", fr: "Politique", ja: "政治", ko: "정치", "zh-tw": "政治" },
         title: { zh: "把脸刻在拉什莫尔山", en: "Face on Rushmore", es: "Cara en Rushmore", fr: "Visage sur Rushmore", ja: "ラシュモア山に自分の顔", ko: "러시모어 산에 얼굴 조각", "zh-tw": "把臉刻在拉什莫爾山" },
         desc: { zh: "就在林肯旁边。但是要大一点。", en: "Next to Lincoln. But bigger.", es: "Junto a Lincoln. Pero más grande.", fr: "À côté de Lincoln. Mais plus gros.", ja: "リンカーンの隣に。でももっと大きく。", ko: "링컨 옆에. 하지만 더 크게.", "zh-tw": "就在林肯旁邊。但是要大一點。" },
-        cost: 10,
+        cost: 5,
         phase: "mid",
         effect: { approval: -15, ego: 50, money: -20 }
     },
@@ -187,7 +187,7 @@ window.GAME_DATA.CARD_DB.push(
         type: { zh: "政治", en: "Politics", es: "Política", fr: "Politique", ja: "政治", ko: "정치", "zh-tw": "政治" },
         title: { zh: "宣布自己为终身总统", en: "President for Life", es: "Presidente Vitalicio", fr: "Président à Vie", ja: "終身大統領宣言", ko: "종신 대통령 선언", "zh-tw": "宣布自己為終身總統" },
         desc: { zh: "选举太贵了，真的很浪费。只要我不死，我就当总统。", en: "Elections are expensive waste. I stay till I die.", es: "Elecciones son derroche. Me quedo hasta morir.", fr: "Élections trop chères. Je reste jusqu'à la mort.", ja: "選挙は無駄遣いだ。死ぬまでやるぞ。", ko: "선거는 낭비입니다. 죽을 때까지 하겠습니다.", "zh-tw": "選舉太貴了，真的很浪費。只要我不死，我就當總統。" },
-        cost: 15,
+        cost: 7,
         phase: "late",
         effect: { approval: -30, dictatorship: 20, coup_risk: 15 }
     },
@@ -195,7 +195,7 @@ window.GAME_DATA.CARD_DB.push(
         type: { zh: "政治", en: "Politics", es: "Política", fr: "Politique", ja: "政治", ko: "정치", "zh-tw": "政治" },
         title: { zh: "禁止反对党", en: "Ban Opposition Party", es: "Prohibir Oposición", fr: "Interdire l'Opposition", ja: "野党禁止", ko: "야당 금지", "zh-tw": "禁止反對黨" },
         desc: { zh: "为了‘国家团结’。现在只有一个党了，就是我的生日派对。", en: "For 'Unity'. Only one party now: My Birthday Party.", es: "Por 'Unidad'. Solo un partido: Mi Fiesta.", fr: "Pour l''Unité'. Un seul parti : Ma Fête.", ja: "「団結」のため。政党は一つ、私の誕生パーティーだけ。", ko: "'통합'을 위해. 이제 당은 하나뿐, 내 생일 파티.", "zh-tw": "為了‘國家團結’。現在只有一個黨了，就是我的生日派對。" },
-        cost: 10,
+        cost: 5,
         phase: "late",
         effect: { approval: -20, control: 20, unrest: 15 }
     },
@@ -227,7 +227,7 @@ window.GAME_DATA.CARD_DB.push(
         type: { zh: "政治", en: "Politics", es: "Política", fr: "Politique", ja: "政治", ko: "정치", "zh-tw": "政治" },
         title: { zh: "解雇联邦调查局局长", en: "Fire FBI Director", es: "Despedir Director FBI", fr: "Virer Directeur FBI", ja: "FBI長官解任", ko: "FBI 국장 해임", "zh-tw": "解僱聯邦調查局局長" },
         desc: { zh: "实际上，解雇所有人。我自己来调查。", en: "Fire everyone. I will investigate myself.", es: "Despide a todos. Yo me investigo.", fr: "Virez tout le monde. J'enquête moi-même.", ja: "全員クビだ。私が自分で捜査する。", ko: "다 잘라. 내가 직접 수사한다.", "zh-tw": "實際上，解僱所有人。我自己來調查。" },
-        cost: 8,
+        cost: 4,
         phase: "late",
         effect: { approval: -15, obstruction: 20 }
     },
@@ -243,7 +243,7 @@ window.GAME_DATA.CARD_DB.push(
         type: { zh: "政治", en: "Politics", es: "Política", fr: "Politique", ja: "政治", ko: "정치", "zh-tw": "政治" },
         title: { zh: "宣布戒严", en: "Declare Martial Law", es: "Ley Marcial", fr: "Loi Martiale", ja: "戒厳令宣告", ko: "계엄령 선포", "zh-tw": "宣布戒嚴" },
         desc: { zh: "除非每个人都待在家里看我的直播，否则不许出门。", en: "Stay home and watch my stream.", es: "Quédate en casa y mira mi stream.", fr: "Restez chez vous et regardez mon stream.", ja: "家にいて私の配信を見ろ。", ko: "집에서 내 방송이나 봐.", "zh-tw": "除非每個人都待在家裡看我的直播，否則不許出門。" },
-        cost: 12,
+        cost: 6,
         phase: "late",
         effect: { approval: -40, control: 40, economy: -20 }
     }

@@ -34,6 +34,9 @@
         <h1 style="text-align: center; color: var(--accent-gold);">{{ t('title') }}</h1>
         <p style="text-align: center; color: #bdc3c7;">{{ t('goal') }}</p>
         
+        <div v-if="isMobile" class="animate__animated animate__fadeIn" style="text-align: center; color: #95a5a6; font-size: 0.8em; margin: 10px 0;">
+            <span>👈 {{ t('swipe_hint') || 'Swipe to select' }} 👉</span>
+        </div>
         <div class="char-grid">
             <div v-for="char in characters" :key="char.id" 
                  class="char-card" 
@@ -189,6 +192,10 @@
                             <span style="font-size: 0.75em; background: rgba(255,255,255,0.15); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1);">-1 AP</span>
                         </div>
                         <div style="font-size: 0.8em; opacity: 0.8; margin-top: 4px;">{{ getLoc(choice.desc) }}</div>
+                        <div v-if="choice.effect" style="font-size: 0.75em; color: #f1c40f; margin-top: 5px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 2px;">
+                            <span v-if="choice.effect.approval">👍 {{ choice.effect.approval > 0 ? '+' : '' }}{{ choice.effect.approval }}% </span>
+                            <span v-if="choice.effect.money">💰 {{ choice.effect.money > 0 ? '+' : '' }}{{ choice.effect.money }}B </span>
+                        </div>
                     </button>
                 </div>
             </div>
@@ -209,7 +216,7 @@
                     <div style="display: flex; justify-content: space-between; align-items: start;">
                         <div class="card-cost" :class="getCardCostClass(card.cost)">{{ t('cost_ap', card.cost) }}</div>
                         <!-- 弃牌按钮 -->
-                        <div class="discard-btn" @click.stop="discardCard(index)" :title="t('discard_tooltip')" style="position: static; margin-left: auto;">✖</div>
+                        <div class="discard-btn" @click.stop="discardCard(index)" :title="t('discard_tooltip') + ' (-1 AP)'" style="position: static; margin-left: auto; display: flex; align-items: center; gap: 4px;">✖ <span style="font-size:0.7em; opacity:0.8;">(-1AP)</span></div>
                     </div>
                     
                     <div @click="playCard(index)" class="card-content-wrapper">

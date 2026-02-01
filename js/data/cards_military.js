@@ -73,7 +73,7 @@ window.GAME_DATA.CARD_DB.push(
         type: { zh: "军事", en: "Military", es: "Militar", fr: "Militaire", ja: "軍事", ko: "군사", "zh-tw": "軍事" },
         title: { zh: "建造边境墙", en: "Build Border Wall", es: "Construir Muro", fr: "Mur Frontalier", ja: "国境の壁建設", ko: "국경 장벽 건설", "zh-tw": "建造邊境牆" },
         desc: { zh: "又大又美。或许用太阳能板？不，还是用尖刺吧。", en: "Big and beautiful. Solar panels? No, spikes.", es: "Grande y hermoso. ¿Paneles solares? No, pinchos.", fr: "Grand et beau. Panneaux solaires ? Non, piques.", ja: "大きくて美しい。ソーラーパネル？いや、トゲだ。", ko: "크고 아름답게. 태양광 패널? 아니, 쇠창살로.", "zh-tw": "又大又美。或許用太陽能板？不，還是用尖刺吧。" },
-        cost: 10,
+        cost: 5,
         phase: "mid",
         effect: { money: -15, approval: 10, division: 10 }
     },
@@ -81,7 +81,7 @@ window.GAME_DATA.CARD_DB.push(
         type: { zh: "军事", en: "Military", es: "Militar", fr: "Militaire", ja: "軍事", ko: "군사", "zh-tw": "軍事" },
         title: { zh: "对随机国家发动空袭", en: "Random Airstrike", es: "Ataque Aéreo Aleatorio", fr: "Frappe Aérienne Aléatoire", ja: "ランダム空爆", ko: "무작위 공습", "zh-tw": "對隨機國家發動空襲" },
         desc: { zh: "为了转移国内丑闻的注意力。没什么能比战斧导弹更能说‘看那边！’了。", en: "Distraction needed. Look at the missiles!", es: "Necesito distracción. ¡Miren los misiles!", fr: "Besoin de distraction. Regardez les missiles !", ja: "スキャンダル逸らしだ。あっちを見ろ、ミサイルだ！", ko: "관심 돌리기가 필요해. 저기 미사일 좀 봐!", "zh-tw": "為了轉移國內醜聞的注意力。沒什麼能比戰斧導彈更能說‘看那邊！’了。" },
-        cost: 8,
+        cost: 4,
         phase: "mid",
         effect: { approval: 10, tension: 20, scandal_reduction: 15 }
     },
@@ -179,7 +179,7 @@ window.GAME_DATA.CARD_DB.push(
         type: { zh: "军事", en: "Military", es: "Militar", fr: "Militaire", ja: "軍事", ko: "군사", "zh-tw": "軍事" },
         title: { zh: "入侵邻国", en: "Invade Neighbor", es: "Invadir Vecino", fr: "Envahir Voisin", ja: "隣国侵攻", ko: "이웃나라 침공", "zh-tw": "入侵鄰國" },
         desc: { zh: "他们既然说着我们的语言，那地就是我们的。", en: "They speak our language, so it's our land.", es: "Hablan nuestro idioma, es nuestra tierra.", fr: "Ils parlent notre langue, c'est à nous.", ja: "我々の言葉を話すなら、そこは我々の土地だ。", ko: "우리말 쓰니까 우리 땅이지.", "zh-tw": "他們既然說著我們的語言，那地就是我們的。" },
-        cost: 15,
+        cost: 7,
         phase: "late",
         effect: { approval: 10, economy: -30, sanctions: 20 }
     },
@@ -195,7 +195,7 @@ window.GAME_DATA.CARD_DB.push(
         type: { zh: "军事", en: "Military", es: "Militar", fr: "Militaire", ja: "軍事", ko: "군사", "zh-tw": "軍事" },
         title: { zh: "全面征兵", en: "Total Conscription", es: "Conscripción Total", fr: "Conscription Totale", ja: "全面徴兵", ko: "전면 징병", "zh-tw": "全面徵兵" },
         desc: { zh: "不管是跛子还是瞎子，只要能拿枪，就是好士兵。", en: "Limping or blind, if you can hold a gun, you are in.", es: "Cojo o ciego, si sostienes arma, entras.", fr: "Boiteux ou aveugle, si tu tiens un fusil, t'es in.", ja: "足が悪くても目が見えなくても、銃を持てれば兵士だ。", ko: "절뚝거리든 장님이든, 총만 들 수 있으면 돼.", "zh-tw": "不管是跛子還是瞎子，只要能拿槍，就是好士兵。" },
-        cost: 10,
+        cost: 5,
         phase: "late",
         effect: { approval: -40, manpower: 50 }
     },
@@ -211,7 +211,7 @@ window.GAME_DATA.CARD_DB.push(
         type: { zh: "军事", en: "Military", es: "Militar", fr: "Militaire", ja: "軍事", ko: "군사", "zh-tw": "軍事" },
         title: { zh: "煽动外国政变", en: "Incite Foreign Coup", es: "Incitar Golpe Ext.", fr: "Inciter Coup Étranger", ja: "外国のクーデター扇動", ko: "해외 쿠데타 선동", "zh-tw": "煽動外國政變" },
         desc: { zh: "那个看起来很友好的将军说他喜欢我很酷。", en: "Friendly general says I'm cool.", es: "General amigable dice que soy cool.", fr: "Général amical dit que je suis cool.", ja: "友好的な将軍が私をクールだと言った。", ko: "친한 장군이 내가 멋지다더군.", "zh-tw": "那個看起來很友好的將軍說他喜歡我很酷。" },
-        cost: 8,
+        cost: 4,
         phase: "late",
         effect: { money: -10, influence: 20 }
     },
@@ -243,7 +243,7 @@ window.GAME_DATA.CARD_DB.push(
         type: { zh: "军事", en: "Military", es: "Militar", fr: "Militaire", ja: "軍事", ko: "군사", "zh-tw": "軍事" },
         title: { zh: "建立机器人军队", en: "Robot Army", es: "Ejército Robot", fr: "Armée Robot", ja: "ロボット軍隊", ko: "로봇 군대", "zh-tw": "建立機器人軍隊" },
         desc: { zh: "终结者并不是科幻片，它是纪录片。", en: "Terminator is a documentary.", es: "Terminator es un documental.", fr: "Terminator est un documentaire.", ja: "ターミネーターはドキュメンタリーだ。", ko: "터미네이터는 다큐멘터리야.", "zh-tw": "終結者並不是科幻片，它是紀錄片。" },
-        cost: 20,
+        cost: 8,
         phase: "late",
         effect: { money: -50, power: 50, skynet_risk: 80 }
     }

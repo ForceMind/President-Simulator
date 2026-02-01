@@ -153,7 +153,7 @@ window.GAME_DATA.CARD_DB.push(
         type: { zh: "经济", en: "Economy", es: "Economía", fr: "Économie", ja: "経済", ko: "경제", "zh-tw": "經濟" },
         title: { zh: "机器人替代公务员", en: "Robot Bureaucrats", es: "Burócratas Robots", fr: "Bureaucrates Robots", ja: "ロボット官僚", ko: "로봇 공무원", "zh-tw": "機器人替代公務員" },
         desc: { zh: "它们不会抱怨，不会罢工，也不会在厕所里刷手机。", en: "No complaints, no strikes, no bathroom breaks.", es: "Sin quejas, sin huelgas, sin pausas de baño.", fr: "Pas de plaintes, pas de grèves, pas de pauses.", ja: "文句もストライキもトイレ休憩もない。", ko: "불만도, 파업도, 화장실 휴식도 없습니다.", "zh-tw": "它們不會抱怨，不會罷工，也不會在廁所裡刷手機。" },
-        cost: 8,
+        cost: 4,
         phase: "mid",
         effect: { money: 10, approval: -10, efficiency: 10 }
     },
@@ -195,7 +195,7 @@ window.GAME_DATA.CARD_DB.push(
         type: { zh: "经济", en: "Economy", es: "Economía", fr: "Économie", ja: "経済", ko: "경제", "zh-tw": "經濟" },
         title: { zh: "最后的私有化：军队", en: "Privatize Army", es: "Privatizar Ejército", fr: "Privatiser Armée", ja: "軍隊の民営化", ko: "군대 사유화", "zh-tw": "最後的私有化：軍隊" },
         desc: { zh: "黑水公司接管国防部。这是一个巨大的成本节约措施。", en: "Blackwater takes over DoD. Big savings.", es: "Blackwater toma Defensa. Grandes ahorros.", fr: "Blackwater prend la Défense. Grosses économies.", ja: "ブラックウォーターが国防総省を引き継ぐ。大幅節約。", ko: "블랙워터가 국방부를 인수합니다. 엄청난 절약이죠.", "zh-tw": "黑水公司接管國防部。這是一個巨大的成本節約措施。" },
-        cost: 10,
+        cost: 5,
         phase: "late",
         effect: { money: 40, approval: -20, coup_risk: 30 }
     },
@@ -211,7 +211,7 @@ window.GAME_DATA.CARD_DB.push(
         type: { zh: "经济", en: "Economy", es: "Economía", fr: "Économie", ja: "経済", ko: "경제", "zh-tw": "經濟" },
         title: { zh: "黄金降落伞", en: "Golden Parachute", es: "Paracaídas de Oro", fr: "Parachute Doré", ja: "ゴールデンパラシュート", ko: "황금 낙하산", "zh-tw": "黃金降落傘" },
         desc: { zh: "准备好你的逃生路线。把国库里的金条都搬上私人飞机。", en: "Load the gold onto the private jet.", es: "Carga el oro en el jet privado.", fr: "Chargez l'or dans le jet privé.", ja: "プライベートジェットに金を積み込め。", ko: "개인 전용기에 금을 실으세요.", "zh-tw": "準備好你的逃生路線。把國庫裡的金條都搬上私人飛機。" },
-        cost: 20,
+        cost: 8,
         phase: "late",
         effect: { money: -20, personal_wealth: 100, approval: -100 }
     },
@@ -235,7 +235,7 @@ window.GAME_DATA.CARD_DB.push(
         type: { zh: "经济", en: "Economy", es: "Economía", fr: "Économie", ja: "経済", ko: "경제", "zh-tw": "經濟" },
         title: { zh: "解散中央银行", en: "End the Fed", es: "Acabar Reserva Fed", fr: "Fin de la Fed", ja: "中央銀行解散", ko: "연준 폐지", "zh-tw": "解散中央銀行" },
         desc: { zh: "回到以贝壳和闪亮石头为货币的时代。", en: "Return to seashells and shiny rocks.", es: "Volver a conchas y piedras brillantes.", fr: "Retour aux coquillages et pierres brillantes.", ja: "貝殻と光る石の時代に戻ろう。", ko: "조개껍데기와 반짝이는 돌의 시대로 돌아갑시다.", "zh-tw": "回到以貝殼和閃亮石頭為貨幣的時代。" },
-        cost: 10,
+        cost: 5,
         phase: "late",
         effect: { money: -10, chaos: 50 }
     },

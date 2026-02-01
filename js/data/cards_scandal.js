@@ -163,7 +163,7 @@ window.GAME_DATA.CARD_DB.push(
         type: { zh: "丑闻", en: "Scandal", es: "Escándalo", fr: "Scandale", ja: "スキャンダル", ko: "스캔들", "zh-tw": "醜聞" },
         title: { zh: "被发现是蜥蜴人", en: "Lizard Person Exposed", es: "Hombre Lagarto Expuesto", fr: "Homme-Lézard Exposé", ja: "トカゲ人間発覚", ko: "도마뱀 인간 발각", "zh-tw": "被發現是蜥蜴人" },
         desc: { zh: "你的皮肤脱落了一块，露出了绿色的鳞片。这解释了很多。", en: "Skin peeled, green scales showed. Explains a lot.", es: "Piel pelada, escamas verdes. Explica mucho.", fr: "Peau pelée, écailles vertes. Tout s'explique.", ja: "皮が剥け、緑の鱗が。納得だ。", ko: "피부가 벗겨져서 초록 비늘이 보임. 납득이 가네.", "zh-tw": "你的皮膚脫落了一塊，露出了綠色的鱗片。這解釋了很多。" },
-        cost: 10,
+        cost: 5,
         phase: "late",
         effect: { approval: -50, conspiracy_confirmed: 100 }
     },

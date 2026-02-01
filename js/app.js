@@ -402,6 +402,7 @@
             startNewMonth() {
                 // 3. 时间推进
                 this.month++;
+                if (this.checkGameOver()) return; // Check immediate game over (Month 49)
                 this.addLog(`📅 进入第 ${this.month} 个月`);
 
                 // 4. AP 回复机制 (基于支持率)
