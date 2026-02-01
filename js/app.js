@@ -296,6 +296,7 @@
                 this.hand = [];
                 this.logs = [];
                 this.currentEvent = null;
+                this.eventModal = { show: false }; // New Event Modal State
                 
                 // 重置经济与持仓
                 this.marketScore = 0;
@@ -521,6 +522,9 @@
                     return;
                 }
                 this.ap -= 1;
+                
+                // Close modal if open
+                this.eventModal.show = false;
 
                 const choice = this.currentEvent.choices[choiceIdx];
                 const effect = choice.effect;
@@ -560,6 +564,13 @@
             this.approval -= 5;
             this.addLog(`⚠️ 忽视危机: 未处理突发事件，民怨沸腾 (支持率 -5%)`);
             this.currentEvent = null;
+            this.eventModal.show = false;
+        },
+
+        openEventModal() {
+            if (this.currentEvent && this.currentEvent.choices) {
+                this.eventModal.show = true;
+            }
         },
 
         // --- 行为逻辑 ---

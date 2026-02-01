@@ -735,4 +735,92 @@ body {
                  s c r o l l - s n a p - a l i g n :   c e n t e r ;  
          }  
  }  
+ / *   M o b i l e   a d j u s t m e n t s   f o r   C h a r a c t e r   S e l e c t i o n   s c r o l l i n g   * /  
+ @ m e d i a   s c r e e n   a n d   ( m a x - w i d t h :   6 0 0 p x )   {  
+         . c h a r - g r i d   {  
+                 d i s p l a y :   f l e x ;   / *   E n s u r e   f l e x   b e h a v i o r   * /  
+                 o v e r f l o w - x :   a u t o ;  
+                 s c r o l l - s n a p - t y p e :   x   m a n d a t o r y ;  
+                 p a d d i n g - b o t t o m :   2 0 p x ;  
+                 g a p :   1 5 p x ;  
+                 / *   E n s u r e   s c r o l l i n g   w o r k s   s m o o t h l y   * /  
+                 - w e b k i t - o v e r f l o w - s c r o l l i n g :   t o u c h ;  
+                 / *   A d d   r i g h t   p a d d i n g   s o   l a s t   c a r d   i s n ' t   f l u s h   * /  
+                 p a d d i n g - r i g h t :   2 0 p x ;    
+         }  
+          
+         . c h a r - c a r d   {  
+                 / *   S e t   w i d t h   s o   a p p r o x   1 . 1   c a r d s   s h o w ,   e n c o u r a g i n g   s w i p e   * /  
+                 m i n - w i d t h :   8 5 v w   ! i m p o r t a n t ;    
+                 w i d t h :   8 5 v w   ! i m p o r t a n t ;  
+                 s c r o l l - s n a p - a l i g n :   c e n t e r ;  
+                 / *   R e s e t   m a r g i n   t o   e n s u r e   c a l c u l a t i o n   i s   c o r r e c t   * /  
+                 m a r g i n :   0   ! i m p o r t a n t ;  
+         }  
+  
+         / *   T a s k   4 :   F i x   c a r d   d e s k   s c r o l l i n g   f e e l i n g   b l o c k e d   b y   b o t t o m   b u t t o n   * /  
+         . c a r d s - a r e a   {  
+                 p a d d i n g - b o t t o m :   1 0 0 p x   ! i m p o r t a n t ;   / *   E x t r a   p a d d i n g   f o r   b o t t o m   b u t t o n   c l e a r a n c e   * /  
+         }  
+ }  
+  
+ / *   T a s k   2 :   F i x   D i s c a r d   B u t t o n   U I   * /  
+ . d i s c a r d - b t n   {  
+         p o s i t i o n :   s t a t i c ;  
+         m a r g i n - l e f t :   a u t o ;  
+         d i s p l a y :   f l e x ;  
+         a l i g n - i t e m s :   c e n t e r ;  
+         g a p :   4 p x ;  
+         b a c k g r o u n d :   r g b a ( 0 , 0 , 0 , 0 . 3 ) ;  
+         p a d d i n g :   2 p x   6 p x ;  
+         b o r d e r - r a d i u s :   1 2 p x ;  
+         c u r s o r :   p o i n t e r ;  
+         t r a n s i t i o n :   b a c k g r o u n d   0 . 2 s ;  
+ }  
+ . d i s c a r d - b t n : h o v e r   {  
+         b a c k g r o u n d :   r g b a ( 2 3 1 ,   7 6 ,   6 0 ,   0 . 8 ) ;  
+ }  
+  
+ / *   T a s k   3   &   N e w :   E v e n t   M o d a l   S t y l i n g   * /  
+ . m o d a l - o v e r l a y   {  
+         b a c k g r o u n d :   r g b a ( 0 , 0 , 0 , 0 . 8 5 ) ;   / *   D a r k e r   o v e r l a y   * /  
+ }  
+  
+ / *   E v e n t   M o d a l   s p e c i f i c   o v e r r i d e s   i f   n e e d e d   * /  
+ . e v e n t - m o d a l - c o n t e n t   {  
+         b a c k g r o u n d :   # 2 c 3 e 5 0 ;  
+         c o l o r :   w h i t e ;  
+         b o r d e r :   2 p x   s o l i d   v a r ( - - a c c e n t - g o l d ) ;  
+ }  
  
+/* Fix: Mobile Game Card Horizontal Scroll (85% width peek) */
+@media (max-width: 900px) {
+    .cards-area {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        justify-content: flex-start !important;
+        align-items: stretch !important;
+        padding: 10px 10px 100px 10px !important; /* Bottom padding for FAB */
+        gap: 15px !important;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
+    }
+    
+    .game-card {
+        min-width: 85vw !important;
+        width: 85vw !important;
+        margin: 0 !important;
+        flex-shrink: 0 !important;
+        scroll-snap-align: center;
+    }
+
+    /* Fix: Ensure spacer at end so last card isn't stuck to edge */
+    .cards-area::after {
+        content: '';
+        min-width: 1px;
+        height: 100%;
+    }
+}
+

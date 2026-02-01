@@ -177,27 +177,13 @@
                         <span style="font-size: 1.2em; margin-right: 5px;">⚡</span>
                         <strong style="font-size: 1.1em;">{{ getLoc(currentEvent.title) }}</strong>
                     </div>
-                    <button @click="ignoreEvent" style="font-size: 0.8em; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.3); color: #ecf0f1; border-radius: 4px; padding: 4px 8px; cursor: pointer; white-space: nowrap; margin-left: 10px;">
-                        {{ t('ignore') }} (-5%)
-                    </button>
                 </div>
                 
-                <div style="font-size: 0.95em; line-height: 1.4; opacity: 0.9;">{{ getLoc(currentEvent.desc) }}</div>
+                <div style="font-size: 0.95em; line-height: 1.4; opacity: 0.9; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;">{{ getLoc(currentEvent.desc) }}</div>
                 
-                <div v-if="currentEvent.choices" class="event-choices">
-                    <button v-for="(choice, idx) in currentEvent.choices" :key="idx" 
-                            class="choice-btn" @click="makeChoice(idx)">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-weight: bold;">{{ getLoc(choice.text) }}</span>
-                            <span style="font-size: 0.75em; background: rgba(255,255,255,0.15); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1);">-1 AP</span>
-                        </div>
-                        <div style="font-size: 0.8em; opacity: 0.8; margin-top: 4px;">{{ getLoc(choice.desc) }}</div>
-                        <div v-if="choice.effect" style="font-size: 0.75em; color: #f1c40f; margin-top: 5px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 2px;">
-                            <span v-if="choice.effect.approval">👍 {{ choice.effect.approval > 0 ? '+' : '' }}{{ choice.effect.approval }}% </span>
-                            <span v-if="choice.effect.money">💰 {{ choice.effect.money > 0 ? '+' : '' }}{{ choice.effect.money }}B </span>
-                        </div>
-                    </button>
-                </div>
+                <button @click="openEventModal" class="next-turn-btn" style="background: #c0392b; width: 100%; margin-top: 5px; font-weight: bold; animation: pulse 2s infinite;">
+                    🚨 {{ t('btn_handle_event') || 'Handle Crisis' }}
+                </button>
             </div>
 
             <div v-if="!isMobile" style="display: flex; justify-content: space-between; align-items: center;">
@@ -226,8 +212,20 @@
                     </div>
                     
                     <div class="card-effect" @click="playCard(index)">
-                        <div v-if="card.effect.approval">{{ t('effect_approval') }}: {{ card.effect.approval > 0 ? '+' : ''}}{{ card.effect.approval }}%</div>
-                        <div v-if="card.effect.money">{{ t('effect_money') }}: {{ card.effect.money > 0 ? '+' : ''}}{{ card.effect.money }}{{ t('unit_billion') }}</div>
+                        <div v-if="card.effect.approval">{{ t('effect_approval') }}: <span :class="card.effect.approval > 0 ? 'text-green' : 'text-red'">{{ card.effect.approval > 0 ? '+' : ''}}{{ card.effect.approval }}%</span></div>
+                        <div v-if="card.effect.money">{{ t('effect_money') }}: <span :class="card.effect.money > 0 ? 'text-green' : 'text-red'">{{ card.effect.money > 0 ? '+' : ''}}{{ card.effect.money }}{{ t('unit_billion') }}</span></div>
+                        <div v-if="card.effect.scandal_risk">
+                            {{ lang === 'zh' || lang === 'zh-tw' ? '丑闻风险' : 'Scandal Risk' }}: <span :class="card.effect.scandal_risk < 0 ? 'text-green' : 'text-red'">{{ card.effect.scandal_risk > 0 ? '+' : ''}}{{ card.effect.scandal_risk }}%</span>
+                        </div>
+                        <div v-if="card.effect.legislation_pass_chance">
+                            {{ lang === 'zh' || lang === 'zh-tw' ? '法案成功率' : 'Pass Chance' }}: <span class="text-green">+{{ card.effect.legislation_pass_chance }}%</span>
+                        </div>
+                        <div v-if="card.effect.society">
+                            {{ lang === 'zh' || lang === 'zh-tw' ? '社会' : 'Society' }}: <span :class="card.effect.society > 0 ? 'text-green' : 'text-red'">{{ card.effect.society > 0 ? '+' : ''}}{{ card.effect.society }}</span>
+                        </div>
+                         <div v-if="card.effect.economy">
+                            {{ lang === 'zh' || lang === 'zh-tw' ? '经济' : 'Economy' }}: <span :class="card.effect.economy > 0 ? 'text-green' : 'text-red'">{{ card.effect.economy > 0 ? '+' : ''}}{{ card.effect.economy }}</span>
+                        </div>
                     </div>
                 </div>
                 <div v-if="hand.length === 0" style="width: 100%; text-align: center; color: #7f8c8d; margin-top: 50px;">
@@ -332,6 +330,35 @@
                         <button class="btn-cancel" @click="skillModal.show = false">{{ t('btn_cancel') }}</button>
                         <button class="btn-confirm" @click="confirmSkill">{{ t('btn_confirm') }}</button>
                     </div>
+                </div>
+            </div>
+
+            <!-- 事件处理弹窗 (New Task 3) -->
+            <div v-if="eventModal.show && currentEvent" class="modal-overlay" style="z-index: 2100;">
+                <div class="modal-content animate__animated animate__zoomIn" style="border: 2px solid #e74c3c; max-width: 400px; width: 90%;">
+                    <div style="text-align: center; font-size: 2em; margin-bottom: 10px;">🚨</div>
+                    <h3 style="text-align: center; margin-bottom: 10px;">{{ getLoc(currentEvent.title) }}</h3>
+                    <p style="margin-bottom: 20px; color: #7f8c8d; line-height: 1.5; text-align: left;">{{ getLoc(currentEvent.desc) }}</p>
+                    
+                    <div class="event-choices" style="display: flex; flex-direction: column; gap: 10px;">
+                        <button v-for="(choice, idx) in currentEvent.choices" :key="idx" 
+                                class="choice-btn" @click="makeChoice(idx)" 
+                                style="background: #ecf0f1; border: 1px solid #bdc3c7; color: #2c3e50; padding: 12px; border-radius: 8px; text-align: left;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                <strong style="font-size: 1.05em;">{{ getLoc(choice.text) }}</strong>
+                                <span style="font-size: 0.8em; background: #95a5a6; color: white; padding: 2px 6px; border-radius: 4px;">-1 AP</span>
+                            </div>
+                            <div style="font-size: 0.9em; color: #7f8c8d; margin-bottom: 5px;">{{ getLoc(choice.desc) }}</div>
+                            <div v-if="choice.effect" style="font-size: 0.85em; color: #d35400; border-top: 1px dashed #bdc3c7; padding-top: 4px;">
+                                <span v-if="choice.effect.approval">👍 {{ choice.effect.approval > 0 ? '+' : '' }}{{ choice.effect.approval }}% </span>
+                                <span v-if="choice.effect.money">💰 {{ choice.effect.money > 0 ? '+' : '' }}{{ choice.effect.money }}B </span>
+                            </div>
+                        </button>
+                    </div>
+                    
+                    <button @click="ignoreEvent" style="margin-top: 20px; width: 100%; padding: 10px; background: transparent; border: 1px dashed #95a5a6; color: #7f8c8d; border-radius: 6px;">
+                        {{ t('ignore') }} (-5% Approval)
+                    </button>
                 </div>
             </div>
 
