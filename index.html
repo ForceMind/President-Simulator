@@ -427,11 +427,35 @@
         </div>
     </div>
 
-    <!-- 通用弹窗 (Game Over / Info) -->
+    <!-- 通用弹窗 (Game Over / Info / Summary) -->
     <div v-if="modal.show" class="modal-overlay">
         <div class="modal-content animate__animated animate__zoomIn" :class="modal.type">
             <h3>{{ modal.title }}</h3>
-            <p>{{ modal.msg }}</p>
+            
+            <!-- Summary View -->
+            <div v-if="modal.isSummary" style="text-align: left; margin: 15px 0;">
+                <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                     <div v-for="item in modal.summaryData" :key="item.label" style="display:flex; justify-content:space-between; margin-bottom: 5px;">
+                         <span style="color: #bdc3c7;">{{ item.label }}</span>
+                         <span style="font-weight: bold;">{{ item.value }}</span>
+                     </div>
+                </div>
+
+                <div v-if="modal.rating" style="text-align: center; margin: 20px 0;">
+                    <div style="font-size: 0.9em; color: #95a5a6;">{{ t('stats_rating') }}</div>
+                    <div style="font-size: 1.8em; color: var(--accent-gold); font-weight: bold;">{{ modal.rating }}</div>
+                </div>
+
+                <div v-if="modal.hiddenData && modal.hiddenData.length > 0">
+                    <h4 style="border-bottom: 1px solid #7f8c8d; padding-bottom: 5px; margin-bottom: 10px; font-size: 0.9em; color: #7f8c8d;">{{ t('stats_hidden_overview') }}</h4>
+                     <div v-for="item in modal.hiddenData" :key="item.label" style="display:flex; justify-content:space-between; margin-bottom: 3px; font-size: 0.9em;">
+                         <span>{{ item.label }}</span>
+                         <span :class="item.value > 0 ? 'text-green' : 'text-red'">{{ item.value > 0 ? '+' : '' }}{{ item.value }}</span>
+                     </div>
+                </div>
+            </div>
+
+            <p style="white-space: pre-line;">{{ modal.msg }}</p>
             <button class="next-turn-btn" style="margin-top: 20px; width: 100%;" @click="handleModalAction">{{ modal.btnText }}</button>
         </div>
     </div>

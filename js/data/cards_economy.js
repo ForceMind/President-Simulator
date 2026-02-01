@@ -25,6 +25,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: { zh: "那并不是真正的‘老忠实泉’，那只是未开发的‘液体黄金’。", en: "It's not 'Old Faithful', it's undeveloped liquid gold.", es: "No es un géiser, es oro líquido sin desarrollar.", fr: "Ce n'est pas un geyser, c'est de l'or liquide.", ja: "それは間欠泉ではなく、未開発の液体黄金だ。", ko: "그건 간헐천이 아니라 개발되지 않은 액체 황금입니다.", "zh-tw": "那並不是真正的‘老忠實泉’，那只是未開發的‘液體黃金’。" },
         cost: 2,
         phase: "early",
+        unique: true,
         effect: { money: 15, approval: -15, environment: -10 }
     },
     {
@@ -139,6 +140,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: { zh: "谁在乎国际条约？先卖了再说。", en: "Who cares about treaties? Sell it.", es: "¿A quién le importan los tratados? Véndela.", fr: "Peu importe les traités ? Vendez-la.", ja: "条約なんて気にするな？売ってしまえ。", ko: "조약이 무슨 상관입니까? 파세요.", "zh-tw": "誰在乎國際條約？先賣了再說。" },
         cost: 2,
         phase: "mid",
+        unique: true,
         effect: { money: 10, approval: 2 }
     },
     {
@@ -173,6 +175,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: { zh: "美利坚百事可乐合众国？听起来很解渴。", en: "United States of Pepsi? Sounds refreshing.", es: "¿Estados Unidos de Pepsi? Suena refrescante.", fr: "États-Unis de Pepsi ? Rafraîchissant.", ja: "ペプシ合衆国？爽やかだね。", ko: "펩시 미합중국? 상쾌하게 들리네요.", "zh-tw": "美利堅百事可樂合眾國？聽起來很解渴。" },
         cost: 0,
         phase: "late",
+        unique: true,
         effect: { money: 100, approval: -50, dignity: -100 }
     },
     {
@@ -237,6 +240,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: { zh: "回到以贝壳和闪亮石头为货币的时代。", en: "Return to seashells and shiny rocks.", es: "Volver a conchas y piedras brillantes.", fr: "Retour aux coquillages et pierres brillantes.", ja: "貝殻と光る石の時代に戻ろう。", ko: "조개껍데기와 반짝이는 돌의 시대로 돌아갑시다.", "zh-tw": "回到以貝殼和閃亮石頭為貨幣的時代。" },
         cost: 5,
         phase: "late",
+        unique: true,
         effect: { money: -10, chaos: 50 }
     },
     {
@@ -245,6 +249,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: { zh: "真的，那是谁的？我们要把那块地卖给科技巨头建立主权国家。", en: "Sell it to tech giants for a sovereign state.", es: "Véndelo a gigantes tech como estado soberano.", fr: "Vendez-le aux géants tech pour un état souverain.", ja: "IT大手に主権国家として売却しよう。", ko: "테크 거물들에게 주권 국가로 파세요.", "zh-tw": "真的，那是誰的？我們要把那塊地賣給科技巨頭建立主權國家。" },
         cost: 5,
         phase: "late",
+        unique: true,
         effect: { money: 200, approval: -20, territory: -1 }
     }
 );

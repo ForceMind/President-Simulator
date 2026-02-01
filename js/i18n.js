@@ -153,7 +153,36 @@ window.I18N = {
         discard_confirm_text: "这将消耗 {0} AP 来移除此文件。",
         dont_ask_again: "不再询问",
         
-        // New Logic Logs
+        // --- NEW KEYS 2026-02-01 ---
+        // Stats
+        unemployment: "失业率",
+        environment: "环境",
+        education: "教育质量",
+        health: "公共卫生",
+        efficiency: "行政效率",
+        bubble: "泡沫指数",
+        dignity: "国家尊严",
+        rebellion_risk: "叛乱风险",
+        international_standing: "国际地位",
+        industry: "工业基础",
+        economy_stability: "经济稳定",
+        productivity: "生产力",
+        territory: "领土完整",
+        
+        // Summary Panel
+        modal_end_summary_title: "总统任期工作报告",
+        stats_term_length: "执政时长",
+        stats_final_approval: "最终支持率",
+        stats_final_money: "最终个人财富",
+        stats_hidden_overview: "国家隐性指标",
+        stats_rating: "史书评价",
+        rating_legendary: "千古一帝",
+        rating_great: "一代明君",
+        rating_average: "平庸之辈",
+        rating_bad: "昏君",
+        rating_terrible: "国家罪人",
+        
+        // Logic Logs
         log_idle_penalty: "📉 民众感到被忽视：因无作为，支持率 -{0}",
         log_hand_limit_penalty: "⚠️ 文件积压严重：行政效率低下，支持率 -{0}",
         log_black_swan: "🦢 黑天鹅事件：市场发生了惊天逆转！",

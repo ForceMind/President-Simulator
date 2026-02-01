@@ -106,7 +106,10 @@
                 achievements: {},
                 lastActionTime: Date.now(),
                 idleCheckInterval: null,
-                isIdleWarned: false
+                isIdleWarned: false,
+                
+                // Track Unique Cards
+                playedUniqueTitles: []
             }
         },
         mounted() {
@@ -752,13 +755,50 @@
 
                 if (isOver) {
                     this.saveAchievement(type === 'win');
-                    // this.showModal(title, msg, type);
-                    // Custom modal call to handle btnText/action
-                    this.modal = { show: true, title, msg, type, btnText: this.t('btn_restart'), action: 'restart' };
+                    // Show End Game Summary
+                    this.showSummaryModal(title, msg, type);
                     this.state = 'GAME_OVER';
                     return true;
                 }
                 return false;
+            },
+            
+            showSummaryModal(title, outcomeMsg, type) {
+                // Compile Summary Data
+                const summary = [
+                    { label: this.t('stats_term_length'), value: this.month + " " + this.t('month', '') },
+                    { label: this.t('stats_final_approval'), value: this.approval + "%" },
+                    { label: this.t('stats_final_money'), value: "$" + this.money.toFixed(1) + this.t('unit_billion') }
+                ];
+                
+                // Add top 3 hidden stats
+                const hiddenSorted = Object.entries(this.hiddenStats)
+                    .sort((a,b) => b[1] - a[1])
+                    .slice(0, 3)
+                    .map(pair => ({ 
+                        label: (this.t(pair[0]) !== pair[0] ? this.t(pair[0]) : pair[0]), 
+                        value: pair[1] 
+                    }));
+                
+                // Calculate Rating
+                let rating = "rating_average";
+                if (type === 'fail' && this.month < 48) rating = "rating_terrible"; // Assassinated/Impeached
+                else if (type === 'fail') rating = "rating_bad"; // Lost reelection
+                else if (this.money > 100 && this.approval > 80) rating = "rating_legendary";
+                else if (this.money > 50 || this.approval > 60) rating = "rating_great";
+                
+                this.modal = {
+                    show: true,
+                    title: this.t('modal_end_summary_title'), // "Term Summary"
+                    msg: outcomeMsg, // Keep the narrative text
+                    type: type,
+                    isSummary: true, // Special flag for template
+                    summaryData: summary,
+                    hiddenData: hiddenSorted,
+                    rating: this.t(rating),
+                    btnText: this.t('btn_restart'),
+                    action: 'restart'
+                };
             },
 
             handleModalAction() {
@@ -876,11 +916,12 @@
                 const currentPhase = this.getPhase();
 
                 for (let i = 0; i < drawCount; i++) {
-                    // 1. 过滤：移除其他角色的专属卡 + Phase Filter
+                    // 1. 过滤：移除其他角色的专属卡 + Phase Filter + Unique Filter
                     let pool = CARD_DB.filter(c => {
                         const charMatch = !c.reqCharId || c.reqCharId === this.player.id;
                         const phaseMatch = !c.phase || c.phase === 'any' || c.phase === currentPhase;
-                        return charMatch && phaseMatch;
+                        const uniqueMatch = !c.unique || !this.playedUniqueTitles.includes(c.title.en || c.title);
+                        return charMatch && phaseMatch && uniqueMatch;
                     });
 
                     // 2. 资深政客技能：只抽阴谋/经济
@@ -951,6 +992,14 @@
             },
 
             playCard(index) {
+                const card = this.hand[index];
+                
+                // AP Check
+                if (this.ap < card.cost) {
+                    this.showModal(this.t('modal_action_limit'), this.t('modal_action_limit_msg'), "warning");
+                    return;
+                }
+
                 // Check Tutorial Flag
                 if (!this.tutorialFlags.firstCard) {
                     this.showModal(this.t('tutorial_card_title'), this.t('tutorial_card_text'), "info");
@@ -958,6 +1007,16 @@
                     localStorage.setItem('ps_t_flags', JSON.stringify(this.tutorialFlags));
                     return; 
                 }
+
+                this.cardPlayedThisTurn = true;
+                this.ap -= card.cost;
+                
+                // Mark Unique
+                if (card.unique) {
+                    this.playedUniqueTitles.push(card.title.en || card.title);
+                }
+                
+                this.hand.splice(index, 1);
 
                 const card = this.hand[index];
                 if (this.ap < card.cost) {
