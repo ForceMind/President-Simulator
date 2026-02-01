@@ -201,8 +201,8 @@
                 <div v-for="(card, index) in hand" :key="index" class="game-card animate__animated animate__fadeInUp">
                     <div style="display: flex; justify-content: space-between; align-items: start;">
                         <div class="card-cost" :class="getCardCostClass(card.cost)">{{ t('cost_ap', card.cost) }}</div>
-                        <!-- 弃牌按钮 -->
-                        <div class="discard-btn" @click.stop="discardCard(index)" :title="t('discard_tooltip') + ' (-1 AP)'" style="position: static; margin-left: auto; display: flex; align-items: center; gap: 4px;">✖ <span style="font-size:0.7em; opacity:0.8;">(-1AP)</span></div>
+                        <!-- 弃牌按钮 (Moved to Modal) -->
+                        <div class="discard-btn" @click.stop="confirmDiscard(index)" :title="t('discard_tooltip')">✖</div>
                     </div>
                     
                     <div @click="playCard(index)" class="card-content-wrapper">
@@ -381,6 +381,24 @@
             <button :class="{active: activeTab === 'desk'}" @click="activeTab = 'desk'">🗂️ {{ t('tab_desk') }}</button>
             <button :class="{active: activeTab === 'market'}" @click="activeTab = 'market'">💰 {{ t('tab_market') }} ({{ positions.length }})</button>
         </nav>
+    </div>
+
+    <!-- 弃牌确认弹窗 -->
+    <div v-if="discardModal.show" class="modal-overlay" style="z-index: 2600;">
+        <div class="modal-content animate__animated animate__zoomIn" style="width: 80%; max-width: 320px;">
+            <h3 style="color: var(--accent-red);">{{ t('discard_title') || 'Discard Card?' }}</h3>
+            <p style="margin: 20px 0;">{{ t('discard_confirm_text') || 'This will cost 1 AP to remove this card from your hand.' }}</p>
+            
+            <div style="margin-bottom: 20px; font-size: 0.9em; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <input type="checkbox" id="noAskDiscard" v-model="discardModal.noAsk">
+                <label for="noAskDiscard">{{ t('dont_ask_again') || "Don't ask again" }}</label>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-cancel" @click="discardModal.show = false" style="flex: 1; padding: 10px; border-radius: 6px; border: none;">{{ t('btn_cancel') }}</button>
+                <button class="btn-confirm" @click="executeDiscard" style="flex: 1; padding: 10px; border-radius: 6px; border: none; background: var(--accent-red);">{{ t('btn_confirm') }}</button>
+            </div>
+        </div>
     </div>
 
     <!-- 月度报告弹窗 -->

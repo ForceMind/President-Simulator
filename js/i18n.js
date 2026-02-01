@@ -146,6 +146,9 @@ window.I18N = {
         log_skill_effect_13: "棱镜计划：已获取未来市场情报(Beta)",
         log_skill_effect_14: "房地产泡沫：资产价格上涨，但经济过热。",
         log_skill_effect_15: "MMT理论：凭空创造了 {0}{1}。",
+        discard_title: "放弃文件",
+        discard_confirm_text: "这将消耗 1 AP 来移除此文件。",
+        dont_ask_again: "不再询问",
         
         // Added for App.js localization
         lock_reason_1: "🔒 需通关任意 1 位角色",
@@ -315,6 +318,9 @@ window.I18N = {
         log_skill_effect_13: "Prism Project: Future market intel acquired (Beta)",
         log_skill_effect_14: "Real Estate Bubble: Assets up, economy overheated.",
         log_skill_effect_15: "MMT Theory: Created {0}{1} out of thin air.",
+        discard_title: "Discard File",
+        discard_confirm_text: "This will cost 1 AP to remove this file.",
+        dont_ask_again: "Don't ask again",
 
         // Added for App.js localization
         lock_reason_1: "🔒 Clear any 1 character to unlock",

@@ -94,6 +94,7 @@
                 modal: { show: false, title: '', msg: '', type: 'info', btnText: '确定' },
                 skillModal: { show: false },
                 reportModal: { show: false, title: '', changes: [] },
+                discardModal: { show: false, index: -1, noAsk: false }, // Discard Modal State
 
                 // 成就系统
                 achievements: {},
@@ -105,6 +106,9 @@
         mounted() {
             if (localStorage.getItem('ps_lang')) {
                 this.lang = localStorage.getItem('ps_lang');
+            }
+            if (localStorage.getItem('ps_discard_no_ask')) {
+                this.discardModal.noAsk = true;
             }
             window.addEventListener('resize', this.checkMobile);
             this.loadAchievements();
@@ -620,7 +624,32 @@
                 if (this.player.id === 2 && this.skillActive) this.skillActive = false; 
             },
 
-            discardCard(index) {
+            confirmDiscard(index) {
+                if (this.ap < 1) {
+                     this.addLog(this.t('log_ap_insufficient'));
+                     return;
+                }
+                
+                if (this.discardModal.noAsk) {
+                    this.executeDiscard(index);
+                } else {
+                    this.discardModal.index = index;
+                    this.discardModal.show = true;
+                }
+            },
+
+            executeDiscard(optIndex) {
+                 let index = (typeof optIndex === 'number') ? optIndex : this.discardModal.index;
+                 
+                 if (this.discardModal.show) {
+                     this.discardModal.show = false;
+                     if (this.discardModal.noAsk) {
+                         localStorage.setItem('ps_discard_no_ask', 'true');
+                     }
+                 }
+
+                 if (index === -1 || index === null || index === undefined) return;
+
                 if (this.ap < 1) {
                     this.addLog(this.t('log_ap_insufficient'));
                     return;

@@ -622,11 +622,11 @@ body {
 }
 
 .card-effect {
-  margin-top: 10px;
+  margin-top: auto; /* Push to bottom */
   font-size: 0.85em;
-  color: #f1c40f;
-  background: rgba(0, 0, 0, 0.2);
-  padding: 5px;
+  color: #333; /* Darker text for readability if bg is light */
+  background: rgba(0, 0, 0, 0.1); /* Light grey bg */
+  padding: 8px;
   border-radius: 4px;
   display: block;
 }
@@ -649,45 +649,10 @@ body {
     }
 }
 
-/* Fix: Mobile Game Card Horizontal Scroll (85% width peek) */
+
+/* FIX: Game Cards (Vertical Grid) vs Character Cards (Horizontal Swipe) */
 @media (max-width: 900px) {
-    .cards-area {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        overflow-x: auto !important;
-        justify-content: flex-start !important;
-        align-items: flex-start !important;
-        padding: 10px 10px 100px 10px !important; /* Bottom padding for FAB */
-        gap: 15px !important;
-        -webkit-overflow-scrolling: touch;
-        scroll-snap-type: x mandatory;
-    }
-    
-    .game-card {
-        flex: 0 0 42vw !important; /* Allow seeing 2 full cards + peel */
-        width: 42vw !important;
-        max-width: 200px !important;
-        min-width: 140px !important;
-        margin: 0 !important;
-        scroll-snap-align: start;
-        height: auto !important; 
-        min-height: 200px; /* Reduced height */
-        font-size: 0.9em; /* Slightly smaller text */
-    }
-
-    /* Fix: Ensure spacer at end so last card isn't stuck to edge */
-    .cards-area::after {
-        content: '';
-        flex: 0 0 20px;
-        min-width: 20px;
-        height: 1px;
-    }
-}
-
-
-/* Final Restoration of Character Grid for Mobile */
-@media (max-width: 900px) {
+    /* CHARACTER SELECTION: Horizontal Swipe (80vw width) */
     .char-grid {
         display: flex;
         flex-wrap: nowrap;
@@ -701,7 +666,7 @@ body {
     .char-card {
         flex: 0 0 80vw;
         width: 80vw;
-        max-width: 320px;
+        max-width: 350px;
         min-width: 0;
         scroll-snap-align: center;
         margin: 0;
@@ -711,5 +676,32 @@ body {
         flex: 0 0 20px;
         min-width: 20px;
     }
+
+    /* GAME DESK: Vertical 2-Column Grid (No Swipe) */
+    .cards-area {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important; /* 2 Columns */
+        gap: 10px !important;
+        padding: 10px 10px 100px 10px !important; /* Bottom padding for FAB */
+        overflow-x: hidden !important; 
+        overflow-y: visible !important;
+    }
+    
+    .game-card {
+        width: 100% !important; /* Full width of column */
+        max-width: none !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+        height: auto !important; 
+        min-height: 220px;
+        font-size: 0.9em;
+        flex: none !important; /* Disable flex sizing */
+    }
+
+    /* Remove spacer for grid */
+    .cards-area::after {
+        display: none !important;
+    }
 }
+
 
