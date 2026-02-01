@@ -500,7 +500,7 @@
                     this.tutorialFlags = data.tutorialFlags || this.tutorialFlags;
                     
                     this.state = 'PLAYING';
-                    this.addLog("🔄 Game Loaded from Save.");
+                    this.addLog(this.t('log_game_loaded'));
                     return true;
                 } catch (e) {
                     console.error("Load failed", e);

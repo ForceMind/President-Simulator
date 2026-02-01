@@ -333,40 +333,7 @@
                 </div>
             </div>
 
-            <!-- 事件处理弹窗 (New Task 3) -->
-            <div v-if="eventModal.show && currentEvent" class="modal-overlay" style="z-index: 2100;">
-                <div class="modal-content animate__animated animate__zoomIn" style="border: 2px solid #e74c3c; max-width: 400px; width: 90%;">
-                    <div style="text-align: center; font-size: 2em; margin-bottom: 10px;">🚨</div>
-                    <h3 style="text-align: center; margin-bottom: 10px;">{{ getLoc(currentEvent.title) }}</h3>
-                    <p style="margin-bottom: 20px; color: #7f8c8d; line-height: 1.5; text-align: left;">{{ getLoc(currentEvent.desc) }}</p>
-                    
-                    <div class="event-choices" style="display: flex; flex-direction: column; gap: 10px;">
-                        <button v-for="(choice, idx) in currentEvent.choices" :key="idx" 
-                                class="choice-btn" @click="makeChoice(idx)" 
-                                style="background: #ecf0f1; border: 1px solid #bdc3c7; color: #2c3e50; padding: 12px; border-radius: 8px; text-align: left;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                                <strong style="font-size: 1.05em;">{{ getLoc(choice.text) }}</strong>
-                                <span style="font-size: 0.8em; background: #95a5a6; color: white; padding: 2px 6px; border-radius: 4px;">-1 AP</span>
-                            </div>
-                            <div style="font-size: 0.9em; color: #7f8c8d; margin-bottom: 5px;">{{ getLoc(choice.desc) }}</div>
-                            <div v-if="choice.effect" style="font-size: 0.85em; color: #d35400; border-top: 1px dashed #bdc3c7; padding-top: 4px; display: flex; flex-wrap: wrap; gap: 8px;">
-                                <span v-for="(val, key) in choice.effect" :key="key">
-                                    <template v-if="key === 'approval'">👍 {{ val > 0 ? '+' : '' }}{{ val }}%</template>
-                                    <template v-else-if="key === 'money'">💰 {{ val > 0 ? '+' : '' }}{{ val }}B</template>
-                                    <template v-else-if="key === 'market'">📈 {{ lang === 'zh' ? '市场' : 'Market' }}: {{ val }}</template>
-                                    <template v-else>
-                                        ✨ <strong style="text-transform: capitalize;">{{ t(key) }}</strong>: {{ val > 0 ? '+' : '' }}{{ val }}
-                                    </template>
-                                </span>
-                            </div>
-                        </button>
-                    </div>
-                    
-                    <button @click="ignoreEvent" style="margin-top: 20px; width: 100%; padding: 10px; background: transparent; border: 1px dashed #95a5a6; color: #7f8c8d; border-radius: 6px;">
-                        {{ t('ignore') }} (-5% Approval)
-                    </button>
-                </div>
-            </div>
+
 
 
 
@@ -387,6 +354,41 @@
             <button :class="{active: activeTab === 'desk'}" @click="activeTab = 'desk'">🗂️ {{ t('tab_desk') }}</button>
             <button :class="{active: activeTab === 'market'}" @click="activeTab = 'market'">💰 {{ t('tab_market') }} ({{ positions.length }})</button>
         </nav>
+    </div>
+
+    <!-- 事件处理弹窗 (Moved to Global) -->
+    <div v-if="eventModal.show && currentEvent" class="modal-overlay" style="z-index: 2100;">
+        <div class="modal-content animate__animated animate__zoomIn" style="border: 2px solid #e74c3c; max-width: 400px; width: 90%;">
+            <div style="text-align: center; font-size: 2em; margin-bottom: 10px;">🚨</div>
+            <h3 style="text-align: center; margin-bottom: 10px;">{{ getLoc(currentEvent.title) }}</h3>
+            <p style="margin-bottom: 20px; color: #7f8c8d; line-height: 1.5; text-align: left;">{{ getLoc(currentEvent.desc) }}</p>
+            
+            <div class="event-choices" style="display: flex; flex-direction: column; gap: 10px;">
+                <button v-for="(choice, idx) in currentEvent.choices" :key="idx" 
+                        class="choice-btn" @click="makeChoice(idx)" 
+                        style="background: #ecf0f1; border: 1px solid #bdc3c7; color: #2c3e50; padding: 12px; border-radius: 8px; text-align: left;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                        <strong style="font-size: 1.05em;">{{ getLoc(choice.text) }}</strong>
+                        <span style="font-size: 0.8em; background: #95a5a6; color: white; padding: 2px 6px; border-radius: 4px;">-1 AP</span>
+                    </div>
+                    <div style="font-size: 0.9em; color: #7f8c8d; margin-bottom: 5px;">{{ getLoc(choice.desc) }}</div>
+                    <div v-if="choice.effect" style="font-size: 0.85em; color: #d35400; border-top: 1px dashed #bdc3c7; padding-top: 4px; display: flex; flex-wrap: wrap; gap: 8px;">
+                        <span v-for="(val, key) in choice.effect" :key="key">
+                            <template v-if="key === 'approval'">👍 {{ val > 0 ? '+' : '' }}{{ val }}%</template>
+                            <template v-else-if="key === 'money'">💰 {{ val > 0 ? '+' : '' }}{{ val }}B</template>
+                            <template v-else-if="key === 'market'">📈 {{ lang === 'zh' ? '市场' : 'Market' }}: {{ val }}</template>
+                            <template v-else>
+                                ✨ <strong style="text-transform: capitalize;">{{ t(key) }}</strong>: {{ val > 0 ? '+' : '' }}{{ val }}
+                            </template>
+                        </span>
+                    </div>
+                </button>
+            </div>
+            
+            <button @click="ignoreEvent" style="margin-top: 20px; width: 100%; padding: 10px; background: transparent; border: 1px dashed #95a5a6; color: #7f8c8d; border-radius: 6px;">
+                {{ t('ignore') }} (-5% Approval)
+            </button>
+        </div>
     </div>
 
     <!-- 弃牌确认弹窗 -->
