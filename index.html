@@ -198,7 +198,7 @@
             </div>
 
             <div class="cards-area">
-                <div v-for="(card, index) in hand" :key="index" class="game-card animate__animated animate__fadeInUp">
+                <div v-for="(card, index) in hand" :key="card.id || index" class="game-card animate__animated animate__fadeInUp">
                     <div style="display: flex; justify-content: space-between; align-items: start;">
                         <div class="card-cost" :class="getCardCostClass(card.cost)">{{ t('cost_ap', card.cost) }}</div>
                         <!-- 弃牌按钮 (Moved to Modal) -->
@@ -371,7 +371,10 @@
                         <span v-for="(val, key) in choice.effect" :key="key">
                             <template v-if="key === 'approval'">👍 {{ val > 0 ? '+' : '' }}{{ val }}%</template>
                             <template v-else-if="key === 'money'">💰 {{ val > 0 ? '+' : '' }}{{ val }}B</template>
-                            <template v-else-if="key === 'market'">📈 {{ lang === 'zh' ? '市场' : 'Market' }}: {{ val }}</template>
+                            <template v-else-if="key === 'market'">📈 {{ t('market_stock') }}: {{ isNaN(val) ? t(val) : (val > 0 ? '+' : '') + val }}</template>
+                            <template v-else-if="key === 'crypto'">🪙 {{ t('market_crypto') }}: {{ isNaN(val) ? t(val) : (val > 0 ? '+' : '') + val }}</template>
+                            <template v-else-if="key === 'commodity'">🛢️ {{ t('market_commodity') }}: {{ isNaN(val) ? t(val) : (val > 0 ? '+' : '') + val }}</template>
+                            <template v-else-if="key === 'global_economy'">🌍 {{ t('market_global_eco') }}: {{ t(val) }}</template>
                             <!-- Handle nested objects (like success/fail) -->
                             <template v-else-if="typeof val === 'object' && val !== null">
                                 <div style="width: 100%; margin-top: 4px;"> 

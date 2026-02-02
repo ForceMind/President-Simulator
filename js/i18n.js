@@ -1624,7 +1624,16 @@ window.I18N = {
         log_skill_effect_12: "氣候緊急狀態：大宗商品受挫，年輕人為你歡呼。",
         log_skill_effect_13: "稜鏡計畫：已獲取未來市場情報(Beta)",
         log_skill_effect_14: "房地產泡沫：資產價格上漲，但經濟過熱。",
-        log_skill_effect_15: "MMT理論：憑空創造了 {0}{1}。"
+        log_skill_effect_15: "MMT理論：憑空創造了 {0}{1}。",
+        
+        // Final fallback for missing keys
+        crash: "崩盘",
+        bear: "熊市",
+        bull: "牛市",
+        recession: "衰退",
+        crisis: "危机",
+        boom: "繁荣",
+        growth: "增长"
     }
 };
 

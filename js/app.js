@@ -695,7 +695,9 @@
                     type = 'fail';
                 }
                 this.saveAchievement(type === 'win');
+                // Use showSummaryModal but override action to ensure restart works
                 this.showSummaryModal(title, msg, type);
+                this.modal.action = 'restart'; // Ensure main button restarts game
                 this.state = 'GAME_OVER';
             },
 
@@ -748,20 +750,21 @@
                              type = "fail";
                              isOver = true;
                          } else {
-                             // Success! Offer Term 2
+                             // Success! Offer Term 2 via Summary Modal
                              title = this.t('term_1_end_title');
                              msg = this.t('term_1_end_msg', moneyStr, unit);
                              type = "win"; // Green Text
-                             btnText = this.t('btn_start_term_2');
-                             action = "start_term_2";
+
+                             // Show Summary first
+                             this.showSummaryModal(title, msg, type);
                              
-                             // Secondary - Retire
-                             this.modal = { 
-                                 show: true, 
-                                 title, msg, type, btnText, action,
-                                 btnTextSec: this.t('btn_retire'),
-                                 actionSec: "retire"
-                             };
+                             // Override buttons for transition
+                             this.modal.btnText = this.t('btn_start_term_2');
+                             this.modal.action = "start_term_2";
+                             
+                             this.modal.btnTextSec = this.t('btn_retire');
+                             this.modal.actionSec = "retire";
+                             
                              this.saveAchievement(true);
                              return true;
                          }

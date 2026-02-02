@@ -307,6 +307,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "转移公众注意力的终极手段。",
         costMoney: 0,
         costApproval: 0,
+        cost: 1, // Explicit cost added
         effect: { approval: 5, chaos: 10 },
         phase: "late"
     },
