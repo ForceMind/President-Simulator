@@ -1,9 +1,10 @@
 window.GAME_DATA = window.GAME_DATA || {};
+window.GAME_DATA.CARD_DB = window.GAME_DATA.CARD_DB || [];
 
 // Categories: "经济", "外交", "内政", "军事", "阴谋", "关税"
 // Phases: "early", "mid", "late", "any"
 
-window.GAME_DATA.CARD_DB = [
+window.GAME_DATA.CARD_DB.push(
     // --- 经济 (Economic) ---
     {
         id: "eco_print_money",
@@ -615,4 +616,4 @@ window.GAME_DATA.CARD_DB = [
         effect: { money: -10, global_approval: 20 },
         phase: "early"
     }
-];
+); // End of push

@@ -182,9 +182,14 @@
                 return str;
             },
             getLoc(val) {
+                // 1. Data Object Format (Legacy/Current): { zh: "...", en: "..." }
                 if (typeof val === 'object' && val !== null) {
                     return val[this.lang] || val['zh'] || val['en'] || '';
                 }
+                // 2. I18N Key Format (New Architecture): "card_title_001" -> Look up in i18n
+                // Assuming window.I18N_DB or similar exists, or checking this.i18n map if implemented
+                // For now, we stick to the object check. If you add a global text table, add the lookup here.
+                
                 return val;
             },
             setLang(code) {
@@ -771,11 +776,11 @@
                     { label: this.t('stats_final_money'), value: "$" + this.money.toFixed(1) + this.t('unit_billion') }
                 ];
                 
-                // Add hidden stats (Removed limit, filtered 0s)
+                // Add hidden stats (Removed limit, filtered 0s, Only show Consolidated Stats)
+                // Filter: Must be non-zero AND must start with 'stat_' (the 6 core metrics)
                 const hiddenSorted = Object.entries(this.hiddenStats)
-                    .filter(pair => pair[1] !== 0) // Filter out zero values
+                    .filter(pair => pair[1] !== 0 && pair[0].startsWith('stat_')) 
                     .sort((a,b) => b[1] - a[1])    // Sort by value desc
-                    // .slice(0, 3) <--- Removed limit
                     .map(pair => ({ 
                         label: (this.t(pair[0]) !== pair[0] ? this.t(pair[0]) : pair[0]), 
                         value: pair[1] 

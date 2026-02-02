@@ -720,3 +720,16 @@ body {
 ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
 ::-webkit-scrollbar-thumb { background: #555; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #888; }
+
+/* Fix for invisible text on summary pages */
+.modal-content, .report-modal {
+    background: #2c3e50; /* Dark background */
+    color: #ecf0f1;      /* Light text */
+}
+/* Ensure input fields or other elements inside don't break */
+.modal-content input, .report-modal input {
+    background: #34495e;
+    color: white;
+    border: 1px solid #7f8c8d;
+}
+
