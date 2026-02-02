@@ -9,7 +9,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "politics_desc_088",
         cost: 2,
         phase: "early",
-        effect: { approval: -5, loyalty: 10, nepotism: 5 }
+        effect: { approval: -5, loyalty: 10 }
     },
     {
         type: "politics_type_087",
@@ -59,7 +59,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "politics_desc_070",
         cost: 3,
         phase: "mid",
-        effect: { approval: 8, money: -2 }
+        effect: { money: -2, approval: 8 }
     },
     {
         type: "politics_type_069",
@@ -83,7 +83,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "politics_desc_061",
         cost: 1,
         phase: "mid",
-        effect: { approval: 5, money: -1, health: -1 }
+        effect: { money: -1, approval: 5 }
     },
     {
         type: "politics_type_060",
@@ -99,7 +99,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "politics_desc_055",
         cost: 4,
         phase: "mid",
-        effect: { approval: 10, money: -15 }
+        effect: { money: -15, approval: 10 }
     },
     {
         type: "politics_type_054",
@@ -179,7 +179,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "politics_desc_025",
         cost: 5,
         phase: "mid",
-        effect: { approval: -15, ego: 50, money: -20 }
+        effect: { money: -20, approval: -15 }
     },
 
     // ---------------- LATE PHASE (Desperation & Chaos) ----------------
@@ -189,7 +189,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "politics_desc_022",
         cost: 7,
         phase: "late",
-        effect: { approval: -30, dictatorship: 20, coup_risk: 15 }
+        effect: { approval: -30, dictatorship: 20 }
     },
     {
         type: "politics_type_021",
@@ -197,7 +197,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "politics_desc_019",
         cost: 5,
         phase: "late",
-        effect: { approval: -20, control: 20, unrest: 15 }
+        effect: { approval: -20, control: 20 }
     },
     {
         type: "politics_type_018",
@@ -205,7 +205,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "politics_desc_016",
         cost: 5,
         phase: "late",
-        effect: { approval: -25, chaos: 30, loyalty: 5 }
+        effect: { approval: -25, chaos: 30 }
     },
     {
         type: "politics_type_015",
@@ -245,6 +245,6 @@ window.GAME_DATA.CARD_DB.push(
         desc: "politics_desc_001",
         cost: 6,
         phase: "late",
-        effect: { approval: -40, control: 40, economy: -20 }
+        effect: { approval: -40, control: 40 }
     }
 );

@@ -46,7 +46,7 @@ window.GAME_DATA.EVENTS_DB.push(
             },
             { 
                 text: "events_text_009", 
-                effect: { approval: 5, money: 0, risk: "high" } 
+                effect: { approval: 5, risk: "high" } 
             }
         ]
     },

@@ -25,7 +25,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "scandal_desc_055",
         cost: 3,
         phase: "early",
-        effect: { approval: -8, money: 2 }
+        effect: { money: 2, approval: -8 }
     },
 
     // ---------------- MID PHASE ----------------
@@ -35,7 +35,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "scandal_desc_052",
         cost: 0,
         phase: "mid",
-        effect: { money: 10, approval: -10, corruption: 10 }
+        effect: { money: 10, approval: -10 }
     },
     {
         type: "scandal_type_051",

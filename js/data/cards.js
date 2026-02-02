@@ -13,7 +13,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "只要印得够快，通货膨胀就追不上我们！Brrr!",
         costMoney: -10, // Negative cost means gain
         costApproval: 10,
-        effect: { money: 10, approval: -5, inflation: 5 },
+        effect: { money: 10, approval: -5 },
         phase: "any"
     },
     {
@@ -33,7 +33,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "我们要修路！虽然每届政府都这么说。",
         costMoney: 15,
         costApproval: 0,
-        effect: { approval: 10, money: 2 }, // Long term gain simulates
+        effect: { money: 2, approval: 10 }, // Long term gain simulates
         phase: "mid"
     },
     {
@@ -43,7 +43,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "贸易战很容易赢！除非我也要买东西。",
         costMoney: 5,
         costApproval: 0,
-        effect: { money: -5, approval: 5, nationalism: 10 },
+        effect: { money: -5, approval: 5 },
         phase: "mid"
     },
     {
@@ -83,7 +83,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "未来是加密的！波动也是。",
         costMoney: 0,
         costApproval: 0,
-        effect: { money: 0, volatility: 20 }, // Special effect handled in logic
+        effect: { volatility: 20 }, // Special effect handled in logic
         phase: "mid"
     },
     {
@@ -93,7 +93,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "他们要求的午休时间太长了！",
         costMoney: 0,
         costApproval: 10,
-        effect: { money: 5, approval: -10, corporate_support: 10 },
+        effect: { money: 5, approval: -10 },
         phase: "any"
     },
     {
@@ -103,7 +103,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "免费发钱！这也是一种经济策略，对吧？",
         costMoney: 25,
         costApproval: 0,
-        effect: { approval: 25, money: -5 },
+        effect: { money: -5, approval: 25 },
         phase: "mid"
     },
 
@@ -135,7 +135,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "给别的国家钱，希望能买来友谊。",
         costMoney: 10,
         costApproval: 5,
-        effect: { diplomacy: 15, approval: -5 },
+        effect: { approval: -5, diplomacy: 15 },
         phase: "mid"
     },
     {
@@ -165,7 +165,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "他的发型太丑了，必须说出来。",
         costMoney: 0,
         costApproval: 0,
-        effect: { diplomacy: -15, approval: 5 },
+        effect: { approval: 5, diplomacy: -15 },
         phase: "any"
     },
     {
@@ -185,7 +185,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "天气本来就会变，这都是骗局！",
         costMoney: 0,
         costApproval: 10,
-        effect: { money: 10, approval: -10, diplomacy: -10 },
+        effect: { money: 10, approval: -10 },
         phase: "early"
     },
     {
@@ -227,7 +227,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "更多的警车，更酷的制服。",
         costMoney: 8,
         costApproval: 0,
-        effect: { security: 10, approval: 5 },
+        effect: { approval: 5, security: 10 },
         phase: "any"
     },
     {
@@ -257,7 +257,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "总统大人生日必须放假！",
         costMoney: 2,
         costApproval: 0,
-        effect: { approval: 10, money: -2 },
+        effect: { money: -2, approval: 10 },
         phase: "any"
     },
     {
@@ -297,7 +297,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "为了安全，这是必要的牺牲。",
         costMoney: 15,
         costApproval: 20,
-        effect: { security: 20, approval: -20 },
+        effect: { approval: -20, security: 20 },
         phase: "late"
     },
     {
@@ -329,7 +329,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "像玩电子游戏一样解决问题。",
         costMoney: 5,
         costApproval: 5,
-        effect: { security: 10, approval: -5 },
+        effect: { approval: -5, security: 10 },
         phase: "mid"
     },
     {
@@ -339,7 +339,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "我们要保卫月球！防止外星人偷我们的奶酪。",
         costMoney: 30,
         costApproval: 0,
-        effect: { money: -30, approval: 10, tech: 5 },
+        effect: { money: -30, approval: 10 },
         phase: "mid"
     },
     {
@@ -349,7 +349,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "虽然他们是坏蛋，但他们的钱是香的。",
         costMoney: -15,
         costApproval: 10,
-        effect: { money: 15, approval: -10, diplomacy: -5 },
+        effect: { money: 15, approval: -10 },
         phase: "any"
     },
     {
@@ -369,7 +369,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "就在自家后院放个并不是很大的烟花。",
         costMoney: 20,
         costApproval: 20,
-        effect: { power: 50, approval: -10, diplomacy: -20 },
+        effect: { approval: -10, power: 50 },
         phase: "late"
     },
     {
@@ -379,7 +379,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "虽然这飞机不仅贵还经常出故障，但还是买了。",
         costMoney: 25,
         costApproval: 0,
-        effect: { security: 10, money: -25 },
+        effect: { money: -25, security: 10 },
         phase: "mid"
     },
     {
@@ -431,7 +431,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "这不叫贿赂，这叫游说。",
         costMoney: 5,
         costApproval: 0,
-        effect: { approval: 10, money: -5 },
+        effect: { money: -5, approval: 10 },
         phase: "mid"
     },
     {
@@ -471,7 +471,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "我的新游艇是为了国家安全。",
         costMoney: -10, 
         costApproval: 20, // High risk
-        effect: { personal_wealth: 10, approval: -10 },
+        effect: { approval: -10, personal_wealth: 10 },
         phase: "mid"
     },
     {
@@ -523,7 +523,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "保护我们的钢铁工人！虽然建筑成本会飞涨。",
         costMoney: 0,
         costApproval: 0,
-        effect: { money: 5, approval: 2, construction_cost: 20 },
+        effect: { money: 5, approval: 2 },
         phase: "mid"
     },
     {
@@ -533,7 +533,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "不准卖给他们高端芯片！只能卖计算器芯片。",
         costMoney: 10,
         costApproval: 0,
-        effect: { tech_dominance: 10, money: -10 },
+        effect: { money: -10, tech_dominance: 10 },
         phase: "mid"
     },
     {
@@ -573,7 +573,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "你们生产的东西太脏了，得加钱。",
         costMoney: 0,
         costApproval: 5,
-        effect: { money: 5, environment: 10, diplomacy: -5 },
+        effect: { money: 5, environment: 10 },
         phase: "any"
     },
     {

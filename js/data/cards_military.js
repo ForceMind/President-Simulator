@@ -9,7 +9,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "military_desc_088",
         cost: 2,
         phase: "early",
-        effect: { money: 10, approval: 5, alliances: -10 }
+        effect: { money: 10, approval: 5 }
     },
     {
         type: "military_type_087",
@@ -17,7 +17,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "military_desc_085",
         cost: 5,
         phase: "early",
-        effect: { approval: 5, money: -5, ego: 10 }
+        effect: { money: -5, approval: 5 }
     },
     {
         type: "military_type_084",
@@ -25,7 +25,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "military_desc_082",
         cost: 0,
         phase: "early",
-        effect: { approval: 5, tension: 15, stability: -5 }
+        effect: { approval: 5, tension: 15 }
     },
     {
         type: "military_type_081",
@@ -43,7 +43,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "military_desc_076",
         cost: 3,
         phase: "mid",
-        effect: { approval: 5, tension: 10, money: -2 }
+        effect: { money: -2, approval: 5 }
     },
     {
         type: "military_type_075",
@@ -51,7 +51,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "military_desc_073",
         cost: 1,
         phase: "mid",
-        effect: { approval: 2, chaos: 15, alliances: -20 }
+        effect: { approval: 2, chaos: 15 }
     },
     {
         type: "military_type_072",
@@ -59,7 +59,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "military_desc_070",
         cost: 0,
         phase: "mid",
-        effect: { approval: -5, diplomacy: -10, personal_friendship: 10 }
+        effect: { approval: -5, diplomacy: -10 }
     },
     {
         type: "military_type_069",
@@ -67,7 +67,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "military_desc_067",
         cost: 2,
         phase: "mid",
-        effect: { money: -5, approval: 2, suffering: 5 }
+        effect: { money: -5, approval: 2 }
     },
     {
         type: "military_type_066",
@@ -75,7 +75,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "military_desc_064",
         cost: 5,
         phase: "mid",
-        effect: { money: -15, approval: 10, division: 10 }
+        effect: { money: -15, approval: 10 }
     },
     {
         type: "military_type_063",
@@ -83,7 +83,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "military_desc_061",
         cost: 4,
         phase: "mid",
-        effect: { approval: 10, tension: 20, scandal_reduction: 15 }
+        effect: { approval: 10, tension: 20 }
     },
     {
         type: "military_type_060",
@@ -91,7 +91,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "military_desc_058",
         cost: 0,
         phase: "mid",
-        effect: { money: 15, approval: -5, peace: -20 }
+        effect: { money: 15, approval: -5 }
     },
     {
         type: "military_type_057",
@@ -99,7 +99,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "military_desc_055",
         cost: 1,
         phase: "mid",
-        effect: { money: 0, approval: 5, security: -15 }
+        effect: { approval: 5, security: -15 }
     },
     {
         type: "military_type_054",
@@ -107,7 +107,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "military_desc_052",
         cost: 6,
         phase: "mid",
-        effect: { money: -5, approval: -5, plausible_deniability: 10 }
+        effect: { money: -5, approval: -5 }
     },
     {
         type: "military_type_051",
@@ -131,7 +131,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "military_desc_043",
         cost: 5,
         phase: "mid",
-        effect: { money: 20, approval: 5, terrorism: 10 }
+        effect: { money: 20, approval: 5 }
     },
     {
         type: "military_type_042",
@@ -139,7 +139,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "military_desc_040",
         cost: 2,
         phase: "mid",
-        effect: { approval: 5, money: -2 }
+        effect: { money: -2, approval: 5 }
     },
     {
         type: "military_type_039",
@@ -155,7 +155,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "military_desc_034",
         cost: 5,
         phase: "mid",
-        effect: { approval: 5, environment: -10, tension: 15 }
+        effect: { approval: 5, environment: -10 }
     },
     {
         type: "military_type_033",
@@ -173,7 +173,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "military_desc_028",
         cost: 0,
         phase: "late",
-        effect: { approval: -50, devastation: 100, game_over_risk: 50 }
+        effect: { approval: -50, devastation: 100 }
     },
     {
         type: "military_type_027",
@@ -181,7 +181,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "military_desc_025",
         cost: 7,
         phase: "late",
-        effect: { approval: 10, economy: -30, sanctions: 20 }
+        effect: { approval: 10, economy: -30 }
     },
     {
         type: "military_type_024",
@@ -245,6 +245,6 @@ window.GAME_DATA.CARD_DB.push(
         desc: "military_desc_001",
         cost: 8,
         phase: "late",
-        effect: { money: -50, power: 50, skynet_risk: 80 }
+        effect: { money: -50, power: 50 }
     }
 );

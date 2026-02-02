@@ -9,7 +9,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "economy_desc_088",
         cost: 0,
         phase: "early",
-        effect: { money: -5, approval: -5, corporate_support: 10 }
+        effect: { money: -5, approval: -5 }
     },
     {
         type: "economy_type_087",
@@ -17,7 +17,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "economy_desc_085",
         cost: 1,
         phase: "early",
-        effect: { money: 10, approval: -10, unemployment: 1 }
+        effect: { money: 10, approval: -10 }
     },
     {
         type: "economy_type_084",
@@ -26,7 +26,7 @@ window.GAME_DATA.CARD_DB.push(
         cost: 2,
         phase: "early",
         unique: true,
-        effect: { money: 15, approval: -15, environment: -10 }
+        effect: { money: 15, approval: -15 }
     },
     {
         type: "economy_type_081",
@@ -44,7 +44,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "economy_desc_076",
         cost: 0,
         phase: "mid",
-        effect: { money: 20, inflation: 5, approval: 5 }
+        effect: { money: 20, approval: 5 }
     },
     {
         type: "economy_type_075",
@@ -52,7 +52,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "economy_desc_073",
         cost: 3,
         phase: "mid",
-        effect: { money: 12, approval: -8, law_order: 5 }
+        effect: { money: 12, approval: -8 }
     },
     {
         type: "economy_type_072",
@@ -60,7 +60,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "economy_desc_070",
         cost: 1,
         phase: "mid",
-        effect: { money: -5, approval: 5, volatility: 10 }
+        effect: { money: -5, approval: 5 }
     },
     {
         type: "economy_type_069",
@@ -68,7 +68,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "economy_desc_067",
         cost: 5,
         phase: "mid",
-        effect: { money: -2, approval: 10, stupidity: 5 }
+        effect: { money: -2, approval: 10 }
     },
     {
         type: "economy_type_066",
@@ -76,7 +76,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "economy_desc_064",
         cost: 4,
         phase: "mid",
-        effect: { money: 25, approval: -30, environment: -5 }
+        effect: { money: 25, approval: -30 }
     },
     {
         type: "economy_type_063",
@@ -92,7 +92,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "economy_desc_058",
         cost: 0,
         phase: "mid",
-        effect: { money: 10, approval: -10, education: -5 }
+        effect: { money: 10, approval: -10 }
     },
     {
         type: "economy_type_057",
@@ -100,7 +100,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "economy_desc_055",
         cost: 1,
         phase: "mid",
-        effect: { money: 15, approval: -20, health: -10 }
+        effect: { money: 15, approval: -20 }
     },
     {
         type: "economy_type_054",
@@ -108,7 +108,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "economy_desc_052",
         cost: 2,
         phase: "mid",
-        effect: { money: 8, approval: 5, industry: 5 }
+        effect: { money: 8, approval: 5 }
     },
     {
         type: "economy_type_051",
@@ -116,7 +116,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "economy_desc_049",
         cost: 1,
         phase: "mid",
-        effect: { money: 5, approval: -5, health: -5 }
+        effect: { money: 5, approval: -5 }
     },
     {
         type: "economy_type_048",
@@ -124,7 +124,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "economy_desc_046",
         cost: 3,
         phase: "mid",
-        effect: { money: 20, approval: 5, economy_stability: -20 }
+        effect: { money: 20, approval: 5 }
     },
     {
         type: "economy_type_045",
@@ -149,7 +149,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "economy_desc_037",
         cost: 5,
         phase: "mid",
-        effect: { money: 25, approval: 15, productivity: -5 }
+        effect: { money: 25, approval: 15 }
     },
     {
         type: "economy_type_036",
@@ -157,7 +157,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "economy_desc_034",
         cost: 4,
         phase: "mid",
-        effect: { money: 10, approval: -10, efficiency: 10 }
+        effect: { money: 10, approval: -10 }
     },
     {
         type: "economy_type_033",
@@ -165,7 +165,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "economy_desc_031",
         cost: 6,
         phase: "mid",
-        effect: { money: 0, approval: 10, bubble: 20 }
+        effect: { approval: 10, bubble: 20 }
     },
 
     // ---------------- LATE PHASE (Economic Collapse / Legacy) ----------------
@@ -176,7 +176,7 @@ window.GAME_DATA.CARD_DB.push(
         cost: 0,
         phase: "late",
         unique: true,
-        effect: { money: 100, approval: -50, dignity: -100 }
+        effect: { money: 100, approval: -50 }
     },
     {
         type: "economy_type_027",
@@ -184,7 +184,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "economy_desc_025",
         cost: 5,
         phase: "late",
-        effect: { money: 50, approval: -60, rebellion_risk: 20 }
+        effect: { money: 50, approval: -60 }
     },
     {
         type: "economy_type_024",
@@ -192,7 +192,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "economy_desc_022",
         cost: 0,
         phase: "late",
-        effect: { money: 0, approval: -30, inflation: 100 }
+        effect: { approval: -30, inflation: 100 }
     },
     {
         type: "economy_type_021",
@@ -200,7 +200,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "economy_desc_019",
         cost: 5,
         phase: "late",
-        effect: { money: 40, approval: -20, coup_risk: 30 }
+        effect: { money: 40, approval: -20 }
     },
     {
         type: "economy_type_018",
@@ -208,7 +208,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "economy_desc_016",
         cost: 0,
         phase: "late",
-        effect: { money: 0, approval: 10, international_standing: -50 }
+        effect: { approval: 10, international_standing: -50 }
     },
     {
         type: "economy_type_015",
@@ -216,7 +216,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: "economy_desc_013",
         cost: 8,
         phase: "late",
-        effect: { money: -20, personal_wealth: 100, approval: -100 }
+        effect: { money: -20, approval: -100 }
     },
     {
         type: "economy_type_012",
@@ -250,6 +250,6 @@ window.GAME_DATA.CARD_DB.push(
         cost: 5,
         phase: "late",
         unique: true,
-        effect: { money: 200, approval: -20, territory: -1 }
+        effect: { money: 200, approval: -20 }
     }
 );
