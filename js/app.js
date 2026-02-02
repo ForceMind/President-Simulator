@@ -671,7 +671,7 @@
 
                 // Reset Game State for Term 2
                 this.term = 2;
-                this.month = 0; // startNewMonth will set to 1
+                this.month = 48; // startNewMonth will set to 49
                 this.hand = [];
                 this.positions = []; 
                 this.deck = [...this.cards]; // Reshuffle
@@ -681,6 +681,22 @@
                 
                 this.drawCards(3);
                 this.startNewMonth();
+            },
+
+            gameOver(reason) {
+                let title = "", msg = "", type = "info";
+                if (reason === 'retire') {
+                    title = this.t('game_over_retire_title');
+                    msg = this.t('game_over_retire_msg');
+                    type = 'win';
+                } else {
+                    title = this.t('game_end_fail_title');
+                    msg = this.t('game_end_fail_msg', '$' + this.money.toFixed(1), this.t('unit_billion'));
+                    type = 'fail';
+                }
+                this.saveAchievement(type === 'win');
+                this.showSummaryModal(title, msg, type);
+                this.state = 'GAME_OVER';
             },
 
             checkGameOver() {
@@ -734,15 +750,19 @@
                          } else {
                              // Success! Offer Term 2
                              title = this.t('term_1_end_title');
-                             msg = this.t('term_1_end_msg', [moneyStr, unit]);
+                             msg = this.t('term_1_end_msg', moneyStr, unit);
                              type = "win"; // Green Text
                              btnText = this.t('btn_start_term_2');
                              action = "start_term_2";
                              
-                             // Don't set isOver = true in state yet, wait for player choice
+                             // Secondary - Retire
+                             this.modal = { 
+                                 show: true, 
+                                 title, msg, type, btnText, action,
+                                 btnTextSec: this.t('btn_retire'),
+                                 actionSec: "retire"
+                             };
                              this.saveAchievement(true);
-                             // But we call showModal directly
-                             this.modal = { show: true, title, msg, type, btnText, action };
                              return true;
                          }
                     } else {
@@ -851,7 +871,15 @@
                 };
             },
 
-            handleModalAction() {
+            handleModalAction(isSecondary) {
+                 if (isSecondary && this.modal.actionSec) {
+                     if (this.modal.actionSec === 'retire') {
+                         this.gameOver("retire");
+                     }
+                     this.modal.show = false;
+                     return;
+                 }
+
                  if (this.modal.action === 'start_term_2') {
                      this.startSecondTerm();
                  } else if (this.modal.action === 'restart' || this.state === 'GAME_OVER') {
@@ -961,8 +989,13 @@
 
         // --- 行为逻辑 ---
             getPhase() {
+                // Term 1
                 if (this.month <= 12) return 'early';
                 if (this.month <= 36) return 'mid';
+                if (this.month <= 48) return 'late';
+                // Term 2
+                if (this.month <= 60) return 'early';
+                if (this.month <= 84) return 'mid';
                 return 'late';
             },
 
@@ -987,7 +1020,8 @@
                         const charMatch = !c.reqCharId || c.reqCharId === this.player.id;
                         const phaseMatch = !c.phase || c.phase === 'any' || c.phase === currentPhase;
                         const uniqueMatch = !c.unique || !this.playedUniqueTitles.includes(c.title.en || c.title);
-                        return charMatch && phaseMatch && uniqueMatch;
+                        const termMatch = !c.term || c.term === this.term;
+                        return charMatch && phaseMatch && uniqueMatch && termMatch;
                     });
 
                     // 2. 资深政客技能：只抽阴谋/经济
@@ -1444,7 +1478,9 @@
 
                     // 1. Filter candidates by Phase
                     let candidates = EVENTS_DB.filter(e => {
-                        return !e.phase || e.phase === 'any' || e.phase === currentPhase;
+                        const phaseMatch = !e.phase || e.phase === 'any' || e.phase === currentPhase;
+                        const termMatch = !e.term || e.term === this.term;
+                        return phaseMatch && termMatch;
                     });
                      
                     if (candidates.length === 0) candidates = EVENTS_DB; // Fallback

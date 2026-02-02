@@ -473,7 +473,10 @@
             </div>
 
             <p style="white-space: pre-line;">{{ modal.msg }}</p>
-            <button class="next-turn-btn" style="margin-top: 20px; width: 100%;" @click="handleModalAction">{{ modal.btnText }}</button>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="next-turn-btn" style="flex: 1;" @click="handleModalAction(false)">{{ modal.btnText }}</button>
+                <button v-if="modal.btnTextSec" class="next-turn-btn" style="flex: 1; background: #95a5a6;" @click="handleModalAction(true)">{{ modal.btnTextSec }}</button>
+            </div>
         </div>
     </div>
 </div>
@@ -487,6 +490,8 @@
 <script src="./js/data/cards_scandal.js"></script>
 <script src="./js/data/events.js"></script>
 <script src="./js/data/events_expanded.js"></script>
+<script src="./js/data/events_term2.js"></script>
+<script src="./js/data/cards_term2.js"></script>
 <script src="./js/stat_mapping.js"></script>
 
 <!-- I18N Data -->

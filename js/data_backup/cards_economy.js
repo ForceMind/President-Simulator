@@ -216,7 +216,7 @@ window.GAME_DATA.CARD_DB.push(
         desc: { zh: "准备好你的逃生路线。把国库里的金条都搬上私人飞机。", en: "Load the gold onto the private jet.", es: "Carga el oro en el jet privado.", fr: "Chargez l'or dans le jet privé.", ja: "プライベートジェットに金を積み込め。", ko: "개인 전용기에 금을 실으세요.", "zh-tw": "準備好你的逃生路線。把國庫裡的金條都搬上私人飛機。" },
         cost: 8,
         phase: "late",
-        effect: { money: -20, personal_wealth: 100, approval: -100 }
+        effect: { money: 500, approval: -100 }
     },
     {
         type: { zh: "经济", en: "Economy", es: "Economía", fr: "Économie", ja: "経済", ko: "경제", "zh-tw": "經濟" },
