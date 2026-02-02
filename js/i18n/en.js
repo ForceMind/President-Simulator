@@ -1508,4 +1508,4 @@ Object.assign(window.I18N_DATA_EN || {}, {
     "eval_desc_puppet": "You never really seemed in charge, drifting through your term.",
     "eval_desc_average": "No major disasters, no major triumphs. A footnote in history.",
     "eval_desc_incompetent": "Your term was a disaster, a fact even your supporters can't deny."
-};
+});

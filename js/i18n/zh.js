@@ -1585,6 +1585,7 @@ Object.assign(window.I18N_DATA_ZH || {}, {
     "world_survives": "世界存续",
     "youth": "年轻人支持",
     "youth_vote": "青年票仓",
+    /* Eval Titles */
     "eval_title_legend": "千古明君",
     "eval_title_tyrant": "铁腕暴君",
     "eval_title_messiah": "在世圣人",
@@ -1603,4 +1604,4 @@ Object.assign(window.I18N_DATA_ZH || {}, {
     "eval_desc_puppet": "你似乎从未真正掌控过局势，随波逐流完成了任期。",
     "eval_desc_average": "你没有犯大错，也没有大功绩。历史书上关于你的章节注定很短。",
     "eval_desc_incompetent": "你的任期是一场灾难，这一点大概连你的支持者都无法否认。"
-};
+});

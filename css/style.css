@@ -733,3 +733,15 @@ body {
     border: 1px solid #7f8c8d;
 }
 
+.start-btn-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    background: linear-gradient(to top, rgba(26, 26, 46, 1) 50%, rgba(26, 26, 46, 0));
+    padding: 20px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+}
