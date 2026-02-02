@@ -372,6 +372,15 @@
                             <template v-if="key === 'approval'">👍 {{ val > 0 ? '+' : '' }}{{ val }}%</template>
                             <template v-else-if="key === 'money'">💰 {{ val > 0 ? '+' : '' }}{{ val }}B</template>
                             <template v-else-if="key === 'market'">📈 {{ lang === 'zh' ? '市场' : 'Market' }}: {{ val }}</template>
+                            <!-- Handle nested objects (like success/fail) -->
+                            <template v-else-if="typeof val === 'object' && val !== null">
+                                <div style="width: 100%; margin-top: 4px;"> 
+                                    ✨ <strong>{{ t(key) }}</strong>:
+                                    <span v-for="(subVal, subKey) in val" :key="subKey" style="margin-left: 5px; color: #666;">
+                                        {{ t(subKey) }} {{ subVal > 0 ? '+' : '' }}{{ subVal }}
+                                    </span>
+                                </div>
+                            </template>
                             <template v-else>
                                 ✨ <strong style="text-transform: capitalize;">{{ t(key) }}</strong>: {{ val > 0 ? '+' : '' }}{{ val }}
                             </template>
@@ -479,6 +488,10 @@
 <script src="./js/data/events.js"></script>
 <script src="./js/data/events_expanded.js"></script>
 <script src="./js/stat_mapping.js"></script>
+
+<!-- I18N Data -->
+<script src="./js/i18n/zh.js"></script>
+<script src="./js/i18n/en.js"></script>
 <script src="./js/i18n.js"></script>
 <script src="./js/app.js"></script>
 </body>

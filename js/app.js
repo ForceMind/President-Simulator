@@ -182,15 +182,24 @@
                 return str;
             },
             getLoc(val) {
-                // 1. Data Object Format (Legacy/Current): { zh: "...", en: "..." }
+                // 1. Data Object Format (Legacy Support)
                 if (typeof val === 'object' && val !== null) {
                     return val[this.lang] || val['zh'] || val['en'] || '';
                 }
-                // 2. I18N Key Format (New Architecture): "card_title_001" -> Look up in i18n
-                // Assuming window.I18N_DB or similar exists, or checking this.i18n map if implemented
-                // For now, we stick to the object check. If you add a global text table, add the lookup here.
                 
-                return val;
+                // 2. I18N Key Format (New Architecture)
+                if (typeof val === 'string') {
+                    // Direct lookup in window.I18N
+                    if (window.I18N && window.I18N[this.lang] && window.I18N[this.lang][val]) {
+                        return window.I18N[this.lang][val];
+                    }
+                    // Fallback to English
+                    if (window.I18N && window.I18N['en'] && window.I18N['en'][val]) {
+                        return window.I18N['en'][val];
+                    }
+                }
+                
+                return val || '';
             },
             setLang(code) {
                 this.lang = code;
@@ -927,7 +936,7 @@
             this.approval = Math.min(100, Math.max(0, this.approval));
             this.money = parseFloat(this.money.toFixed(2));
 
-            this.addLog(`⚡ 应对危机: 选择了【${choice.text}】`);
+            this.addLog(this.t('log_crisis_response', this.getLoc(choice.text)));
             if (hiddenLog.length > 0) {
                  this.addLog(`   └ ${hiddenLog.join(', ')}`);
             }

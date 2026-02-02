@@ -155,6 +155,14 @@ window.I18N = {
         
         // --- NEW KEYS 2026-02-01 ---
         // Stats
+        approval_chance: "成功概率",
+        success: "成功结果",
+        fail: "失败代价",
+        approval: "支持率",
+        money: "资金",
+        chance: "概率",
+        effect: "效果",
+
         unemployment: "失业率",
         environment: "环境",
         education: "教育质量",
@@ -618,6 +626,28 @@ window.I18N = {
         dont_ask_again: "Don't ask again",
 
         // New Logic Logs
+        approval_chance: "Approval Chance",
+        success: "Success",
+        fail: "Fail",
+        approval: "Approval",
+        money: "Money",
+        chance: "Chance",
+        effect: "Effect",
+
+        unemployment: "Unemployment",
+        environment: "Environment",
+        education: "Education",
+        health: "Public Health",
+        efficiency: "Efficiency",
+        bubble: "Bubble Index",
+        dignity: "Nat'l Dignity",
+        rebellion_risk: "Rebellion Risk",
+        international_standing: "Global Standing",
+        industry: "Industry",
+        economy_stability: "Econ Stability",
+        productivity: "Productivity",
+        territory: "Territory",
+        
         log_idle_penalty: "📉 Public feels ignored: Approval -{0} due to inactivity.",
         log_hand_limit_penalty: "⚠️ Paperwork overload: Approval -{0} due to inefficiency.",
         log_black_swan: "🦢 Black Swan Event: Market reversed unexpectedly!",
@@ -1596,3 +1626,18 @@ window.I18N = {
 };
 
 window.I18N = I18N;
+
+// Merge separated data files
+(function() {
+    if (window.I18N) {
+        if (window.I18N_DATA_ZH && window.I18N.zh) {
+            Object.assign(window.I18N.zh, window.I18N_DATA_ZH);
+            // Clear memory
+            window.I18N_DATA_ZH = null;
+        }
+        if (window.I18N_DATA_EN && window.I18N.en) {
+            Object.assign(window.I18N.en, window.I18N_DATA_EN);
+            window.I18N_DATA_EN = null;
+        }
+    }
+})();
