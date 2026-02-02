@@ -800,6 +800,57 @@
                 return false;
             },
             
+            calculatePerformanceRating(type, preventReelection) {
+                let title = "eval_title_average";
+                let desc = "eval_desc_average";
+                const h = this.hiddenStats || {};
+
+                // 优先判定失败情况
+                if (type === 'fail' && this.month < 48 && !preventReelection) {
+                     title = "eval_title_incompetent";
+                     desc = "eval_desc_incompetent";
+                } 
+                // 被禁止连任 (独裁/政变等)
+                else if (preventReelection) {
+                     title = "eval_title_tyrant"; 
+                     desc = "eval_desc_tyrant";
+                     if ((h.stat_chaos || 0) > 20) {
+                         title = "eval_title_warmonger";
+                         desc = "eval_desc_warmonger";
+                     }
+                } 
+                // 特殊成就判定
+                else if (this.money > 500 || (this.money > 200 && (h.stat_corrupt || 0) > 10)) {
+                    title = "eval_title_plutocrat";
+                    desc = "eval_desc_plutocrat";
+                } else if ((h.stat_humanity || 0) > 20 || (this.approval > 85 && (h.stat_peace || 0) > 10)) {
+                    title = "eval_title_messiah";
+                    desc = "eval_desc_messiah";
+                } else if ((h.stat_tech || 0) > 20) {
+                    title = "eval_title_tech_lord";
+                    desc = "eval_desc_tech_lord";
+                } else if ((h.stat_military || 0) > 20 || (h.stat_power || 0) > 20) {
+                    title = "eval_title_tyrant";
+                    desc = "eval_desc_tyrant";
+                } else if ((h.stat_chaos || 0) > 20 || (h.stat_war || 0) > 20) {
+                    title = "eval_title_warmonger";
+                    desc = "eval_desc_warmonger";
+                } else if (this.approval > 80 && this.money > 50) {
+                     title = "eval_title_legend";
+                     desc = "eval_desc_legend";
+                } 
+                // 兜底判定
+                else if (this.approval < 30) {
+                     title = "eval_title_incompetent";
+                     desc = "eval_desc_incompetent";
+                } else if (this.approval < 50 && this.money < 50) {
+                    title = "eval_title_puppet";
+                    desc = "eval_desc_puppet";
+                }
+
+                return { title, desc };
+            },
+            
             showSummaryModal(title, outcomeMsg, type) {
                 // Compile Summary Data
                 const summary = [
@@ -847,11 +898,7 @@
                     }
                 }
 
-                if (type === 'fail' && this.month < 48) rating = "rating_terrible"; // Assassinated/Impeached
-                else if (preventReelection) rating = "rating_bad"; // Banned
-                else if (type === 'fail') rating = "rating_bad"; // Lost reelection
-                else if (this.money > 100 && this.approval > 80) rating = "rating_legendary";
-                else if (this.money > 50 || this.approval > 60) rating = "rating_great";
+                const perf = this.calculatePerformanceRating(type, preventReelection);
                 
                 // Construct Outcome Message
                 let msg = outcomeMsg;
@@ -867,7 +914,8 @@
                     isSummary: true, // Special flag for template
                     summaryData: summary,
                     hiddenData: hiddenSorted,
-                    rating: this.t(rating),
+                    rating: this.t(perf.title),
+                    ratingDesc: this.t(perf.desc),
                     banReason: preventReelection ? banReason : null, // Pass to template specifically
                     btnText: this.t('btn_restart'),
                     action: 'restart'
@@ -878,6 +926,7 @@
                  if (isSecondary && this.modal.actionSec) {
                      if (this.modal.actionSec === 'retire') {
                          this.gameOver("retire");
+                         return;
                      }
                      this.modal.show = false;
                      return;

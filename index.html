@@ -456,6 +456,7 @@
                 <div v-if="modal.rating" style="text-align: center; margin: 25px 0;">
                     <div style="font-size: 1em; color: #95a5a6; margin-bottom: 5px;">{{ t('stats_rating') }}</div>
                     <div style="font-size: 2.8em; color: var(--accent-gold); font-weight: 800; text-shadow: 0 0 15px rgba(241, 196, 15, 0.4); letter-spacing: 2px;">{{ modal.rating }}</div>
+                    <div v-if="modal.ratingDesc" style="font-size: 0.9em; color: #ecf0f1; margin-top: 10px; font-style: italic; opacity: 0.8; max-width: 90%; margin-left: auto; margin-right: auto;">{{ modal.ratingDesc }}</div>
                 </div>
 
                 <!-- Ban Reason / Special Status -->

@@ -1489,5 +1489,23 @@ Object.assign(window.I18N_DATA_EN || {}, {
     "weakness": "Weakness",
     "world_survives": "World Survives",
     "youth": "Youth",
-    "youth_vote": "Youth Vote"
-});
+    "youth_vote": "Youth Vote",
+    "eval_title_legend": "Legendary Leader",
+    "eval_title_tyrant": "Iron-Fisted Tyrant",
+    "eval_title_messiah": "Living Saint",
+    "eval_title_tech_lord": "Cyber Lord",
+    "eval_title_warmonger": "Warmonger",
+    "eval_title_plutocrat": "Plutocrat",
+    "eval_title_puppet": "Puppet President",
+    "eval_title_average": "Mediocre President",
+    "eval_title_incompetent": "Incompetent Leader",
+    "eval_desc_legend": "Your name will be etched in history forever. The people see you as a savior.",
+    "eval_desc_tyrant": "You kept the nation together, but the midnight knock on the door is now a common fear.",
+    "eval_desc_messiah": "In a chaotic world, you chose the hard path of kindness. A saint in politics.",
+    "eval_desc_tech_lord": "You ushered in a new era, though some wonder who really controls the algorithm.",
+    "eval_desc_warmonger": "The world burns, and you are crowned in ashes. Your legacy is built on bones.",
+    "eval_desc_plutocrat": "The country is rich, or rather, your friends are. Money never sleeps.",
+    "eval_desc_puppet": "You never really seemed in charge, drifting through your term.",
+    "eval_desc_average": "No major disasters, no major triumphs. A footnote in history.",
+    "eval_desc_incompetent": "Your term was a disaster, a fact even your supporters can't deny."
+};
